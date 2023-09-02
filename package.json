@@ -1,11 +1,7 @@
 {
-  "name": "main-api",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "git@github.com-university:UPB-Code-Labs/main-api.git"
-  },
-  "keywords": [],
-  "author": "Pedro Andrés Chaparro Quintero",
-  "license": "AGPL-3.0"
+  }
 }
