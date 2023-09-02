@@ -19,4 +19,7 @@ jobs:
         name: Changelog
         id: changelog
         with:
-          git-message: "[ci skip] chore(release): {version}"
+          git-user-nane: "[BOT] Pedro Andrés Chaparro Quintero"
+          git-user-email: "pedro.chaparro.2020@upb.edu.co"
+          git-message: "chore(release): {version}"
+          tag-prefix: ""
