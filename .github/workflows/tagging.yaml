@@ -1,0 +1,17 @@
+name: Tagging
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  tagging:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: TriPSs/conventional-changelog-action@v3
+        name: Changelog
+        id: changelog
+        with:
+          git-message: "[ci skip] chore(release): {version}"
