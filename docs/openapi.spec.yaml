@@ -1,0 +1,715 @@
+openapi: 3.0.3
+
+info:
+  title: CodeLabs Main API
+
+  license:
+    name: AGPL-3.0
+    url: https://github.com/upb-code-labs/main-api/blob/main/LICENSE
+
+  version: 0.1.0
+
+tags:
+  - name: Accounts
+  - name: Session
+  - name: Courses
+  - name: Laboratories
+
+paths:
+  # Teachers
+  /accounts/teachers:
+    post:
+      tags:
+        - Accounts
+      security:
+        - cookieAuth: []
+      description: Creates a new teacher account. Note that only account with "admin" role are able to create teacher accounts.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_account_req"
+      responses:
+        "201":
+          description: The account was created successfully.
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "409":
+          description: There is already another account with the same unique fields.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  # Students
+  /accounts/students:
+    post:
+      tags:
+        - Accounts
+      description: Creates a new student account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_account_req"
+      responses:
+        "201":
+          description: The account was created successfully.
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "409":
+          description: There is already another account with the same unique fields.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  # Session
+  /session/login:
+    post:
+      tags:
+        - Session
+      description: Login with the given credentials.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/credentials"
+      responses:
+        "200":
+          description: Credentials matched.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: "access_token=jwt; HttpOnly"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    allOf:
+                      - $ref: "#/components/schemas/public_user_fields"
+        "401":
+          description: Bad credentials.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /session/whoami:
+    get:
+      tags:
+        - Session
+      security:
+        - cookieAuth: []
+      description: Get the information of an user from an access token.
+      responses:
+        "200":
+          description: The given token was valid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    allOf:
+                      - $ref: "#/components/schemas/public_user_fields"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /session/logout:
+    delete:
+      tags:
+        - Session
+      security:
+        - cookieAuth: []
+      description: Send an expired session cookie from the server to replace and remove the client-side cookie.
+      responses:
+        "204":
+          description: A new cookie header was sent.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: "access_token=expired_jwt; Expires=now; HttpOnly"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  # Courses
+  /courses:
+    post:
+      tags:
+        - Courses
+      security:
+        - cookieAuth: []
+      description: Create a new course. Note that only accounts with "teacher" role are able to create new courses.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Estructuras de datos NRC 47158"
+      responses:
+        "201":
+          description: The course was created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/public_course_fields"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+    get:
+      tags:
+        - Courses
+      security:
+        - cookieAuth: []
+      description: Get the courses in which the user is enrolled as a teacher or student.
+      responses:
+        "200":
+          description: The courses were obtained successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  courses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/public_course_fields"
+        "400":
+          description: The given token isn't valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /courses/{course_uuid}/code:
+    get:
+      tags:
+        - Courses
+      security:
+        - cookieAuth: []
+      description: Get the invitation code of the given course. Note that the invitation code of the course can only be obtained by the teacher who created the course.
+      parameters:
+        - in: path
+          name: course_uuid
+          schema:
+            type: string
+            example: "cf1d83df-ff67-4b59-8a5e-d04c53709268"
+          required: true
+      responses:
+        "200":
+          description: The invitation code of the course was obtained.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: "AXH013"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "404":
+          description: No course with the given "course_uuid" was found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /courses/{course_uuid}/name:
+    put:
+      tags:
+        - Courses
+      security:
+        - cookieAuth: []
+      description: Update the name of the give course. Note that the course's name can only be updated by the teacher who created the course.
+      parameters:
+        - in: path
+          name: course_uuid
+          schema:
+            type: string
+            example: "cf1d83df-ff67-4b59-8a5e-d04c53709268"
+          required: true
+      responses:
+        "204":
+          description: The name was updated successfully.
+        "400":
+          description: The name is empty or isn't valid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  # Laboratories
+  /laboratories/{course_uuid}:
+    post:
+      tags:
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Creates a new laboratory for the given course.
+      parameters:
+        - in: path
+          name: course_uuid
+          schema:
+            type: string
+            example: "cf1d83df-ff67-4b59-8a5e-d04c53709268"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_laboratory_req"
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+    get:
+      tags:
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Get the laboratories for the given course.
+      parameters:
+        - in: path
+          name: course_uuid
+          schema:
+            type: string
+            example: "cf1d83df-ff67-4b59-8a5e-d04c53709268"
+          required: true
+      responses:
+        "200":
+          description: The laboratories were obtained successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  courses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/public_laboratory_fields"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /laboratories/{laboratory_uuid}/markdown_blocks:
+    post:
+      tags:
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Add a new markdown block to the given laboratory.
+      parameters:
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "e1887258-17ad-46d9-bd2b-35859c60bcbe"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order:
+                  type: number
+                  example: 1
+                markdown:
+                  type: string
+                  example: "# Markdown title"
+      responses:
+        "201":
+          description: The markdown block was created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    example: "1420737f-9a9f-43cd-ae2b-13646b4c28e0"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /laboratories/{laboratory_uuid}/test_blocks:
+    post:
+      tags:
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Add a new tests block to the given laboratory.
+      parameters:
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "e1887258-17ad-46d9-bd2b-35859c60bcbe"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_test_block_req"
+      responses:
+        "201":
+          description: The test block was created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /laboratories/markdown_blocks/{block_uuid}/content:
+    put:
+      tags:
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Update the content of the given markdown block.
+      parameters:
+        - in: path
+          name: block_uuid
+          schema:
+            type: string
+            example: "1420737f-9a9f-43cd-ae2b-13646b4c28e0"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                markdown:
+                  type: string
+                  example: "# Markdown title"
+      responses:
+        "204":
+          description: The content of the markdown block was updated.
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /laboratories/markdown_blocks/{block_uuid}:
+    delete:
+      tags:
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Deletes the given markdown block.
+      parameters:
+        - in: path
+          name: block_uuid
+          schema:
+            type: string
+            example: "1420737f-9a9f-43cd-ae2b-13646b4c28e0"
+          required: true
+      responses:
+        "204":
+          description: The markdown block was removed.
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /laboratories/test_blocks/{block_uuid}:
+    delete:
+      tags:
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Deletes the given test block.
+      parameters:
+        - in: path
+          name: block_uuid
+          schema:
+            type: string
+            example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
+          required: true
+      responses:
+        "204":
+          description: The test block was removed.
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+
+  schemas:
+    # Requests
+    create_account_req:
+      type: object
+      properties:
+        fullname:
+          type: string
+          example: "Pedro Chaparro"
+        email:
+          type: string
+          example: "pedrochaparro@upb.edu.co"
+        institutional_id:
+          type: string
+          example: "000371272"
+        password:
+          type: string
+          example: "password2023*/"
+
+    create_laboratory_req:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Lab 1. Lista simplemente enlazada"
+        opening_date:
+          type: string # To be defined
+          example: "04/09/2023 08:00"
+        closing_date:
+          type: string # To be defined
+          example: "10/09/2023 23:59"
+
+    create_test_block_req:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Test métodos de la lista simplemente enlazada"
+        language:
+          type: string
+          example: "Java"
+        file:
+          type: string
+          format: byte
+          example: "file.java" # T be defined
+
+    credentials:
+      type: object
+      properties:
+        institutional_id:
+          type: string
+          example: "000371272"
+        password:
+          type: string
+          example: "password2023*/"
+
+    # Responses
+    default_error_response:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Something went wrong. Try again later."
+
+    public_user_fields:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
+        fullname:
+          type: string
+          example: "Pedro Chaparro"
+
+    public_course_fields:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: "cf1d83df-ff67-4b59-8a5e-d04c53709268"
+        name:
+          type: string
+          example: "Estructuras de datos NRC 47158"
+        color:
+          type: string
+          description: "A randomly choosed hexadecimal color"
+          example: "#34d399"
+
+    public_laboratory_fields:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: "e1887258-17ad-46d9-bd2b-35859c60bcbe"
+        name:
+          type: string
+          example: "Lab 1. Lista simplemente enlazada"
+        opening_date:
+          type: string # To be defined
+          example: "04/09/2023 08:00"
+        closing_date:
+          type: string # To be defined
+          example: "10/09/2023 23:59"
