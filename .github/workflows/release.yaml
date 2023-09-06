@@ -68,7 +68,7 @@ jobs:
   binary:
     runs-on: ubuntu-22.04
     permissions:
-      contents: read
+      contents: write
       packages: write
     needs:
       - release
