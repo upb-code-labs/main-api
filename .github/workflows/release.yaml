@@ -27,7 +27,7 @@ jobs:
     needs:
       - version
     outputs:
-      release_url: ${{ steps.release.outputs.release_url }}
+      upload_url: ${{ steps.release.outputs.upload_url }}
     steps:
       - name: Release
         id: release
@@ -36,7 +36,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.version.outputs.version }}
-          release_name: Release ${{ needs.version.outputs.version }}
+          release_name: Release v${{ needs.version.outputs.version }}
           draft: false
           prerelease: false
 
@@ -68,7 +68,7 @@ jobs:
   binary:
     runs-on: ubuntu-22.04
     permissions:
-      contents: read
+      contents: write
       packages: write
     needs:
       - release
@@ -92,7 +92,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.release.outputs.release_url }}
+          upload_url: ${{ needs.release.outputs.upload_url }}
           asset_path: ./dist/${{ github.event.repository.name }}.linux.bin
           asset_name: ${{ github.event.repository.name }}.linux.bin
           asset_content_type: application/octet-stream

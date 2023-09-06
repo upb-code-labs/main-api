@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VERSION=$(
-  cat package.json | 
+  cat version.json | 
   grep version | 
   head -1 |                 
   awk -F: '{ print $2 }' |  # Split by ":" and get the second part
