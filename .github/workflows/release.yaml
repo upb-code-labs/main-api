@@ -27,7 +27,7 @@ jobs:
     needs:
       - version
     outputs:
-      release_url: ${{ steps.release.outputs.release_url }}
+      upload_url: ${{ steps.release.outputs.upload_url }}
     steps:
       - name: Release
         id: release
@@ -36,7 +36,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.version.outputs.version }}
-          release_name: Release ${{ needs.version.outputs.version }}
+          release_name: Release v${{ needs.version.outputs.version }}
           draft: false
           prerelease: false
 
