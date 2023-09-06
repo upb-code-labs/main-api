@@ -1,0 +1,32 @@
+name: Coverage
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  coverage:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      # Todo: Add the docker-compose step when the file is ready
+
+      - name: Clean and coverage
+        run: |
+          go clean -cache
+          go test -p 1 -count 1 -coverpkg ./... -coverprofile coverage.txt -covermode count ./...
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.txt
+          fail_ci_if_error: true
