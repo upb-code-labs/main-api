@@ -22,4 +22,4 @@ jobs:
           git-user-nane: "Pedro Andrés Chaparro Quintero"
           git-user-email: "pedro.chaparro.2020@upb.edu.co"
           git-message: "chore(release): {version}"
-          tag-prefix: ""
+          version-file: "version.json"
