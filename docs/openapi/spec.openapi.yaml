@@ -15,6 +15,7 @@ tags:
   - name: Courses
   - name: Laboratories
   - name: Blocks
+  - name: Rubrics
 
 paths:
   /accounts/admins:
@@ -752,6 +753,42 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
 
+  /laboratories/{laboratory_uuid}/rubric:
+    patch:
+      tags:
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Add a rubric to the given laboratory.
+      parameters:
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "e6341b0d-e959-4081-b30a-38b5beb31096"
+          required: true
+      responses:
+        "204":
+          description: The rubric was added to the given laboratory
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
   # Blocks
   /markdown_blocks/{block_uuid}:
     delete:
@@ -892,6 +929,304 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
 
+  # Rubrics
+  /rubrics:
+    post:
+      tags:
+        - Rubrics
+      security:
+        - cookieAuth: []
+      description: Creates a new rubric.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_rubric_req"
+      responses:
+        "201":
+          description: The rubric was created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    example: "d97700fc-0888-4bb5-8c86-2f229b8dd0af"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+    get:
+      tags:
+        - Rubrics
+      security:
+        - cookieAuth: []
+      description: Get the rubrics created by the teacher.
+      responses:
+        "200":
+          description: The rubrics were listed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rubrics:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/public_rubric_fields"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /rubrics/{rubric_uuid}:
+    get:
+      tags:
+        - Rubrics
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: rubric_uuid
+          schema:
+            type: string
+            example: "d97700fc-0888-4bb5-8c86-2f229b8dd0af"
+          required: true
+      description: Get content of the given rubric.
+      responses:
+        "200":
+          description: The content of the rubric was uptained.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rubric"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /rubrics/{rubric_uuid}/objectives:
+    post:
+      tags:
+        - Rubrics
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: rubric_uuid
+          schema:
+            type: string
+            example: "d97700fc-0888-4bb5-8c86-2f229b8dd0af"
+          required: true
+      description: Add an objective to the given rubric.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_objective_req"
+      responses:
+        "201":
+          description: The objective was added to the rubric.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    example: "ba982a19-5f9a-4ebd-8b3c-66a6129d0327"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /rubrics/{objective_uuid}/criteria:
+    post:
+      tags:
+        - Rubrics
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: objective_uuid
+          schema:
+            type: string
+            example: "ba982a19-5f9a-4ebd-8b3c-66a6129d0327"
+          required: true
+      description: Add a criteria to the given objective.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_criteria_req"
+      responses:
+        "201":
+          description: The criteria was added to the objective.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                    example: "ba982a19-5f9a-4ebd-8b3c-66a6129d0327"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /rubrics/objectives/{objective_uuid}:
+    put:
+      tags:
+        - Rubrics
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: objective_uuid
+          schema:
+            type: string
+            example: "ba982a19-5f9a-4ebd-8b3c-66a6129d0327"
+          required: true
+      description: Updates an objective.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_objective_req"
+      responses:
+        "204":
+          description: The objective was updated.
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+
+  /rubrics/criteria/{criteria_uuid}:
+    put:
+      tags:
+        - Rubrics
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: criteria_uuid
+          schema:
+            type: string
+            example: "ba982a19-5f9a-4ebd-8b3c-66a6129d0327"
+          required: true
+      description: Updates a criteria.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_criteria_req"
+      responses:
+        "204":
+          description: The criteria was updated.
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
 components:
   securitySchemes:
     cookieAuth:
@@ -953,6 +1288,30 @@ components:
           type: string
           format: byte
           example: "file.java" # T be defined
+
+    create_rubric_req:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Rúbrica Estructuras de Datos"
+
+    create_objective_req:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Desarrollo de métodos para la estructura de datos planteada"
+
+    create_criteria_req:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "Se evidencia desarrollo de, al menos, el 75% de los métodos solicitados para la estructura de datos planteada"
+        grade:
+          type: number
+          example: 0.20
 
     credentials:
       type: object
@@ -1017,3 +1376,51 @@ components:
         closing_date:
           type: string # To be defined
           example: "10/09/2023 23:59"
+
+    public_rubric_fields:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: "d97700fc-0888-4bb5-8c86-2f229b8dd0af"
+        name:
+          type: string
+          example: "Rúbrica Estructuras de Datos"
+
+    rubric:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Rúbrica Estructuras de Datos"
+        objectives:
+          type: array
+          items:
+            $ref: "#/components/schemas/rubric_objective"
+
+    rubric_objective:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: "ba982a19-5f9a-4ebd-8b3c-66a6129d0327"
+        name:
+          type: string
+          example: "Desarrollo de la Estructura de Datos planteada"
+        criteria:
+          type: array
+          items:
+            $ref: "#/components/schemas/rubric_criteria"
+
+    rubric_criteria:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: "1f494edc-7649-44ed-afa1-816dede2854a"
+        description:
+          type: string
+          example: "Desarrolló la totaliadad de métodos para la estructura de datos planteada"
+        value:
+          type: number
+          example: 0.25
