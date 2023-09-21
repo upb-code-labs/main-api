@@ -124,3 +124,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_grade_criteria ON grade_has_criteria(grade
 
 -- ### Search indexes
 CREATE INDEX IF NOT EXISTS idx_users_fullname ON users(full_name);
+
+-- ## Data
+-- ### Roles
+INSERT INTO
+  roles (name)
+VALUES
+  ('admin'),
+  ('teacher'),
+  ('student');

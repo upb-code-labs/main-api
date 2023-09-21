@@ -3,13 +3,14 @@ package infrastructure
 import (
 	"log"
 
+	"github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 func RunMigrations() {
-	driver, err := postgres.WithInstance(GetPostgresConnection(), &postgres.Config{})
+	driver, err := postgres.WithInstance(infrastructure.GetPostgresConnection(), &postgres.Config{})
 	if err != nil {
 		log.Fatal(err.Error())
 	}
