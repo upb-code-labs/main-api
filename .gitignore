@@ -4,5 +4,6 @@
 # Docker volumes
 volumes/
 
-# Temp files
+# Development tools
+.air.toml
 **/tmp
