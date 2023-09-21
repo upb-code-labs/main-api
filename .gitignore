@@ -1,2 +1,8 @@
 # Editor files
 **/.vscode
+
+# Docker volumes
+volumes/
+
+# Temp files
+**/tmp
