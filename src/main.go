@@ -1,18 +1,19 @@
 package main
 
 import (
-	"github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
+	config "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
+	shared "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 )
 
 func main() {
 	// Parse environment variables
-	infrastructure.GetEnvironment()
+	shared.GetEnvironment()
 
 	// Connect to database and run migrations
-	infrastructure.GetPostgresConnection()
-	defer infrastructure.ClosePostgresConnection()
-	infrastructure.RunMigrations()
+	shared.GetPostgresConnection()
+	defer shared.ClosePostgresConnection()
+	config.RunMigrations()
 
 	// Start HTTP server
-	infrastructure.StartHTTPServer()
+	config.StartHTTPServer()
 }
