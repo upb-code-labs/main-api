@@ -38,6 +38,24 @@ func (controllers *SessionControllers) HandleLogin(c *gin.Context) {
 		return
 	}
 
+	// Set the cookie
+	cookieName := "token"
+	cookieSecondsTTL := infrastructure.GetEnvironment().JwtExpirationHours * 60 * 60
+	cookieDomain := ""
+	cookiePath := "/"
+	cookieSecure := false
+	cookieHttpOnly := true
+
+	c.SetCookie(
+		cookieName,
+		session.Token,
+		cookieSecondsTTL,
+		cookiePath,
+		cookieDomain,
+		cookieSecure,
+		cookieHttpOnly,
+	)
+
 	// Return the response
 	c.JSON(200, gin.H{
 		"user": gin.H{
@@ -45,6 +63,5 @@ func (controllers *SessionControllers) HandleLogin(c *gin.Context) {
 			"full_name": session.User.FullName,
 			"role":      session.User.Role,
 		},
-		"token": session.Token,
 	})
 }
