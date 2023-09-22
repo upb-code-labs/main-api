@@ -1,2 +1,10 @@
 # Editor files
 **/.vscode
+
+# Docker volumes
+volumes/
+
+# Development tools
+.air.toml
+**/tmp
+coverage.*
