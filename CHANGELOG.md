@@ -1,3 +1,12 @@
+# [0.2.0](https://github.com/upb-code-labs/main-api/compare/v0.1.4...v0.2.0) (2023-09-22)
+
+
+### Features
+
+* Register admin ([#30](https://github.com/upb-code-labs/main-api/issues/30)) ([52edddd](https://github.com/upb-code-labs/main-api/commit/52edddd29b63809e07ad4002f9fe85cdfe7c37eb))
+
+
+
 ## [0.1.4](https://github.com/upb-code-labs/main-api/compare/v0.1.3...v0.1.4) (2023-09-22)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **cd:** Release development docker container ([#26](https://github.com/upb-code-labs/main-api/issues/26)) ([d0baca9](https://github.com/upb-code-labs/main-api/commit/d0baca97373b6fa03ddd4dd8495b0ae160431365))
-
-
-
-# [0.1.0](https://github.com/upb-code-labs/main-api/compare/v0.0.2...v0.1.0) (2023-09-22)
-
-
-### Features
-
-* Register student ([#25](https://github.com/upb-code-labs/main-api/issues/25)) ([b79e305](https://github.com/upb-code-labs/main-api/commit/b79e3051afd96a1c2ebdf3fa76f631232aa6e45f))
 
 
 
