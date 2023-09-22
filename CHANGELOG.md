@@ -1,3 +1,12 @@
+## [0.1.2](https://github.com/upb-code-labs/main-api/compare/v0.1.1...v0.1.2) (2023-09-22)
+
+
+### Bug Fixes
+
+* **cd:** Run package pipeline when a tag is pushed ([#27](https://github.com/upb-code-labs/main-api/issues/27)) ([2f89bc2](https://github.com/upb-code-labs/main-api/commit/2f89bc2270cf9ecd5c6ac4af0356eeafaae8895b))
+
+
+
 ## [0.1.1](https://github.com/upb-code-labs/main-api/compare/v0.1.0...v0.1.1) (2023-09-22)
 
 
