@@ -6,7 +6,7 @@ type RegisterUserRequest struct {
 	FullName        string `json:"full_name" validate:"required,min=4,max=255"`
 	Email           string `json:"email" validate:"required,email,institutional_email"`
 	InstitutionalId string `json:"institutional_id" validate:"required,numeric,min=6,max=9"`
-	Password        string `json:"password" validate:"required,min=8,max=255"`
+	Password        string `json:"password" validate:"required,min=8,max=255,secure_password"`
 }
 
 func (request *RegisterUserRequest) ToDTO() *dtos.RegisterUserDTO {
