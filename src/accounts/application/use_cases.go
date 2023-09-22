@@ -43,3 +43,25 @@ func (useCases *AccountsUseCases) RegisterStudent(dto dtos.RegisterUserDTO) erro
 	err = useCases.AccountsRepository.SaveStudent(dto)
 	return err
 }
+
+func (useCases *AccountsUseCases) RegisterAdmin(dto dtos.RegisterUserDTO) error {
+	// Check if email is already in use
+	existingUser, err := useCases.AccountsRepository.GetUserByEmail(dto.Email)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+	if existingUser != nil {
+		return errors.EmailAlreadyInUseError{Email: dto.Email}
+	}
+
+	// Hash password
+	hash, err := useCases.PasswordsHasher.HashPassword(dto.Password)
+	if err != nil {
+		return err
+	}
+	dto.Password = hash
+
+	// Save user
+	err = useCases.AccountsRepository.SaveAdmin(dto)
+	return err
+}

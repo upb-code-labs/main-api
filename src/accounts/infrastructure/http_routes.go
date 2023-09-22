@@ -18,4 +18,5 @@ func StartAccountsRoutes(g *gin.RouterGroup) {
 	}
 
 	accountsGroup.POST("/students", controller.HandleRegisterStudent)
+	accountsGroup.POST("/admins", controller.HandleRegisterAdmin)
 }

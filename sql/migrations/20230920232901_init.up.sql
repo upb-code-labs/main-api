@@ -10,7 +10,7 @@ CREATE TYPE USER_ROLES AS ENUM ('admin', 'teacher', 'student');
 CREATE TABLE IF NOT EXISTS users (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "role" USER_ROLES NOT NULL DEFAULT 'student',
-  "institutional_id" VARCHAR(16) NOT NULL UNIQUE,
+  "institutional_id" VARCHAR(16) NULL UNIQUE,
   "email" VARCHAR(64) NOT NULL UNIQUE,
   "full_name" VARCHAR NOT NULL,
   "password_hash" VARCHAR NOT NULL

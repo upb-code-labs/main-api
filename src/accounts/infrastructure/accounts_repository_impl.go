@@ -52,6 +52,31 @@ func (repository *AccountsPostgresRepository) SaveStudent(dto dtos.RegisterUserD
 	return nil
 }
 
+func (repository *AccountsPostgresRepository) SaveAdmin(dto dtos.RegisterUserDTO) error {
+	// Save user
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		INSERT INTO users (role, email, full_name, password_hash)
+		VALUES ($1, $2, $3, $4)
+	`
+
+	_, err := repository.Connection.ExecContext(
+		ctx,
+		query,
+		"admin",
+		dto.Email,
+		dto.FullName,
+		dto.Password,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repository *AccountsPostgresRepository) GetUserByEmail(email string) (*entities.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -69,16 +94,22 @@ func (repository *AccountsPostgresRepository) GetUserByEmail(email string) (*ent
 	}
 
 	var user entities.User
+	var userInstitutionalId sql.NullString
 	err := row.Scan(
 		&user.UUID,
 		&user.Role,
-		&user.InstitutionalId,
+		&userInstitutionalId,
 		&user.Email,
 		&user.FullName,
 		&user.PasswordHash,
 	)
+
 	if err != nil {
 		return nil, err
+	}
+
+	if userInstitutionalId.Valid {
+		user.InstitutionalId = userInstitutionalId.String
 	}
 
 	return &user, nil
@@ -101,16 +132,22 @@ func (repository *AccountsPostgresRepository) GetUserByInstitutionalId(id string
 	}
 
 	var user entities.User
+	var userInstitutionalId sql.NullString
 	err := row.Scan(
 		&user.UUID,
 		&user.Role,
-		&user.InstitutionalId,
+		&userInstitutionalId,
 		&user.Email,
 		&user.FullName,
 		&user.PasswordHash,
 	)
+
 	if err != nil {
 		return nil, err
+	}
+
+	if userInstitutionalId.Valid {
+		user.InstitutionalId = userInstitutionalId.String
 	}
 
 	return &user, nil
