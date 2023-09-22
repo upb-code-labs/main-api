@@ -60,3 +60,43 @@ func TestRegisterStudent(t *testing.T) {
 		c.Equal(testCase.ExpectedStatusCode, w.Code)
 	}
 }
+
+func TestRegisterAdmin(t *testing.T) {
+	c := require.New(t)
+
+	// Register route
+	router.POST("/accounts/admins", accountsControllers.HandleRegisterAdmin)
+
+	testCases := []TestCase{
+		{
+			Payload: map[string]interface{}{
+				"full_name": "John Doe",
+				"email":     "Not an email",
+				"password":  "short",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			Payload: map[string]interface{}{
+				"full_name": "John Doe",
+				"email":     "john.doe@gmail.com",
+				"password":  "john/password/2023",
+			},
+			ExpectedStatusCode: http.StatusCreated,
+		},
+		{
+			Payload: map[string]interface{}{
+				"full_name": "John Doe",
+				"email":     "john.doe@gmail.com",
+				"password":  "john/password/2023",
+			},
+			ExpectedStatusCode: http.StatusConflict,
+		},
+	}
+
+	for _, testCase := range testCases {
+		w, r := PerformRequest("POST", "/accounts/admins", testCase.Payload)
+		router.ServeHTTP(w, r)
+		c.Equal(testCase.ExpectedStatusCode, w.Code)
+	}
+}
