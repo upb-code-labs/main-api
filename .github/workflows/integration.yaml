@@ -52,4 +52,7 @@ jobs:
         run: docker-compose up -d
 
       - name: Test
-        run: go test __tests__/integration/*.go
+        run: | 
+          export DB_MIGRATIONS_PATH=$(pwd)/sql/migrations
+          go clean -cache
+          go test __tests__/integration/*.go
