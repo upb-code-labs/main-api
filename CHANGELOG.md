@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/upb-code-labs/main-api/compare/v0.2.0...v0.3.0) (2023-09-22)
+
+
+### Features
+
+* **session:** Login endpoint ([#31](https://github.com/upb-code-labs/main-api/issues/31)) ([f49dbb3](https://github.com/upb-code-labs/main-api/commit/f49dbb3ab5833834b9a2de123719e7f50dad27ad))
+
+
+
 # [0.2.0](https://github.com/upb-code-labs/main-api/compare/v0.1.4...v0.2.0) (2023-09-22)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **cd:** Run package pipeline when a tag is pushed ([#27](https://github.com/upb-code-labs/main-api/issues/27)) ([2f89bc2](https://github.com/upb-code-labs/main-api/commit/2f89bc2270cf9ecd5c6ac4af0356eeafaae8895b))
-
-
-
-## [0.1.1](https://github.com/upb-code-labs/main-api/compare/v0.1.0...v0.1.1) (2023-09-22)
-
-
-### Bug Fixes
-
-* **cd:** Release development docker container ([#26](https://github.com/upb-code-labs/main-api/issues/26)) ([d0baca9](https://github.com/upb-code-labs/main-api/commit/d0baca97373b6fa03ddd4dd8495b0ae160431365))
 
 
 
