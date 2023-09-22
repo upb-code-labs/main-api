@@ -22,7 +22,7 @@ jobs:
       - name: Clean and coverage
         run: |
           go clean -cache
-          go test -p 1 -count 1 -coverpkg ./... -coverprofile coverage.txt -covermode count ./...
+          go test -count 1 -coverpkg ./... -coverprofile coverage.txt __tests__/integration/*.go
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
