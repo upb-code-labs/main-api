@@ -2,7 +2,7 @@ package entities
 
 type User struct {
 	UUID            string
-	RoleUUID        string
+	Role            string
 	FullName        string
 	Email           string
 	InstitutionalId string
