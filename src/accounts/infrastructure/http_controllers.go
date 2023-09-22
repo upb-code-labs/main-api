@@ -40,3 +40,33 @@ func (controller *AccountsController) HandleRegisterStudent(c *gin.Context) {
 
 	c.Status(201)
 }
+
+func (controller *AccountsController) HandleRegisterAdmin(c *gin.Context) {
+	// Parse request body
+	var request requests.RegisterAdminRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(400, gin.H{
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(400, gin.H{
+			"message": "Invalid request body",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Register admin
+	dto := request.ToDTO()
+	err := controller.UseCases.RegisterAdmin(*dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(201)
+}
