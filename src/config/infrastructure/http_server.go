@@ -2,12 +2,14 @@ package infrastructure
 
 import (
 	accounts "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure"
+	session "github.com/UPB-Code-Labs/main-api/src/session/infrastructure"
 	shared "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
 
 var routesGroups = []func(*gin.RouterGroup){
 	accounts.StartAccountsRoutes,
+	session.StartSessionRoutes,
 }
 
 func StartHTTPServer() {
