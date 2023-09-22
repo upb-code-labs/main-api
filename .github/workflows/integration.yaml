@@ -47,12 +47,11 @@ jobs:
         with:
           go-version: "1.21"
 
-      # Todo: Add the docker-compose step when the file is ready
       - name: Setup Docker
         run: docker-compose up -d
 
       - name: Test
         run: | 
-          export DB_MIGRATIONS_PATH=$(pwd)/sql/migrations
+          export DB_MIGRATIONS_PATH=file://$(pwd)/sql/migrations
           go clean -cache
           go test __tests__/integration/*.go

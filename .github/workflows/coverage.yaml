@@ -17,12 +17,14 @@ jobs:
         with:
           go-version: "1.21"
 
-      # Todo: Add the docker-compose step when the file is ready
+      - name: Setup Docker
+        run: docker-compose up -d
 
       - name: Clean and coverage
         run: |
+          export DB_MIGRATIONS_PATH=file://$(pwd)/sql/migrations
           go clean -cache
-          go test -count 1 -coverpkg ./... -coverprofile coverage.txt __tests__/integration/*.go
+          go test -coverpkg ./... -coverprofile coverage.txt __tests__/integration/*.go
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
