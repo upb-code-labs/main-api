@@ -11,6 +11,8 @@ import (
 	accounts_application "github.com/UPB-Code-Labs/main-api/src/accounts/application"
 	accounts_infrastructure "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure"
 	config_infrastructure "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
+	session_application "github.com/UPB-Code-Labs/main-api/src/session/application"
+	session_infrastructure "github.com/UPB-Code-Labs/main-api/src/session/infrastructure"
 	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
@@ -19,12 +21,8 @@ import (
 var (
 	router              *gin.Engine
 	accountsControllers *accounts_infrastructure.AccountsController
+	sessionControllers  *session_infrastructure.SessionControllers
 )
-
-type TestCase struct {
-	Payload            map[string]interface{}
-	ExpectedStatusCode int
-}
 
 // --- Setup ---
 func TestMain(m *testing.M) {
@@ -50,6 +48,7 @@ func setupRouter() {
 
 func setupControllers() {
 	setupAccountsControllers()
+	setupSessionControllers()
 }
 
 func setupAccountsControllers() {
@@ -65,8 +64,22 @@ func setupAccountsControllers() {
 	accountsControllers = controllers
 }
 
+func setupSessionControllers() {
+	useCases := session_application.SessionUseCases{
+		AccountsRepository: accounts_infrastructure.GetAccountsPgRepository(),
+		PasswordHasher:     accounts_infrastructure.GetArgon2PasswordsHasher(),
+		TokenHandler:       shared_infrastructure.GetJwtTokenHandler(),
+	}
+
+	controllers := &session_infrastructure.SessionControllers{
+		UseCases: &useCases,
+	}
+
+	sessionControllers = controllers
+}
+
 // --- Helpers ---
-func PerformRequest(method, endpoint string, payload interface{}) (*httptest.ResponseRecorder, *http.Request) {
+func PrepareRequest(method, endpoint string, payload interface{}) (*httptest.ResponseRecorder, *http.Request) {
 	var req *http.Request
 
 	if payload != nil {
@@ -79,4 +92,10 @@ func PerformRequest(method, endpoint string, payload interface{}) (*httptest.Res
 
 	w := httptest.NewRecorder()
 	return w, req
+}
+
+func ParseJsonResponse(buffer *bytes.Buffer) map[string]interface{} {
+	var response map[string]interface{}
+	json.Unmarshal(buffer.Bytes(), &response)
+	return response
 }

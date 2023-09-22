@@ -6,6 +6,7 @@ require (
 	github.com/alexedwards/argon2id v0.0.0-20230305115115-4b3c3280a736
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/validator/v10 v10.15.4
+	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.9
