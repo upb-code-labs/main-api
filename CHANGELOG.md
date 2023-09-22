@@ -1,3 +1,12 @@
+## [0.1.1](https://github.com/upb-code-labs/main-api/compare/v0.1.0...v0.1.1) (2023-09-22)
+
+
+### Bug Fixes
+
+* **cd:** Release development docker container ([#26](https://github.com/upb-code-labs/main-api/issues/26)) ([d0baca9](https://github.com/upb-code-labs/main-api/commit/d0baca97373b6fa03ddd4dd8495b0ae160431365))
+
+
+
 # [0.1.0](https://github.com/upb-code-labs/main-api/compare/v0.0.2...v0.1.0) (2023-09-22)
 
 
