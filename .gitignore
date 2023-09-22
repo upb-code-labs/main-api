@@ -8,3 +8,6 @@ volumes/
 .air.toml
 **/tmp
 coverage.*
+
+# Build
+dist/
