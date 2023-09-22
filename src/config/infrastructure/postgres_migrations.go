@@ -15,8 +15,9 @@ func RunMigrations() {
 		log.Fatal(err.Error())
 	}
 
+	migrationFilesPath := infrastructure.GetEnvironment().DbMigrationsPath
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://sql/migrations",
+		migrationFilesPath,
 		"postgres",
 		driver,
 	)

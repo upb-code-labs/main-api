@@ -7,7 +7,8 @@ import (
 )
 
 type Environment struct {
-	DbConnectionString string `default:"postgres://postgres:postgres@localhost:5432/codelabs?sslmode=disable"`
+	DbConnectionString string `split_words:"true" default:"postgres://postgres:postgres@localhost:5432/codelabs?sslmode=disable"`
+	DbMigrationsPath   string `split_words:"true" default:"file://sql/migrations"`
 }
 
 var environment *Environment

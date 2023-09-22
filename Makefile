@@ -12,3 +12,7 @@ delete_pakage:
 	cd $(WORDIR); \
 	rm -rf src/$$name; \
 	rm -rf tests/$$name;
+
+coverage:
+	go test -coverpkg ./... -coverprofile coverage.txt __tests__/integration/*.go; \
+	go tool cover -html=coverage.txt -o coverage.html; 
