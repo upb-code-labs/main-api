@@ -26,57 +26,20 @@ func GetAccountsPgRepository() *AccountsPostgresRepository {
 	return accountsRepositoryInstance
 }
 
-var rolesCache map[string]string = make(map[string]string)
-
-func (repository *AccountsPostgresRepository) getRoleUUID(role string) (string, error) {
-	if _, ok := rolesCache[role]; !ok {
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-		defer cancel()
-
-		query := `
-			SELECT id
-			FROM roles
-			WHERE name = $1
-			LIMIT 1
-		`
-
-		row := repository.Connection.QueryRowContext(ctx, query, role)
-		if row.Err() != nil {
-			return "", row.Err()
-		}
-
-		var uuid string
-		err := row.Scan(&uuid)
-		if err != nil {
-			return "", err
-		}
-
-		rolesCache[role] = uuid
-	}
-
-	return rolesCache[role], nil
-}
-
 func (repository *AccountsPostgresRepository) SaveStudent(dto dtos.RegisterUserDTO) error {
-	// Get role UUID
-	studentRole, err := repository.getRoleUUID("student")
-	if err != nil {
-		return err
-	}
-
 	// Save user
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	query := `
-		INSERT INTO users (role_id, institutional_id, email, full_name, password_hash)
+		INSERT INTO users (role, institutional_id, email, full_name, password_hash)
 		VALUES ($1, $2, $3, $4, $5)
 	`
 
-	_, err = repository.Connection.ExecContext(
+	_, err := repository.Connection.ExecContext(
 		ctx,
 		query,
-		studentRole,
+		"student",
 		dto.InstitutionalId,
 		dto.Email,
 		dto.FullName,
@@ -94,7 +57,7 @@ func (repository *AccountsPostgresRepository) GetUserByEmail(email string) (*ent
 	defer cancel()
 
 	query := `
-		SELECT id, role_id, institutional_id, email, full_name, password_hash
+		SELECT id, role, institutional_id, email, full_name, password_hash
 		FROM users
 		WHERE email = $1
 		LIMIT 1
@@ -108,7 +71,7 @@ func (repository *AccountsPostgresRepository) GetUserByEmail(email string) (*ent
 	var user entities.User
 	err := row.Scan(
 		&user.UUID,
-		&user.RoleUUID,
+		&user.Role,
 		&user.InstitutionalId,
 		&user.Email,
 		&user.FullName,
@@ -126,7 +89,7 @@ func (repository *AccountsPostgresRepository) GetUserByInstitutionalId(id string
 	defer cancel()
 
 	query := `
-		SELECT id, role_id, institutional_id, email, full_name, password_hash
+		SELECT id, role, institutional_id, email, full_name, password_hash
 		FROM users
 		WHERE institutional_id = $1
 		LIMIT 1
@@ -140,7 +103,7 @@ func (repository *AccountsPostgresRepository) GetUserByInstitutionalId(id string
 	var user entities.User
 	err := row.Scan(
 		&user.UUID,
-		&user.RoleUUID,
+		&user.Role,
 		&user.InstitutionalId,
 		&user.Email,
 		&user.FullName,

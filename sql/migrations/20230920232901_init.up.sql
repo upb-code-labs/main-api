@@ -1,15 +1,15 @@
 -- ## Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- ## Tables 
-CREATE TABLE IF NOT EXISTS roles (
-  "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "name" VARCHAR(32) NOT NULL UNIQUE
-);
+-- ## Types
+CREATE TYPE SUBMISSION_STATUS AS ENUM ('pending', 'running', 'ready');
 
+CREATE TYPE USER_ROLES AS ENUM ('admin', 'teacher', 'student');
+
+-- ## Tables 
 CREATE TABLE IF NOT EXISTS users (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "role_id" UUID NOT NULL REFERENCES roles(id),
+  "role" USER_ROLES NOT NULL DEFAULT 'student',
   "institutional_id" VARCHAR(16) NOT NULL UNIQUE,
   "email" VARCHAR(64) NOT NULL UNIQUE,
   "full_name" VARCHAR NOT NULL,
@@ -86,8 +86,6 @@ CREATE TABLE IF NOT EXISTS test_blocks (
   "order" SMALLINT NOT NULL
 );
 
-CREATE TYPE SUBMISSION_STATUS AS ENUM ('pending', 'running', 'ready');
-
 CREATE TABLE IF NOT EXISTS submissions (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "test_id" UUID NOT NULL REFERENCES test_blocks(id),
@@ -124,12 +122,3 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_grade_criteria ON grade_has_criteria(grade
 
 -- ### Search indexes
 CREATE INDEX IF NOT EXISTS idx_users_fullname ON users(full_name);
-
--- ## Data
--- ### Roles
-INSERT INTO
-  roles (name)
-VALUES
-  ('admin'),
-  ('teacher'),
-  ('student');
