@@ -1,4 +1,13 @@
-## 0.0.2 (2023-09-20)
+# [0.1.0](https://github.com/upb-code-labs/main-api/compare/v0.0.2...v0.1.0) (2023-09-22)
+
+
+### Features
+
+* Register student ([#25](https://github.com/upb-code-labs/main-api/issues/25)) ([b79e305](https://github.com/upb-code-labs/main-api/commit/b79e3051afd96a1c2ebdf3fa76f631232aa6e45f))
+
+
+
+## [0.0.2](https://github.com/upb-code-labs/main-api/compare/d6d6b028d79d2be20ce778de5545f88af492c508...v0.0.2) (2023-09-20)
 
 
 ### Bug Fixes
