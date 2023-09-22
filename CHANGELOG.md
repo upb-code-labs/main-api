@@ -1,3 +1,12 @@
+## [0.1.3](https://github.com/upb-code-labs/main-api/compare/v0.1.2...v0.1.3) (2023-09-22)
+
+
+### Bug Fixes
+
+* **cd:** Update tags filter ([6609c90](https://github.com/upb-code-labs/main-api/commit/6609c90b5abec1309a555d87a1bf27a8320f8404))
+
+
+
 ## [0.1.2](https://github.com/upb-code-labs/main-api/compare/v0.1.1...v0.1.2) (2023-09-22)
 
 
