@@ -10,6 +10,7 @@ import (
 
 	accounts_application "github.com/UPB-Code-Labs/main-api/src/accounts/application"
 	accounts_infrastructure "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure"
+	"github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/requests"
 	config_infrastructure "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
 	session_application "github.com/UPB-Code-Labs/main-api/src/session/application"
 	session_infrastructure "github.com/UPB-Code-Labs/main-api/src/session/infrastructure"
@@ -22,6 +23,15 @@ var (
 	router              *gin.Engine
 	accountsControllers *accounts_infrastructure.AccountsController
 	sessionControllers  *session_infrastructure.SessionControllers
+
+	registeredStudentEmail string
+	registeredStudentPass  string
+
+	registeredAdminEmail string
+	registeredAdminPass  string
+
+	registeredTeacherEmail string
+	registeredTeacherPass  string
 )
 
 // --- Setup ---
@@ -31,6 +41,7 @@ func TestMain(m *testing.M) {
 	setupRouter()
 	setupControllers()
 	registerRoutes()
+	registerBaseAccounts()
 	defer shared_infrastructure.ClosePostgresConnection()
 
 	// Run tests
@@ -80,18 +91,85 @@ func setupSessionControllers() {
 	sessionControllers = controllers
 }
 
+func registerBaseAccounts() {
+	registerBaseStudent()
+	registerBaseAdmin()
+	registerBaseTeacher()
+}
+
+func registerBaseStudent() {
+	studentEmail := "greta.mann.2020@upb.edu.co"
+	studentPassword := "greta/password/2023"
+
+	code := RegisterStudent(requests.RegisterUserRequest{
+		FullName:        "Greta Mann",
+		Email:           studentEmail,
+		InstitutionalId: "000123456",
+		Password:        studentPassword,
+	})
+	if code != http.StatusCreated {
+		panic("Error registering base student")
+	}
+
+	registeredStudentEmail = studentEmail
+	registeredStudentPass = studentPassword
+}
+
+func registerBaseAdmin() {
+	adminEmail := "arjan.coffey@gmail.com"
+	adminPassword := "arjan/password/2023"
+
+	code := RegisterAdminWithoutAuth(requests.RegisterAdminRequest{
+		FullName: "Arjan Coffey",
+		Email:    adminEmail,
+		Password: adminPassword,
+	})
+	if code != http.StatusCreated {
+		panic("Error registering base admin")
+	}
+
+	registeredAdminEmail = adminEmail
+	registeredAdminPass = adminPassword
+}
+
+func registerBaseTeacher() {
+	teacherEmail := "judy.arroyo.2020@upb.edu.co"
+	teacherPassword := "judy/password/2023"
+
+	code := RegisterTeacherWithoutAuth(requests.RegisterTeacherRequest{
+		FullName: "Judy Arroyo",
+		Email:    teacherEmail,
+		Password: teacherPassword,
+	})
+	if code != http.StatusCreated {
+		panic("Error registering base teacher")
+	}
+
+	registeredTeacherEmail = teacherEmail
+	registeredTeacherPass = teacherPassword
+}
+
 func registerRoutes() {
 	// Session
 	router.POST("/session/login", sessionControllers.HandleLogin)
 
 	// Accounts
 	router.POST("/accounts/students", accountsControllers.HandleRegisterStudent)
+
 	router.POST("/accounts/admins/no_auth", accountsControllers.HandleRegisterAdmin)
 	router.POST(
 		"/accounts/admins",
 		shared_infrastructure.WithAuthenticationMiddleware(),
 		shared_infrastructure.WithAuthorizationMiddleware("admin"),
 		accountsControllers.HandleRegisterAdmin,
+	)
+
+	router.POST("/accounts/teachers/no_auth", accountsControllers.HandleRegisterTeacher)
+	router.POST(
+		"/accounts/teachers",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware("admin"),
+		accountsControllers.HandleRegisterTeacher,
 	)
 }
 
