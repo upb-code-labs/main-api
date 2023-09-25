@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
   "institutional_id" VARCHAR(16) NULL UNIQUE,
   "email" VARCHAR(64) NOT NULL UNIQUE,
   "full_name" VARCHAR NOT NULL,
-  "password_hash" VARCHAR NOT NULL
+  "password_hash" VARCHAR NOT NULL,
+  "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS colors(
