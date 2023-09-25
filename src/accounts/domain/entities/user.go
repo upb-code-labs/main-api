@@ -7,4 +7,5 @@ type User struct {
 	Email           string
 	InstitutionalId string
 	PasswordHash    string
+	CreatedAt       string
 }

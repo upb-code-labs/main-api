@@ -215,3 +215,44 @@ func (repository *AccountsPostgresRepository) GetUserByInstitutionalId(id string
 
 	return &user, nil
 }
+
+func (repository *AccountsPostgresRepository) GetAdmins() ([]*entities.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT id, institutional_id, email, full_name, created_at
+		FROM users
+		WHERE role = 'admin'
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	var admins []*entities.User
+	for rows.Next() {
+		var admin entities.User
+		var adminInstitutionalId sql.NullString
+		err := rows.Scan(
+			&admin.UUID,
+			&adminInstitutionalId,
+			&admin.Email,
+			&admin.FullName,
+			&admin.CreatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if adminInstitutionalId.Valid {
+			admin.InstitutionalId = adminInstitutionalId.String
+		}
+
+		admins = append(admins, &admin)
+	}
+
+	return admins, nil
+}

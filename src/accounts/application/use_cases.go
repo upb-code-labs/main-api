@@ -5,6 +5,7 @@ import (
 
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/dtos"
+	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/entities"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/errors"
 )
 
@@ -87,4 +88,8 @@ func (useCases *AccountsUseCases) RegisterTeacher(dto dtos.RegisterUserDTO) erro
 	// Save user
 	err = useCases.AccountsRepository.SaveTeacher(dto)
 	return err
+}
+
+func (useCases *AccountsUseCases) GetAdmins() ([]*entities.User, error) {
+	return useCases.AccountsRepository.GetAdmins()
 }
