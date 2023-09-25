@@ -102,6 +102,44 @@ func (repository *AccountsPostgresRepository) SaveTeacher(dto dtos.RegisterUserD
 	return nil
 }
 
+func (repository *AccountsPostgresRepository) GetUserByUUID(uuid string) (*entities.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT id, role, institutional_id, email, full_name, password_hash
+		FROM users
+		WHERE id = $1
+		LIMIT 1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, uuid)
+	if row.Err() != nil {
+		return nil, row.Err()
+	}
+
+	var user entities.User
+	var userInstitutionalId sql.NullString
+	err := row.Scan(
+		&user.UUID,
+		&user.Role,
+		&userInstitutionalId,
+		&user.Email,
+		&user.FullName,
+		&user.PasswordHash,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if userInstitutionalId.Valid {
+		user.InstitutionalId = userInstitutionalId.String
+	}
+
+	return &user, nil
+}
+
 func (repository *AccountsPostgresRepository) GetUserByEmail(email string) (*entities.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
