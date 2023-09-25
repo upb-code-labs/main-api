@@ -26,7 +26,7 @@ func TestLogin(t *testing.T) {
 		Email:    "idun.yevhen.2020@gmail.com",
 		Password: "idun/password/2023",
 	}
-	code = RegisterAdmin(registerAdminPayload)
+	code = RegisterAdminWithoutAuth(registerAdminPayload)
 	c.Equal(201, code)
 
 	// Login with an student
