@@ -100,3 +100,23 @@ func (controller *AccountsController) HandleRegisterTeacher(c *gin.Context) {
 
 	c.Status(201)
 }
+
+func (controller *AccountsController) HandleGetAdmins(c *gin.Context) {
+	admins, err := controller.UseCases.GetAdmins()
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	publicAdmins := make([]gin.H, len(admins))
+	for i, admin := range admins {
+		publicAdmins[i] = gin.H{
+			"fullName":   admin.FullName,
+			"created_at": admin.CreatedAt,
+		}
+	}
+
+	c.JSON(200, gin.H{
+		"admins": publicAdmins,
+	})
+}
