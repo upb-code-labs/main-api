@@ -64,35 +64,3 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:${{ needs.version.outputs.version }}
-
-  binary:
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: write
-      packages: write
-    needs:
-      - release
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.21"
-
-      - name: Build
-        run: mkdir dist |
-          go build -o ./dist/${{ github.event.repository.name }}.linux.bin ./...
-
-      - name: UPX
-        run: upx dist/*
-
-      - name: Upload binary to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: ./dist/${{ github.event.repository.name }}.linux.bin
-          asset_name: ${{ github.event.repository.name }}.linux.bin
-          asset_content_type: application/octet-stream
