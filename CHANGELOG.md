@@ -1,3 +1,12 @@
+## [0.5.1](https://github.com/upb-code-labs/main-api/compare/v0.5.0...v0.5.1) (2023-09-25)
+
+
+### Bug Fixes
+
+* Add CORS middleware ([320e4e2](https://github.com/upb-code-labs/main-api/commit/320e4e22af549368c251a70ceedac9392e75bc81))
+
+
+
 # [0.5.0](https://github.com/upb-code-labs/main-api/compare/v0.4.0...v0.5.0) (2023-09-25)
 
 
@@ -31,15 +40,3 @@
 ### Features
 
 * Register admin ([#30](https://github.com/upb-code-labs/main-api/issues/30)) ([52edddd](https://github.com/upb-code-labs/main-api/commit/52edddd29b63809e07ad4002f9fe85cdfe7c37eb))
-
-
-
-## [0.1.4](https://github.com/upb-code-labs/main-api/compare/v0.1.3...v0.1.4) (2023-09-22)
-
-
-### Bug Fixes
-
-* **cd:** Update pipeline trigger ([50cbbac](https://github.com/upb-code-labs/main-api/commit/50cbbac7708da4e4f9032335c9f8d49e42bc98d7))
-
-
-
