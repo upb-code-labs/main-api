@@ -66,6 +66,31 @@ func (controllers *SessionControllers) HandleLogin(c *gin.Context) {
 	})
 }
 
+func (controllers *SessionControllers) HandleLogout(c *gin.Context) {
+	// Delete the cookie
+	cookieName := "session"
+	cookieSecondsTTL := 0
+	cookieDomain := ""
+	cookiePath := "/"
+	cookieSecure := false
+	cookieHttpOnly := true
+
+	c.SetCookie(
+		cookieName,
+		"",
+		cookieSecondsTTL,
+		cookiePath,
+		cookieDomain,
+		cookieSecure,
+		cookieHttpOnly,
+	)
+
+	// Return the response
+	c.JSON(200, gin.H{
+		"message": "Logged out",
+	})
+}
+
 func (controllers *SessionControllers) HandleWhoAmI(c *gin.Context) {
 	uuid := c.MustGet("session_uuid").(string)
 

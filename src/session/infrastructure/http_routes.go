@@ -22,6 +22,13 @@ func StartSessionRoutes(g *gin.RouterGroup) {
 	}
 
 	sessionGroup.POST("/login", controllers.HandleLogin)
+
+	sessionGroup.DELETE(
+		"/logout",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		controllers.HandleLogout,
+	)
+
 	sessionGroup.GET(
 		"/whoami",
 		shared_infrastructure.WithAuthenticationMiddleware(),
