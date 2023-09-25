@@ -111,7 +111,7 @@ func (controller *AccountsController) HandleGetAdmins(c *gin.Context) {
 	publicAdmins := make([]gin.H, len(admins))
 	for i, admin := range admins {
 		publicAdmins[i] = gin.H{
-			"fullName":   admin.FullName,
+			"full_name":  admin.FullName,
 			"created_at": admin.CreatedAt,
 		}
 	}
