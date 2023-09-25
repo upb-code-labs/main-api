@@ -27,8 +27,8 @@ var (
 	registeredStudentEmail string
 	registeredStudentPass  string
 
-	registeredAdminEmail string
-	registeredAdminPass  string
+	registeredAdminEmail = "development.admin@gmail.com"
+	registeredAdminPass  = "changeme123*/"
 
 	registeredTeacherEmail string
 	registeredTeacherPass  string
@@ -93,7 +93,6 @@ func setupSessionControllers() {
 
 func registerBaseAccounts() {
 	registerBaseStudent()
-	registerBaseAdmin()
 	registerBaseTeacher()
 }
 
@@ -113,23 +112,6 @@ func registerBaseStudent() {
 
 	registeredStudentEmail = studentEmail
 	registeredStudentPass = studentPassword
-}
-
-func registerBaseAdmin() {
-	adminEmail := "arjan.coffey@gmail.com"
-	adminPassword := "arjan/password/2023"
-
-	code := RegisterAdminWithoutAuth(requests.RegisterAdminRequest{
-		FullName: "Arjan Coffey",
-		Email:    adminEmail,
-		Password: adminPassword,
-	})
-	if code != http.StatusCreated {
-		panic("Error registering base admin")
-	}
-
-	registeredAdminEmail = adminEmail
-	registeredAdminPass = adminPassword
 }
 
 func registerBaseTeacher() {
