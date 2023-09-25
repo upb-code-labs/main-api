@@ -26,10 +26,12 @@ var (
 
 // --- Setup ---
 func TestMain(m *testing.M) {
+	// Setup
 	setupDatabase()
-	defer shared_infrastructure.ClosePostgresConnection()
 	setupRouter()
 	setupControllers()
+	registerRoutes()
+	defer shared_infrastructure.ClosePostgresConnection()
 
 	// Run tests
 	code := m.Run()
@@ -76,6 +78,21 @@ func setupSessionControllers() {
 	}
 
 	sessionControllers = controllers
+}
+
+func registerRoutes() {
+	// Session
+	router.POST("/session/login", sessionControllers.HandleLogin)
+
+	// Accounts
+	router.POST("/accounts/students", accountsControllers.HandleRegisterStudent)
+	router.POST("/accounts/admins/no_auth", accountsControllers.HandleRegisterAdmin)
+	router.POST(
+		"/accounts/admins",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware("admin"),
+		accountsControllers.HandleRegisterAdmin,
+	)
 }
 
 // --- Helpers ---

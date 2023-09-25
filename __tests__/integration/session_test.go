@@ -10,9 +10,6 @@ import (
 func TestLogin(t *testing.T) {
 	c := require.New(t)
 
-	// Register route
-	router.POST("/session/login", sessionControllers.HandleLogin)
-
 	// Register an student
 	registerStudentPayload := requests.RegisterUserRequest{
 		FullName:        "Delia Conn",
@@ -29,7 +26,7 @@ func TestLogin(t *testing.T) {
 		Email:    "idun.yevhen.2020@gmail.com",
 		Password: "idun/password/2023",
 	}
-	code = RegisterAdmin(registerAdminPayload)
+	code = RegisterAdminWithoutAuth(registerAdminPayload)
 	c.Equal(201, code)
 
 	// Login with an student
