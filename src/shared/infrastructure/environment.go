@@ -6,18 +6,20 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-type Environment struct {
+type EnvironmentSpec struct {
+	Environment        string `split_words:"true" default:"development"`
 	DbConnectionString string `split_words:"true" default:"postgres://postgres:postgres@localhost:5432/codelabs?sslmode=disable"`
 	DbMigrationsPath   string `split_words:"true" default:"file://sql/migrations"`
 	JwtSecret          string `split_words:"true" default:"default"`
 	JwtExpirationHours int    `split_words:"true" default:"6"`
+	WebClientUrl       string `split_words:"true" default:"http://localhost:5173"`
 }
 
-var environment *Environment
+var environment *EnvironmentSpec
 
-func GetEnvironment() *Environment {
+func GetEnvironment() *EnvironmentSpec {
 	if environment == nil {
-		environment = &Environment{}
+		environment = &EnvironmentSpec{}
 
 		err := envconfig.Process("", environment)
 		if err != nil {
