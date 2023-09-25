@@ -39,7 +39,7 @@ func (controllers *SessionControllers) HandleLogin(c *gin.Context) {
 	}
 
 	// Set the cookie
-	cookieName := "token"
+	cookieName := "session"
 	cookieSecondsTTL := infrastructure.GetEnvironment().JwtExpirationHours * 60 * 60
 	cookieDomain := ""
 	cookiePath := "/"
