@@ -1,3 +1,12 @@
+# [0.5.0](https://github.com/upb-code-labs/main-api/compare/v0.4.0...v0.5.0) (2023-09-25)
+
+
+### Features
+
+* Register teacher ([#33](https://github.com/upb-code-labs/main-api/issues/33)) ([b297ec9](https://github.com/upb-code-labs/main-api/commit/b297ec9d879bf5eb910b5f616da23a8c988f0634))
+
+
+
 # [0.4.0](https://github.com/upb-code-labs/main-api/compare/v0.3.0...v0.4.0) (2023-09-25)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **cd:** Update pipeline trigger ([50cbbac](https://github.com/upb-code-labs/main-api/commit/50cbbac7708da4e4f9032335c9f8d49e42bc98d7))
-
-
-
-## [0.1.3](https://github.com/upb-code-labs/main-api/compare/v0.1.2...v0.1.3) (2023-09-22)
-
-
-### Bug Fixes
-
-* **cd:** Update tags filter ([6609c90](https://github.com/upb-code-labs/main-api/commit/6609c90b5abec1309a555d87a1bf27a8320f8404))
 
 
 
