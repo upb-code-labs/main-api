@@ -1,4 +1,4 @@
-package domain
+package errors
 
 type DomainError interface {
 	Error() string
