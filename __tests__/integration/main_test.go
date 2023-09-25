@@ -8,11 +8,9 @@ import (
 	"os"
 	"testing"
 
-	accounts_application "github.com/UPB-Code-Labs/main-api/src/accounts/application"
 	accounts_infrastructure "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/requests"
 	config_infrastructure "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
-	session_application "github.com/UPB-Code-Labs/main-api/src/session/application"
 	session_infrastructure "github.com/UPB-Code-Labs/main-api/src/session/infrastructure"
 	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
@@ -20,9 +18,7 @@ import (
 
 // --- Globals ---
 var (
-	router              *gin.Engine
-	accountsControllers *accounts_infrastructure.AccountsController
-	sessionControllers  *session_infrastructure.SessionControllers
+	router *gin.Engine
 
 	registeredStudentEmail string
 	registeredStudentPass  string
@@ -38,11 +34,12 @@ var (
 func TestMain(m *testing.M) {
 	// Setup
 	setupDatabase()
+	defer shared_infrastructure.ClosePostgresConnection()
+
 	setupRouter()
 	setupControllers()
-	registerRoutes()
+
 	registerBaseAccounts()
-	defer shared_infrastructure.ClosePostgresConnection()
 
 	// Run tests
 	code := m.Run()
@@ -56,39 +53,15 @@ func setupDatabase() {
 
 func setupRouter() {
 	router = gin.Default()
-	router.Use(shared_infrastructure.ErrorHandlerMiddleware())
+
 }
 
 func setupControllers() {
-	setupAccountsControllers()
-	setupSessionControllers()
-}
+	group := router.Group("")
+	group.Use(shared_infrastructure.ErrorHandlerMiddleware())
 
-func setupAccountsControllers() {
-	useCases := accounts_application.AccountsUseCases{
-		AccountsRepository: accounts_infrastructure.GetAccountsPgRepository(),
-		PasswordsHasher:    accounts_infrastructure.GetArgon2PasswordsHasher(),
-	}
-
-	controllers := &accounts_infrastructure.AccountsController{
-		UseCases: &useCases,
-	}
-
-	accountsControllers = controllers
-}
-
-func setupSessionControllers() {
-	useCases := session_application.SessionUseCases{
-		AccountsRepository: accounts_infrastructure.GetAccountsPgRepository(),
-		PasswordHasher:     accounts_infrastructure.GetArgon2PasswordsHasher(),
-		TokenHandler:       shared_infrastructure.GetJwtTokenHandler(),
-	}
-
-	controllers := &session_infrastructure.SessionControllers{
-		UseCases: &useCases,
-	}
-
-	sessionControllers = controllers
+	session_infrastructure.StartSessionRoutes(group)
+	accounts_infrastructure.StartAccountsRoutes(group)
 }
 
 func registerBaseAccounts() {
@@ -118,7 +91,7 @@ func registerBaseTeacher() {
 	teacherEmail := "judy.arroyo.2020@upb.edu.co"
 	teacherPassword := "judy/password/2023"
 
-	code := RegisterTeacherWithoutAuth(requests.RegisterTeacherRequest{
+	code := RegisterTeacherAccount(requests.RegisterTeacherRequest{
 		FullName: "Judy Arroyo",
 		Email:    teacherEmail,
 		Password: teacherPassword,
@@ -129,40 +102,6 @@ func registerBaseTeacher() {
 
 	registeredTeacherEmail = teacherEmail
 	registeredTeacherPass = teacherPassword
-}
-
-func registerRoutes() {
-	// Session
-	router.POST("/session/login", sessionControllers.HandleLogin)
-	router.DELETE(
-		"/session/logout",
-		shared_infrastructure.WithAuthenticationMiddleware(),
-		sessionControllers.HandleLogout,
-	)
-	router.GET(
-		"/session/whoami",
-		shared_infrastructure.WithAuthenticationMiddleware(),
-		sessionControllers.HandleWhoAmI,
-	)
-
-	// Accounts
-	router.POST("/accounts/students", accountsControllers.HandleRegisterStudent)
-
-	router.POST("/accounts/admins/no_auth", accountsControllers.HandleRegisterAdmin)
-	router.POST(
-		"/accounts/admins",
-		shared_infrastructure.WithAuthenticationMiddleware(),
-		shared_infrastructure.WithAuthorizationMiddleware("admin"),
-		accountsControllers.HandleRegisterAdmin,
-	)
-
-	router.POST("/accounts/teachers/no_auth", accountsControllers.HandleRegisterTeacher)
-	router.POST(
-		"/accounts/teachers",
-		shared_infrastructure.WithAuthenticationMiddleware(),
-		shared_infrastructure.WithAuthorizationMiddleware("admin"),
-		accountsControllers.HandleRegisterTeacher,
-	)
 }
 
 // --- Helpers ---
