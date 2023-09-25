@@ -40,6 +40,3 @@
 ### Features
 
 * Register admin ([#30](https://github.com/upb-code-labs/main-api/issues/30)) ([52edddd](https://github.com/upb-code-labs/main-api/commit/52edddd29b63809e07ad4002f9fe85cdfe7c37eb))
-
-
-
