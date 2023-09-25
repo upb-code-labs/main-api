@@ -86,9 +86,7 @@ func (controllers *SessionControllers) HandleLogout(c *gin.Context) {
 	)
 
 	// Return the response
-	c.JSON(200, gin.H{
-		"message": "Logged out",
-	})
+	c.Status(204)
 }
 
 func (controllers *SessionControllers) HandleWhoAmI(c *gin.Context) {
