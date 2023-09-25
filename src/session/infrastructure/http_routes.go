@@ -22,4 +22,9 @@ func StartSessionRoutes(g *gin.RouterGroup) {
 	}
 
 	sessionGroup.POST("/login", controllers.HandleLogin)
+	sessionGroup.GET(
+		"/whoami",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		controllers.HandleWhoAmI,
+	)
 }

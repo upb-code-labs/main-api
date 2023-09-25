@@ -152,6 +152,11 @@ func registerBaseTeacher() {
 func registerRoutes() {
 	// Session
 	router.POST("/session/login", sessionControllers.HandleLogin)
+	router.GET(
+		"/session/whoami",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		sessionControllers.HandleWhoAmI,
+	)
 
 	// Accounts
 	router.POST("/accounts/students", accountsControllers.HandleRegisterStudent)
