@@ -103,3 +103,30 @@ func TestWhoami(t *testing.T) {
 	router.ServeHTTP(w, r)
 	c.Equal(401, w.Code)
 }
+
+func TestLogout(t *testing.T) {
+	c := require.New(t)
+
+	// --- 1. Login as an admin ---
+	w, r := PrepareRequest("POST", "/session/login", map[string]interface{}{
+		"email":    registeredStudentEmail,
+		"password": registeredStudentPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Call logout
+	w, r = PrepareRequest("DELETE", "/session/logout", nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	c.Equal(204, w.Code)
+	cookie = w.Result().Cookies()[0]
+	c.Equal("session", cookie.Name)
+	c.Equal("", cookie.Value)
+
+	// 2. --- Try with no cookie ---
+	w, r = PrepareRequest("DELETE", "/session/logout", nil)
+	router.ServeHTTP(w, r)
+	c.Equal(401, w.Code)
+}

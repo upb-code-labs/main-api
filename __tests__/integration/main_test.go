@@ -134,6 +134,11 @@ func registerBaseTeacher() {
 func registerRoutes() {
 	// Session
 	router.POST("/session/login", sessionControllers.HandleLogin)
+	router.DELETE(
+		"/session/logout",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		sessionControllers.HandleLogout,
+	)
 	router.GET(
 		"/session/whoami",
 		shared_infrastructure.WithAuthenticationMiddleware(),
