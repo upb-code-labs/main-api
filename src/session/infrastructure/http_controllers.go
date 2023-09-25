@@ -24,7 +24,7 @@ func (controllers *SessionControllers) HandleLogin(c *gin.Context) {
 	// Validate request body
 	if err := infrastructure.GetValidator().Struct(request); err != nil {
 		c.JSON(400, gin.H{
-			"message": "Invalid request body",
+			"message": "Validation error",
 			"errors":  err.Error(),
 		})
 		return
