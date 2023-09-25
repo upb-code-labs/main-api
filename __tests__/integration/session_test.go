@@ -10,9 +10,6 @@ import (
 func TestLogin(t *testing.T) {
 	c := require.New(t)
 
-	// Register route
-	router.POST("/session/login", sessionControllers.HandleLogin)
-
 	// Register an student
 	registerStudentPayload := requests.RegisterUserRequest{
 		FullName:        "Delia Conn",
