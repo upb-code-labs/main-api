@@ -1,3 +1,12 @@
+# [0.6.0](https://github.com/upb-code-labs/main-api/compare/v0.5.1...v0.6.0) (2023-09-25)
+
+
+### Features
+
+* whoami ([#38](https://github.com/upb-code-labs/main-api/issues/38)) ([a866d8e](https://github.com/upb-code-labs/main-api/commit/a866d8e86bcd4df689f0933b570e5c0ce4324dad))
+
+
+
 ## [0.5.1](https://github.com/upb-code-labs/main-api/compare/v0.5.0...v0.5.1) (2023-09-25)
 
 
@@ -34,9 +43,3 @@
 
 
 
-# [0.2.0](https://github.com/upb-code-labs/main-api/compare/v0.1.4...v0.2.0) (2023-09-22)
-
-
-### Features
-
-* Register admin ([#30](https://github.com/upb-code-labs/main-api/issues/30)) ([52edddd](https://github.com/upb-code-labs/main-api/commit/52edddd29b63809e07ad4002f9fe85cdfe7c37eb))
