@@ -1,3 +1,12 @@
+# [0.8.0](https://github.com/upb-code-labs/main-api/compare/v0.7.0...v0.8.0) (2023-09-25)
+
+
+### Features
+
+* List admins ([#40](https://github.com/upb-code-labs/main-api/issues/40)) ([7ba0762](https://github.com/upb-code-labs/main-api/commit/7ba076279c8074247aab37ad90eea9e35d935fc3))
+
+
+
 # [0.7.0](https://github.com/upb-code-labs/main-api/compare/v0.6.0...v0.7.0) (2023-09-25)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Register teacher ([#33](https://github.com/upb-code-labs/main-api/issues/33)) ([b297ec9](https://github.com/upb-code-labs/main-api/commit/b297ec9d879bf5eb910b5f616da23a8c988f0634))
-
-
-
-# [0.4.0](https://github.com/upb-code-labs/main-api/compare/v0.3.0...v0.4.0) (2023-09-25)
-
-
-### Features
-
-* Auth middlewares ([#32](https://github.com/upb-code-labs/main-api/issues/32)) ([8646b08](https://github.com/upb-code-labs/main-api/commit/8646b084adc10d018a41c2d699c466bea678b164))
 
 
 
