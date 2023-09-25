@@ -258,3 +258,43 @@ func RegisterTeacherAccount(req requests.RegisterTeacherRequest) int {
 	router.ServeHTTP(w, r)
 	return w.Code
 }
+
+func TestListAdmins(t *testing.T) {
+	c := require.New(t)
+
+	// --- 1. Login as an admin ---
+	w, r := PrepareRequest("POST", "/session/login", map[string]interface{}{
+		"email":    registeredAdminEmail,
+		"password": registeredAdminPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// List admins
+	w, r = PrepareRequest("GET", "/accounts/admins", nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+	jsonResponse := ParseJsonResponse(w.Body)
+	adminsList := jsonResponse["admins"].([]interface{})
+	c.Equal(http.StatusOK, w.Code)
+	c.GreaterOrEqual(len(adminsList), 1)
+
+	for _, a := range adminsList {
+		admin := a.(map[string]interface{})
+		c.NotEmpty(admin["full_name"])
+		c.NotEmpty(admin["created_at"])
+	}
+
+	// --- 2. Non-admin tries to list admins ---
+	w, r = PrepareRequest("POST", "/session/login", map[string]interface{}{
+		"email":    registeredStudentEmail,
+		"password": registeredStudentPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie = w.Result().Cookies()[0]
+
+	w, r = PrepareRequest("GET", "/accounts/admins", nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+	c.Equal(http.StatusForbidden, w.Code)
+}
