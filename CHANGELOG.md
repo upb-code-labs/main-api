@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/upb-code-labs/main-api/compare/v0.3.0...v0.4.0) (2023-09-25)
+
+
+### Features
+
+* Auth middlewares ([#32](https://github.com/upb-code-labs/main-api/issues/32)) ([8646b08](https://github.com/upb-code-labs/main-api/commit/8646b084adc10d018a41c2d699c466bea678b164))
+
+
+
 # [0.3.0](https://github.com/upb-code-labs/main-api/compare/v0.2.0...v0.3.0) (2023-09-22)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **cd:** Update tags filter ([6609c90](https://github.com/upb-code-labs/main-api/commit/6609c90b5abec1309a555d87a1bf27a8320f8404))
-
-
-
-## [0.1.2](https://github.com/upb-code-labs/main-api/compare/v0.1.1...v0.1.2) (2023-09-22)
-
-
-### Bug Fixes
-
-* **cd:** Run package pipeline when a tag is pushed ([#27](https://github.com/upb-code-labs/main-api/issues/27)) ([2f89bc2](https://github.com/upb-code-labs/main-api/commit/2f89bc2270cf9ecd5c6ac4af0356eeafaae8895b))
 
 
 
