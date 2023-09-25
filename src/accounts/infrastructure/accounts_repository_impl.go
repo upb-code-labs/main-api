@@ -77,6 +77,31 @@ func (repository *AccountsPostgresRepository) SaveAdmin(dto dtos.RegisterUserDTO
 	return nil
 }
 
+func (repository *AccountsPostgresRepository) SaveTeacher(dto dtos.RegisterUserDTO) error {
+	// Save user
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		INSERT INTO users (role, email, full_name, password_hash)
+		VALUES ($1, $2, $3, $4)
+	`
+
+	_, err := repository.Connection.ExecContext(
+		ctx,
+		query,
+		"teacher",
+		dto.Email,
+		dto.FullName,
+		dto.Password,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repository *AccountsPostgresRepository) GetUserByEmail(email string) (*entities.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
