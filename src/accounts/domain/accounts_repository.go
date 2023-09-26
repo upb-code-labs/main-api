@@ -10,6 +10,9 @@ type AccountsRepository interface {
 	SaveAdmin(dto dtos.RegisterUserDTO) error
 	SaveTeacher(dto dtos.RegisterUserDTO) error
 
+	GetUserByUUID(uuid string) (*entities.User, error)
 	GetUserByEmail(email string) (*entities.User, error)
 	GetUserByInstitutionalId(institutionalId string) (*entities.User, error)
+
+	GetAdmins() ([]*entities.User, error)
 }

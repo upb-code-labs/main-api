@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
   "institutional_id" VARCHAR(16) NULL UNIQUE,
   "email" VARCHAR(64) NOT NULL UNIQUE,
   "full_name" VARCHAR NOT NULL,
-  "password_hash" VARCHAR NOT NULL
+  "password_hash" VARCHAR NOT NULL,
+  "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS colors(
@@ -122,3 +123,20 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_grade_criteria ON grade_has_criteria(grade
 
 -- ### Search indexes
 CREATE INDEX IF NOT EXISTS idx_users_fullname ON users(full_name);
+
+-- ## Data
+-- ### Admin user (To be used in development)
+INSERT INTO
+  users (
+    role,
+    email,
+    full_name,
+    password_hash
+  )
+VALUES
+  (
+    'admin',
+    'development.admin@gmail.com',
+    'Development Admin',
+    '$argon2id$v=19$m=16,t=1,p=1$UUVzSDRZQkpKZkhrWmN4ZA$TiQHkBQI7A+1987WmMDHhw'
+  );

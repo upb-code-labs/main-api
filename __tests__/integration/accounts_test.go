@@ -146,20 +146,7 @@ func TestRegisterAdmin(t *testing.T) {
 	}
 }
 
-func RegisterAdminWithoutAuth(req requests.RegisterAdminRequest) int {
-	w, r := PrepareRequest("POST", "/accounts/admins/no_auth", map[string]interface{}{
-		"full_name": req.FullName,
-		"email":     req.Email,
-		"password":  req.Password,
-	})
-
-	router.ServeHTTP(w, r)
-	return w.Code
-}
-
-func TestRegisterTeacher(t *testing.T) {
-	c := require.New(t)
-
+func RegisterAdminAccount(req requests.RegisterAdminRequest) int {
 	// Login as an admin
 	w, r := PrepareRequest("POST", "/session/login", map[string]interface{}{
 		"email":    registeredAdminEmail,
@@ -167,6 +154,21 @@ func TestRegisterTeacher(t *testing.T) {
 	})
 	router.ServeHTTP(w, r)
 	cookie := w.Result().Cookies()[0]
+
+	// Register the new admin
+	w, r = PrepareRequest("POST", "/accounts/admins", map[string]interface{}{
+		"full_name": req.FullName,
+		"email":     req.Email,
+		"password":  req.Password,
+	})
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return w.Code
+}
+
+func TestRegisterTeacher(t *testing.T) {
+	c := require.New(t)
 
 	// Test cases
 	testCases := []RegisterTestCase{
@@ -196,6 +198,14 @@ func TestRegisterTeacher(t *testing.T) {
 		},
 	}
 
+	// Login as an admin
+	w, r := PrepareRequest("POST", "/session/login", map[string]interface{}{
+		"email":    registeredAdminEmail,
+		"password": registeredAdminPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
 	// --- 1. Admin registers a teacher ---
 	for _, testCase := range testCases {
 		w, r := PrepareRequest("POST", "/accounts/teachers", testCase.Payload)
@@ -212,6 +222,8 @@ func TestRegisterTeacher(t *testing.T) {
 	}
 
 	// --- 3. Non-admin tries to register a teacher ---
+
+	// Login as a student
 	w, r = PrepareRequest("POST", "/session/login", map[string]interface{}{
 		"email":    registeredStudentEmail,
 		"password": registeredStudentPass,
@@ -227,13 +239,62 @@ func TestRegisterTeacher(t *testing.T) {
 	}
 }
 
-func RegisterTeacherWithoutAuth(req requests.RegisterTeacherRequest) int {
-	w, r := PrepareRequest("POST", "/accounts/teachers/no_auth", map[string]interface{}{
+func RegisterTeacherAccount(req requests.RegisterTeacherRequest) int {
+	// Login as an admin
+	w, r := PrepareRequest("POST", "/session/login", map[string]interface{}{
+		"email":    registeredAdminEmail,
+		"password": registeredAdminPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Register the new teacher
+	w, r = PrepareRequest("POST", "/accounts/teachers", map[string]interface{}{
 		"full_name": req.FullName,
 		"email":     req.Email,
 		"password":  req.Password,
 	})
-
+	r.AddCookie(cookie)
 	router.ServeHTTP(w, r)
 	return w.Code
+}
+
+func TestListAdmins(t *testing.T) {
+	c := require.New(t)
+
+	// --- 1. Login as an admin ---
+	w, r := PrepareRequest("POST", "/session/login", map[string]interface{}{
+		"email":    registeredAdminEmail,
+		"password": registeredAdminPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// List admins
+	w, r = PrepareRequest("GET", "/accounts/admins", nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+	jsonResponse := ParseJsonResponse(w.Body)
+	adminsList := jsonResponse["admins"].([]interface{})
+	c.Equal(http.StatusOK, w.Code)
+	c.GreaterOrEqual(len(adminsList), 1)
+
+	for _, a := range adminsList {
+		admin := a.(map[string]interface{})
+		c.NotEmpty(admin["full_name"])
+		c.NotEmpty(admin["created_at"])
+	}
+
+	// --- 2. Non-admin tries to list admins ---
+	w, r = PrepareRequest("POST", "/session/login", map[string]interface{}{
+		"email":    registeredStudentEmail,
+		"password": registeredStudentPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie = w.Result().Cookies()[0]
+
+	w, r = PrepareRequest("GET", "/accounts/admins", nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+	c.Equal(http.StatusForbidden, w.Code)
 }
