@@ -40,6 +40,3 @@
 ### Features
 
 * Register teacher ([#33](https://github.com/upb-code-labs/main-api/issues/33)) ([b297ec9](https://github.com/upb-code-labs/main-api/commit/b297ec9d879bf5eb910b5f616da23a8c988f0634))
-
-
-
