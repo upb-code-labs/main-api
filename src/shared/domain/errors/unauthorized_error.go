@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -10,7 +9,7 @@ type UnauthorizedError struct {
 }
 
 func (err UnauthorizedError) Error() string {
-	return fmt.Sprintf("Unauthorized: %s", err.Message)
+	return err.Message
 }
 
 func (err UnauthorizedError) StatusCode() int {

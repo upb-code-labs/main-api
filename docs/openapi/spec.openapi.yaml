@@ -36,7 +36,7 @@ paths:
                   admins:
                     type: array
                     items:
-                      $ref: "#/components/schemas/public_user_fields"
+                      $ref: "#/components/schemas/public_admins_fields"
         "403":
           description: The session token isn't valid or the user doesn't have enough permissions.
           content:
@@ -226,7 +226,7 @@ paths:
                 properties:
                   user:
                     allOf:
-                      - $ref: "#/components/schemas/public_user_fields"
+                      - $ref: "#/components/schemas/session_user_fields"
         "401":
           description: Bad credentials.
           content:
@@ -257,7 +257,7 @@ paths:
                 properties:
                   user:
                     allOf:
-                      - $ref: "#/components/schemas/public_user_fields"
+                      - $ref: "#/components/schemas/session_user_fields"
         "403":
           description: The session token isn't valid or the user doesn't have enough permissions.
           content:
@@ -1333,6 +1333,19 @@ components:
         message:
           type: string
           example: "Something went wrong. Try again later."
+          
+    session_user_fields: 
+      type: object
+      properties: 
+        uuid:
+          type: string
+          example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
+        full_name: 
+          type: string
+          example: "Pedro Chaparro"
+        role: 
+          type: string
+          example: "student"
 
     public_user_fields:
       type: object
@@ -1346,6 +1359,18 @@ components:
         fullname:
           type: string
           example: "Pedro Chaparro"
+  
+    public_admins_fields:
+      properties:
+        uuid:
+          type: string
+          example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
+        fullname:
+          type: string
+          example: "Pedro Chaparro"
+        created_at:
+          type: string
+          example: "2023-09-25T23:37:52.155652Z"
 
     public_course_fields:
       type: object
