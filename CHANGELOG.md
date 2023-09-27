@@ -1,3 +1,12 @@
+# [0.9.0](https://github.com/upb-code-labs/main-api/compare/v0.8.0...v0.9.0) (2023-09-27)
+
+
+### Features
+
+* Create courses ([#43](https://github.com/upb-code-labs/main-api/issues/43)) ([09e15f8](https://github.com/upb-code-labs/main-api/commit/09e15f8c9460404a04eb30aa5417ca252f477a97))
+
+
+
 # [0.8.0](https://github.com/upb-code-labs/main-api/compare/v0.7.0...v0.8.0) (2023-09-25)
 
 
@@ -34,9 +43,3 @@
 
 
 
-# [0.5.0](https://github.com/upb-code-labs/main-api/compare/v0.4.0...v0.5.0) (2023-09-25)
-
-
-### Features
-
-* Register teacher ([#33](https://github.com/upb-code-labs/main-api/issues/33)) ([b297ec9](https://github.com/upb-code-labs/main-api/commit/b297ec9d879bf5eb910b5f616da23a8c988f0634))
