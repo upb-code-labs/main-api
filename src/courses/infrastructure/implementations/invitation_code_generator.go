@@ -1,5 +1,9 @@
 package implementations
 
+import (
+	"github.com/jaevor/go-nanoid"
+)
+
 type NanoIdInvitationCodeGenerator struct{}
 
 // Singleton instance
@@ -14,6 +18,12 @@ func GetNanoIdInvitationCodeGenerator() *NanoIdInvitationCodeGenerator {
 }
 
 // Methods
-func (generator *NanoIdInvitationCodeGenerator) Generate() string {
-	return ""
+func (generator *NanoIdInvitationCodeGenerator) Generate() (string, error) {
+	gen, err := nanoid.Standard(9)
+	if err != nil {
+		return "", err
+	}
+
+	code := gen()
+	return code, nil
 }

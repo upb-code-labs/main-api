@@ -1,5 +1,5 @@
 package definitions
 
 type InvitationCodeGenerator interface {
-	Generate() string
+	Generate() (string, error)
 }
