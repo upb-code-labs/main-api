@@ -11,6 +11,7 @@ import (
 	accounts_infrastructure "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/requests"
 	config_infrastructure "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
+	courses_http "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/http"
 	session_infrastructure "github.com/UPB-Code-Labs/main-api/src/session/infrastructure"
 	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,11 @@ var (
 	registeredTeacherEmail string
 	registeredTeacherPass  string
 )
+
+type GenericTestCase struct {
+	Payload            map[string]interface{}
+	ExpectedStatusCode int
+}
 
 // --- Setup ---
 func TestMain(m *testing.M) {
@@ -62,6 +68,7 @@ func setupControllers() {
 
 	session_infrastructure.StartSessionRoutes(group)
 	accounts_infrastructure.StartAccountsRoutes(group)
+	courses_http.StartCoursesRoutes(group)
 }
 
 func registerBaseAccounts() {
