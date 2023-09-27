@@ -33,7 +33,7 @@ func WithAuthenticationMiddleware() gin.HandlerFunc {
 		cookie, err := c.Cookie("session")
 		if err != nil {
 			c.Error(shared_errors.UnauthorizedError{
-				Message: "No session was provided",
+				Message: "You must be logged in",
 			})
 			c.Abort()
 			return
@@ -42,7 +42,7 @@ func WithAuthenticationMiddleware() gin.HandlerFunc {
 		claims, err := GetJwtTokenHandler().ValidateToken(cookie)
 		if err != nil {
 			c.Error(shared_errors.UnauthorizedError{
-				Message: "Invalid session",
+				Message: "Your session has expired or is not valid",
 			})
 			c.Abort()
 			return
