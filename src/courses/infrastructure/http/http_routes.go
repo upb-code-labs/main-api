@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"github.com/UPB-Code-Labs/main-api/src/courses/application"
 	"github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/implementations"
+	"github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,5 +19,10 @@ func StartCoursesRoutes(g *gin.RouterGroup) {
 		UseCases: &useCases,
 	}
 
-	coursesGroup.POST("/", controller.HandleCreateCourse)
+	coursesGroup.POST(
+		"/",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware("teacher"),
+		controller.HandleCreateCourse,
+	)
 }
