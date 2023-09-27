@@ -8,15 +8,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type RegisterTestCase struct {
-	Payload            map[string]interface{}
-	ExpectedStatusCode int
-}
-
 func TestRegisterStudent(t *testing.T) {
 	c := require.New(t)
 
-	testCases := []RegisterTestCase{
+	testCases := []GenericTestCase{
 		{
 			Payload: map[string]interface{}{
 				"full_name":        "John Doe",
@@ -88,7 +83,7 @@ func TestRegisterAdmin(t *testing.T) {
 	cookie := w.Result().Cookies()[0]
 
 	// Test cases
-	testCases := []RegisterTestCase{
+	testCases := []GenericTestCase{
 		{
 			Payload: map[string]interface{}{
 				"full_name": "Gerald Soto",
@@ -171,7 +166,7 @@ func TestRegisterTeacher(t *testing.T) {
 	c := require.New(t)
 
 	// Test cases
-	testCases := []RegisterTestCase{
+	testCases := []GenericTestCase{
 		{
 			Payload: map[string]interface{}{
 				"full_name": "Zeeshan Glover",
