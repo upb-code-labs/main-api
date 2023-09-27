@@ -20,7 +20,7 @@ func StartCoursesRoutes(g *gin.RouterGroup) {
 	}
 
 	coursesGroup.POST(
-		"/",
+		"",
 		infrastructure.WithAuthenticationMiddleware(),
 		infrastructure.WithAuthorizationMiddleware("teacher"),
 		controller.HandleCreateCourse,
