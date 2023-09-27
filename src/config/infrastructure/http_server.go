@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	accounts "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure"
+	courses "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/http"
 	session "github.com/UPB-Code-Labs/main-api/src/session/infrastructure"
 	shared "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-contrib/cors"
@@ -11,6 +12,7 @@ import (
 var routesGroups = []func(*gin.RouterGroup){
 	accounts.StartAccountsRoutes,
 	session.StartSessionRoutes,
+	courses.StartCoursesRoutes,
 }
 
 func StartHTTPServer() {
