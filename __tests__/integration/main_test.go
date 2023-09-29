@@ -8,11 +8,11 @@ import (
 	"os"
 	"testing"
 
-	accounts_infrastructure "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure"
+	accounts_http "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/http"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/requests"
 	config_infrastructure "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
 	courses_http "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/http"
-	session_infrastructure "github.com/UPB-Code-Labs/main-api/src/session/infrastructure"
+	session_http "github.com/UPB-Code-Labs/main-api/src/session/infrastructure/http"
 	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
@@ -66,8 +66,8 @@ func setupControllers() {
 	group := router.Group("")
 	group.Use(shared_infrastructure.ErrorHandlerMiddleware())
 
-	session_infrastructure.StartSessionRoutes(group)
-	accounts_infrastructure.StartAccountsRoutes(group)
+	session_http.StartSessionRoutes(group)
+	accounts_http.StartAccountsRoutes(group)
 	courses_http.StartCoursesRoutes(group)
 }
 

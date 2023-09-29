@@ -3,15 +3,15 @@ package application
 import (
 	"database/sql"
 
-	"github.com/UPB-Code-Labs/main-api/src/accounts/domain"
+	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/entities"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/errors"
 )
 
 type AccountsUseCases struct {
-	AccountsRepository domain.AccountsRepository
-	PasswordsHasher    domain.PasswordsHasher
+	AccountsRepository definitions.AccountsRepository
+	PasswordsHasher    definitions.PasswordsHasher
 }
 
 func (useCases *AccountsUseCases) RegisterStudent(dto dtos.RegisterUserDTO) error {
