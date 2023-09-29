@@ -32,4 +32,11 @@ func StartCoursesRoutes(g *gin.RouterGroup) {
 		infrastructure.WithAuthorizationMiddleware("teacher"),
 		controller.HandleGetInvitationCode,
 	)
+
+	coursesGroup.POST(
+		"/join/:invitation-code",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware("student"),
+		controller.HandleJoinCourse,
+	)
 }

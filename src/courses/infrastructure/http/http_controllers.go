@@ -87,3 +87,28 @@ func (controller *CoursesController) HandleGetInvitationCode(c *gin.Context) {
 		"code": invitationCode,
 	})
 }
+
+func (controller *CoursesController) HandleJoinCourse(c *gin.Context) {
+	studentUUID := c.GetString("session_uuid")
+
+	// Validate invitation code
+	invitationCode := c.Param("invitation-code")
+	if err := infrastructure.GetValidator().Var(invitationCode, "len=9"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid invitation code",
+		})
+		return
+	}
+
+	// Join course
+	err := controller.UseCases.JoinCourseUsingInvitationCode(&dtos.JoinCourseUsingInvitationCodeDTO{
+		StudentUUID:    studentUUID,
+		InvitationCode: invitationCode,
+	})
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusNoContent, nil)
+}
