@@ -207,7 +207,7 @@ func (repository *CoursesPostgresRepository) GetCourseByUUID(uuid string) (*enti
 	if err != nil {
 		// Throw a domain error if the course was not found
 		if err == sql.ErrNoRows {
-			return nil, courses_errors.CourseNotFoundError{
+			return nil, courses_errors.NoCourseWithUUIDFound{
 				UUID: uuid,
 			}
 		}
@@ -242,4 +242,50 @@ func (repository *CoursesPostgresRepository) GetCourseByInvitationCode(invitatio
 	}
 
 	return course, nil
+}
+
+func (repository *CoursesPostgresRepository) AddStudentToCourse(studentUUID, courseUUID string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		INSERT INTO courses_has_users (course_id, user_id)
+		VALUES ($1, $2)
+	`
+
+	_, err := repository.Connection.ExecContext(
+		ctx,
+		query,
+		courseUUID,
+		studentUUID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *CoursesPostgresRepository) IsStudentInCourse(studentUUID, courseUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT COUNT(user_id) > 0
+		FROM courses_has_users
+		WHERE course_id = $1 AND user_id = $2
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, courseUUID, studentUUID)
+	if row.Err() != nil {
+		return false, row.Err()
+	}
+
+	var exists bool
+	err := row.Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }
