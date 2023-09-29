@@ -128,7 +128,7 @@ func (repository *CoursesPostgresRepository) SaveCourse(dto *dtos.CreateCourseDT
 
 	// Add teacher to course
 	addTeacherQuery := `
-		INSERT INTO courses_has_users (class_id, user_id)
+		INSERT INTO courses_has_users (course_id, user_id)
 		VALUES ($1, $2)
 	`
 
@@ -148,6 +148,47 @@ func (repository *CoursesPostgresRepository) SaveCourse(dto *dtos.CreateCourseDT
 	}
 
 	return repository.GetCourseByUUID(courseId)
+}
+
+func (repository *CoursesPostgresRepository) SaveInvitationCode(courseUUID string, invitationCode string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		INSERT INTO invitation_codes (course_id, code)
+		VALUES ($1, $2)
+	`
+
+	_, err := repository.Connection.ExecContext(
+		ctx,
+		query,
+		courseUUID,
+		invitationCode,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *CoursesPostgresRepository) GetInvitationCode(courseUUID string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := "SELECT code FROM invitation_codes WHERE course_id = $1"
+	row := repository.Connection.QueryRowContext(ctx, query, courseUUID)
+	if row.Err() != nil {
+		return "", row.Err()
+	}
+
+	var invitationCode string
+	err := row.Scan(&invitationCode)
+	if err != nil {
+		return "", err
+	}
+
+	return invitationCode, nil
 }
 
 func (repository *CoursesPostgresRepository) GetCourseByUUID(uuid string) (*entities.Course, error) {
@@ -174,7 +215,7 @@ func (repository *CoursesPostgresRepository) GetCourseByInvitationCode(invitatio
 	defer cancel()
 
 	// Get the course id
-	getCourseIdQuery := "SELECT class_id FROM invitation_codes WHERE code = $1"
+	getCourseIdQuery := "SELECT course_id FROM invitation_codes WHERE code = $1"
 	row := repository.Connection.QueryRowContext(ctx, getCourseIdQuery, invitationCode)
 	if row.Err() != nil {
 		return nil, row.Err()

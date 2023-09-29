@@ -61,3 +61,29 @@ func (controller *CoursesController) HandleCreateCourse(c *gin.Context) {
 		"color": course.Color,
 	})
 }
+
+func (controller *CoursesController) HandleGetInvitationCode(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+
+	// Validate course uuid
+	courseUUID := c.Param("course_uuid")
+	if err := infrastructure.GetValidator().Var(courseUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid course uuid",
+		})
+		return
+	}
+
+	invitationCode, err := controller.UseCases.GetInvitationCode(dtos.GetInvitationCodeDTO{
+		CourseUUID:  courseUUID,
+		TeacherUUID: teacherUUID,
+	})
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": invitationCode,
+	})
+}
