@@ -1,3 +1,12 @@
+# [0.10.0](https://github.com/upb-code-labs/main-api/compare/v0.9.0...v0.10.0) (2023-09-29)
+
+
+### Features
+
+* Get invitation code ([#50](https://github.com/upb-code-labs/main-api/issues/50)) ([35af762](https://github.com/upb-code-labs/main-api/commit/35af7627d6f51ac8a167b80db6ff25019e12a28c))
+
+
+
 # [0.9.0](https://github.com/upb-code-labs/main-api/compare/v0.8.0...v0.9.0) (2023-09-27)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * whoami ([#38](https://github.com/upb-code-labs/main-api/issues/38)) ([a866d8e](https://github.com/upb-code-labs/main-api/commit/a866d8e86bcd4df689f0933b570e5c0ce4324dad))
-
-
-
-## [0.5.1](https://github.com/upb-code-labs/main-api/compare/v0.5.0...v0.5.1) (2023-09-25)
-
-
-### Bug Fixes
-
-* Add CORS middleware ([320e4e2](https://github.com/upb-code-labs/main-api/commit/320e4e22af549368c251a70ceedac9392e75bc81))
 
 
 
