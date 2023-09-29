@@ -360,7 +360,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
 
-  /courses/{course_uuid}/invitation_code:
+  /courses/{course_uuid}/invitation-code:
     get:
       tags:
         - Courses
