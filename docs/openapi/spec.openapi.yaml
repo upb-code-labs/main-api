@@ -403,6 +403,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+  
+  /courses/join/{invitation-code}: 
+    post: 
+      tags: 
+        - Courses
+      security:
+        - cookieAuth: []
+      description: Join a course using an invitation code.
+      parameters:
+        - in: path
+          name: invitation-code
+          schema:
+            type: string
+            example: "8_JI4bFA7"
+          required: true
+      responses:
+        "204": 
+          description: The student joined the course successfully. 
+        "400":
+          description: The invitation code is not valid. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "404":
+          description: TNo course with the given invitation code was found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
 
   /courses/{course_uuid}/name:
     patch:

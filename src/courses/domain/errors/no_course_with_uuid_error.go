@@ -5,14 +5,14 @@ import (
 	"net/http"
 )
 
-type CourseNotFoundError struct {
+type NoCourseWithUUIDFound struct {
 	UUID string
 }
 
-func (err CourseNotFoundError) Error() string {
+func (err NoCourseWithUUIDFound) Error() string {
 	return fmt.Sprintf("Course with UUID %s not found", err.UUID)
 }
 
-func (err CourseNotFoundError) StatusCode() int {
+func (err NoCourseWithUUIDFound) StatusCode() int {
 	return http.StatusNotFound
 }

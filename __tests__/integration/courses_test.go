@@ -178,3 +178,93 @@ func TestGetInvitationCode(t *testing.T) {
 		c.Equal(http.StatusForbidden, w.Code)
 	}
 }
+
+func GetInvitationCode(courseUUID string) (invitationCode string, statusCode int) {
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Get the invitation code
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/invitation-code", courseUUID)
+	w, r = PrepareRequest("GET", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse["code"].(string), w.Code
+}
+
+type JoinCourseTestCase struct {
+	InvitationCode     string
+	ExpectedStatusCode int
+}
+
+func TestJoinCourse(t *testing.T) {
+	c := require.New(t)
+
+	// Create a course
+	courseUUID, code := CreateCourse("Course [Test Join Course]")
+	c.Equal(http.StatusCreated, code)
+	c.NotEmpty(courseUUID)
+
+	// Get the invitation code
+	invitationCode, code := GetInvitationCode(courseUUID)
+	c.Equal(http.StatusOK, code)
+	c.NotEmpty(invitationCode)
+
+	testCases := []JoinCourseTestCase{
+		{
+			InvitationCode:     "a", // Invalid code
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			InvitationCode:     "abcdefghi", // Non-existent code
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		{
+			InvitationCode:     invitationCode,
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+		{
+			InvitationCode:     invitationCode, // Already joined
+			ExpectedStatusCode: http.StatusConflict,
+		},
+	}
+
+	// --- 1. Try with a student account ---
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredStudentEmail,
+		"password": registeredStudentPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	for _, testCase := range testCases {
+		endpoint := fmt.Sprintf("/api/v1/courses/join/%s", testCase.InvitationCode)
+		w, r = PrepareRequest("POST", endpoint, nil)
+		r.AddCookie(cookie)
+		router.ServeHTTP(w, r)
+
+		c.Equal(testCase.ExpectedStatusCode, w.Code)
+	}
+
+	// --- 2. Try with a teacher account ---
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie = w.Result().Cookies()[0]
+
+	for _, testCase := range testCases {
+		endpoint := fmt.Sprintf("/api/v1/courses/join/%s", testCase.InvitationCode)
+		w, r = PrepareRequest("POST", endpoint, nil)
+		r.AddCookie(cookie)
+		router.ServeHTTP(w, r)
+		c.Equal(http.StatusForbidden, w.Code)
+	}
+}
