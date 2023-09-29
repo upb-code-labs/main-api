@@ -15,5 +15,6 @@ func main() {
 	config.RunMigrations()
 
 	// Start HTTP server
-	config.StartHTTPServer()
+	router := config.InstanceHttpServer()
+	router.Run(":8080")
 }

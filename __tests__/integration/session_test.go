@@ -30,7 +30,7 @@ func TestLogin(t *testing.T) {
 	c.Equal(201, code)
 
 	// Login with an student
-	w, r := PrepareRequest("POST", "/session/login", map[string]interface{}{
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
 		"email":    registerStudentPayload.Email,
 		"password": registerStudentPayload.Password,
 	})
@@ -45,7 +45,7 @@ func TestLogin(t *testing.T) {
 	c.Equal("student", responseUser["role"])
 
 	// Login with an admin
-	w, r = PrepareRequest("POST", "/session/login", map[string]interface{}{
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
 		"email":    registerAdminPayload.Email,
 		"password": registerAdminPayload.Password,
 	})
@@ -60,7 +60,7 @@ func TestLogin(t *testing.T) {
 	c.Equal("admin", responseUser["role"])
 
 	// Login with wrong credentials
-	w, r = PrepareRequest("POST", "/session/login", map[string]interface{}{
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
 		"email":    registerAdminPayload.Email,
 		"password": "wrong password",
 	})
@@ -77,7 +77,7 @@ func TestWhoami(t *testing.T) {
 	// --- 1. Try with a valid user ---
 
 	// Login as an admin
-	w, r := PrepareRequest("POST", "/session/login", map[string]interface{}{
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
 		"email":    registeredStudentEmail,
 		"password": registeredStudentPass,
 	})
@@ -87,7 +87,7 @@ func TestWhoami(t *testing.T) {
 	cookie := w.Result().Cookies()[0]
 
 	// Call whoami
-	w, r = PrepareRequest("GET", "/session/whoami", nil)
+	w, r = PrepareRequest("GET", "/api/v1/session/whoami", nil)
 	r.AddCookie(cookie)
 	router.ServeHTTP(w, r)
 	jsonResponse = ParseJsonResponse(w.Body)
@@ -99,7 +99,7 @@ func TestWhoami(t *testing.T) {
 	c.Equal("student", whoamiResponseUser["role"])
 
 	// --- 2. Try with an invalid user ---
-	w, r = PrepareRequest("GET", "/session/whoami", nil)
+	w, r = PrepareRequest("GET", "/api/v1/session/whoami", nil)
 	router.ServeHTTP(w, r)
 	c.Equal(401, w.Code)
 }
@@ -108,7 +108,7 @@ func TestLogout(t *testing.T) {
 	c := require.New(t)
 
 	// --- 1. Login as an admin ---
-	w, r := PrepareRequest("POST", "/session/login", map[string]interface{}{
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
 		"email":    registeredStudentEmail,
 		"password": registeredStudentPass,
 	})
@@ -116,7 +116,7 @@ func TestLogout(t *testing.T) {
 	cookie := w.Result().Cookies()[0]
 
 	// Call logout
-	w, r = PrepareRequest("DELETE", "/session/logout", nil)
+	w, r = PrepareRequest("DELETE", "/api/v1/session/logout", nil)
 	r.AddCookie(cookie)
 	router.ServeHTTP(w, r)
 
@@ -126,7 +126,7 @@ func TestLogout(t *testing.T) {
 	c.Equal("", cookie.Value)
 
 	// 2. --- Try with no cookie ---
-	w, r = PrepareRequest("DELETE", "/session/logout", nil)
+	w, r = PrepareRequest("DELETE", "/api/v1/session/logout", nil)
 	router.ServeHTTP(w, r)
 	c.Equal(401, w.Code)
 }

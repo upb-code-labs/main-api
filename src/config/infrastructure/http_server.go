@@ -15,7 +15,7 @@ var routesGroups = []func(*gin.RouterGroup){
 	courses_http.StartCoursesRoutes,
 }
 
-func StartHTTPServer() {
+func InstanceHttpServer() (r *gin.Engine) {
 	engine := gin.Default()
 	engine.Use(shared_infra.ErrorHandlerMiddleware())
 
@@ -37,5 +37,5 @@ func StartHTTPServer() {
 		registerRoutesGroup(baseGroup)
 	}
 
-	engine.Run(":8080")
+	return engine
 }
