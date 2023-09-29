@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"github.com/UPB-Code-Labs/main-api/src/accounts/application"
+	"github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/implementations"
 	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
@@ -10,8 +11,8 @@ func StartAccountsRoutes(g *gin.RouterGroup) {
 	accountsGroup := g.Group("/accounts")
 
 	useCases := application.AccountsUseCases{
-		AccountsRepository: GetAccountsPgRepository(),
-		PasswordsHasher:    GetArgon2PasswordsHasher(),
+		AccountsRepository: implementations.GetAccountsPgRepository(),
+		PasswordsHasher:    implementations.GetArgon2PasswordsHasher(),
 	}
 
 	controller := &AccountsController{

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/entities"
-	"github.com/UPB-Code-Labs/main-api/src/session/domain"
+	"github.com/UPB-Code-Labs/main-api/src/session/domain/dtos"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -52,20 +52,20 @@ func (handler JwtTokenHandler) GenerateToken(user entities.User) (string, error)
 	return signedToken, err
 }
 
-func (handler JwtTokenHandler) ValidateToken(token string) (domain.JwtCustomClaims, error) {
+func (handler JwtTokenHandler) ValidateToken(token string) (dtos.CustomClaimsDTO, error) {
 	claims := Claims{}
 	parsedToken, err := jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(handler.Secret), nil
 	})
 	if err != nil {
-		return domain.JwtCustomClaims{}, err
+		return dtos.CustomClaimsDTO{}, err
 	}
 
 	if !parsedToken.Valid {
-		return domain.JwtCustomClaims{}, errors.New("invalid token")
+		return dtos.CustomClaimsDTO{}, errors.New("invalid token")
 	}
 
-	return domain.JwtCustomClaims{
+	return dtos.CustomClaimsDTO{
 		UUID: claims.UUID,
 		Role: claims.Role,
 	}, nil

@@ -3,18 +3,18 @@ package application
 import (
 	"database/sql"
 
-	accounts_domain "github.com/UPB-Code-Labs/main-api/src/accounts/domain"
+	accounts_definitions "github.com/UPB-Code-Labs/main-api/src/accounts/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/entities"
 	accounts_errors "github.com/UPB-Code-Labs/main-api/src/accounts/domain/errors"
-	"github.com/UPB-Code-Labs/main-api/src/session/domain"
+	"github.com/UPB-Code-Labs/main-api/src/session/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/session/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/session/domain/errors"
 )
 
 type SessionUseCases struct {
-	AccountsRepository accounts_domain.AccountsRepository
-	PasswordHasher     accounts_domain.PasswordsHasher
-	TokenHandler       domain.TokenHandler
+	AccountsRepository accounts_definitions.AccountsRepository
+	PasswordHasher     accounts_definitions.PasswordsHasher
+	TokenHandler       definitions.TokenHandler
 }
 
 func (useCases *SessionUseCases) Login(dto dtos.LoginDTO) (dtos.SessionDTO, error) {

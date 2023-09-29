@@ -37,7 +37,7 @@ func TestCreateCourse(t *testing.T) {
 	c.Equal(201, code)
 
 	// Login with the teacher
-	w, r := PrepareRequest("POST", "/session/login", map[string]interface{}{
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
 		"email":    registerTeacherPayload.Email,
 		"password": registerTeacherPayload.Password,
 	})
@@ -47,7 +47,7 @@ func TestCreateCourse(t *testing.T) {
 	cookie := w.Result().Cookies()[0]
 
 	for _, testCase := range testCases {
-		w, r = PrepareRequest("POST", "/courses", testCase.Payload)
+		w, r = PrepareRequest("POST", "/api/v1/courses", testCase.Payload)
 		r.AddCookie(cookie)
 		router.ServeHTTP(w, r)
 
@@ -74,7 +74,7 @@ func TestCreateCourse(t *testing.T) {
 	c.Equal(201, code)
 
 	// Login with the student
-	w, r = PrepareRequest("POST", "/session/login", map[string]interface{}{
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
 		"email":    registerStudentPayload.Email,
 		"password": registerStudentPayload.Password,
 	})
@@ -84,7 +84,7 @@ func TestCreateCourse(t *testing.T) {
 	cookie = w.Result().Cookies()[0]
 
 	for _, testCase := range testCases {
-		w, r = PrepareRequest("POST", "/courses", testCase.Payload)
+		w, r = PrepareRequest("POST", "/api/v1/courses", testCase.Payload)
 		r.AddCookie(cookie)
 		router.ServeHTTP(w, r)
 		c.Equal(http.StatusForbidden, w.Code)
