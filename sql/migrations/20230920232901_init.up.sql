@@ -30,13 +30,13 @@ CREATE TABLE IF NOT EXISTS courses (
 );
 
 CREATE TABLE IF NOT EXISTS invitation_codes (
-  "class_id" UUID PRIMARY KEY REFERENCES courses(id),
-  "code" VARCHAR(9) NOT NULL UNIQUE,
+  "course_id" UUID PRIMARY KEY REFERENCES courses(id),
+  "code" VARCHAR(9) NOT NULL UNIQUE CHECK (LENGTH(code) >= 9),
   "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS courses_has_users (
-  "class_id" UUID NOT NULL REFERENCES courses(id),
+  "course_id" UUID NOT NULL REFERENCES courses(id),
   "user_id" UUID NOT NULL REFERENCES users(id),
   "is_class_hidden" BOOLEAN NOT NULL DEFAULT FALSE,
   "is_user_active" BOOLEAN NOT NULL DEFAULT TRUE
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS criteria (
 
 CREATE TABLE IF NOT EXISTS laboratories (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "class_id" UUID NOT NULL REFERENCES courses(id),
+  "course_id" UUID NOT NULL REFERENCES courses(id),
   "rubric_id" UUID NOT NULL REFERENCES rubrics(id),
   "name" VARCHAR(255) NOT NULL,
   "opening_date" TIMESTAMP NOT NULL,
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS grade_has_criteria (
 
 -- ## Indexes
 -- ### Unique indexes
-CREATE UNIQUE INDEX IF NOT EXISTS idx_class_users ON courses_has_users(class_id, user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_class_users ON courses_has_users(course_id, user_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_submissions ON submissions(test_id, student_id);
 
