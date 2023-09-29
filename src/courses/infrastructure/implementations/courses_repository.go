@@ -9,6 +9,7 @@ import (
 
 	"github.com/UPB-Code-Labs/main-api/src/courses/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/courses/domain/entities"
+	courses_errors "github.com/UPB-Code-Labs/main-api/src/courses/domain/errors"
 	"github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 )
 
@@ -204,6 +205,13 @@ func (repository *CoursesPostgresRepository) GetCourseByUUID(uuid string) (*enti
 	var course entities.Course
 	err := row.Scan(&course.UUID, &course.TeacherUUID, &course.Name, &course.Color)
 	if err != nil {
+		// Throw a domain error if the course was not found
+		if err == sql.ErrNoRows {
+			return nil, courses_errors.CourseNotFoundError{
+				UUID: uuid,
+			}
+		}
+
 		return nil, err
 	}
 
