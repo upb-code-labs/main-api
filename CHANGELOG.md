@@ -1,3 +1,12 @@
+# [0.11.0](https://github.com/upb-code-labs/main-api/compare/v0.10.0...v0.11.0) (2023-09-29)
+
+
+### Features
+
+* Join course using invitation code ([#51](https://github.com/upb-code-labs/main-api/issues/51)) ([6206f3c](https://github.com/upb-code-labs/main-api/commit/6206f3c78b7a6ff9bb2f10c6704a01ad75358d3b))
+
+
+
 # [0.10.0](https://github.com/upb-code-labs/main-api/compare/v0.9.0...v0.10.0) (2023-09-29)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Logout ([#39](https://github.com/upb-code-labs/main-api/issues/39)) ([81d5536](https://github.com/upb-code-labs/main-api/commit/81d5536e16d5728e6449c9738c5b9b1f1e4420b0))
-
-
-
-# [0.6.0](https://github.com/upb-code-labs/main-api/compare/v0.5.1...v0.6.0) (2023-09-25)
-
-
-### Features
-
-* whoami ([#38](https://github.com/upb-code-labs/main-api/issues/38)) ([a866d8e](https://github.com/upb-code-labs/main-api/commit/a866d8e86bcd4df689f0933b570e5c0ce4324dad))
 
 
 
