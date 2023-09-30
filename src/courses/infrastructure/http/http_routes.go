@@ -22,21 +22,28 @@ func StartCoursesRoutes(g *gin.RouterGroup) {
 	coursesGroup.POST(
 		"",
 		infrastructure.WithAuthenticationMiddleware(),
-		infrastructure.WithAuthorizationMiddleware("teacher"),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleCreateCourse,
+	)
+
+	coursesGroup.GET(
+		"",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher", "student"}),
+		controller.HandleGetEnrolledCourses,
 	)
 
 	coursesGroup.GET(
 		":course_uuid/invitation-code",
 		infrastructure.WithAuthenticationMiddleware(),
-		infrastructure.WithAuthorizationMiddleware("teacher"),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleGetInvitationCode,
 	)
 
 	coursesGroup.POST(
 		"/join/:invitation-code",
 		infrastructure.WithAuthenticationMiddleware(),
-		infrastructure.WithAuthorizationMiddleware("student"),
+		infrastructure.WithAuthorizationMiddleware([]string{"student"}),
 		controller.HandleJoinCourse,
 	)
 }

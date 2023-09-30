@@ -112,3 +112,7 @@ func (useCases *CoursesUseCases) JoinCourseUsingInvitationCode(dto *dtos.JoinCou
 	err = useCases.Repository.AddStudentToCourse(dto.StudentUUID, course.UUID)
 	return err
 }
+
+func (useCases *CoursesUseCases) GetEnrolledCourses(userUUID string) (*dtos.EnrolledCoursesDto, error) {
+	return useCases.Repository.GetEnrolledCourses(userUUID)
+}

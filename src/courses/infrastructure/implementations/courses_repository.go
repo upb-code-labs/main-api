@@ -289,3 +289,49 @@ func (repository *CoursesPostgresRepository) IsStudentInCourse(studentUUID, cour
 
 	return exists, nil
 }
+
+func (repository *CoursesPostgresRepository) GetEnrolledCourses(studentUUID string) (*dtos.EnrolledCoursesDto, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT course_id, course_teacher_id, course_name, course_color, is_class_hidden
+		FROM courses_has_users_with_course
+		WHERE user_id = $1
+		AND is_user_active = TRUE
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, studentUUID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	enrolledCourses := dtos.EnrolledCoursesDto{
+		Courses:       []entities.Course{},
+		HiddenCourses: []entities.Course{},
+	}
+	for rows.Next() {
+		var course entities.Course
+		var isClassHidden bool
+
+		err := rows.Scan(
+			&course.UUID,
+			&course.TeacherUUID,
+			&course.Name,
+			&course.Color,
+			&isClassHidden,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if isClassHidden {
+			enrolledCourses.HiddenCourses = append(enrolledCourses.HiddenCourses, course)
+		} else {
+			enrolledCourses.Courses = append(enrolledCourses.Courses, course)
+		}
+	}
+
+	return &enrolledCourses, nil
+}

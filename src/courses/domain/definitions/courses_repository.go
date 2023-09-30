@@ -15,6 +15,7 @@ type CoursesRepository interface {
 
 	AddStudentToCourse(studentUUID, courseUUID string) error
 	IsStudentInCourse(studentUUID, courseUUID string) (bool, error)
+	GetEnrolledCourses(studentUUID string) (*dtos.EnrolledCoursesDto, error)
 
 	GetRandomColor() (*entities.Color, error)
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/UPB-Code-Labs/main-api/src/courses/application"
 	"github.com/UPB-Code-Labs/main-api/src/courses/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/requests"
+	"github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/responses"
 	"github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
@@ -111,4 +112,18 @@ func (controller *CoursesController) HandleJoinCourse(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusNoContent, nil)
+}
+
+func (controller *CoursesController) HandleGetEnrolledCourses(c *gin.Context) {
+	userUUID := c.GetString("session_uuid")
+
+	// Get enrolled courses
+	enrolledCourses, err := controller.UseCases.GetEnrolledCourses(userUUID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	// Parse enrolled courses to response
+	c.JSON(http.StatusOK, responses.GetResponseFromDTO(enrolledCourses))
 }
