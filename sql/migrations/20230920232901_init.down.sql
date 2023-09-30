@@ -9,6 +9,9 @@ DROP INDEX IF EXISTS idx_grade_criteria;
 
 DROP INDEX IF EXISTS idx_users_fullname;
 
+-- ## Views
+DROP VIEW IF EXISTS courses_with_color;
+
 -- ## Tables
 DROP TABLE IF EXISTS grade_has_criteria;
 
@@ -30,9 +33,11 @@ DROP TABLE IF EXISTS objectives;
 
 DROP TABLE IF EXISTS rubrics;
 
-DROP TABLE IF EXISTS class_has_users;
+DROP TABLE IF EXISTS courses_has_users;
 
-DROP TABLE IF EXISTS classes;
+DROP TABLE IF EXISTS invitation_codes;
+
+DROP TABLE IF EXISTS courses;
 
 DROP TABLE IF EXISTS colors;
 

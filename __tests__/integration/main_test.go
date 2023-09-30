@@ -8,10 +8,8 @@ import (
 	"os"
 	"testing"
 
-	accounts_infrastructure "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/requests"
 	config_infrastructure "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
-	session_infrastructure "github.com/UPB-Code-Labs/main-api/src/session/infrastructure"
 	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
@@ -30,15 +28,19 @@ var (
 	registeredTeacherPass  string
 )
 
+type GenericTestCase struct {
+	Payload            map[string]interface{}
+	ExpectedStatusCode int
+}
+
 // --- Setup ---
 func TestMain(m *testing.M) {
-	// Setup
+	// Setup database
 	setupDatabase()
 	defer shared_infrastructure.ClosePostgresConnection()
 
+	// Setup http router
 	setupRouter()
-	setupControllers()
-
 	registerBaseAccounts()
 
 	// Run tests
@@ -52,16 +54,7 @@ func setupDatabase() {
 }
 
 func setupRouter() {
-	router = gin.Default()
-
-}
-
-func setupControllers() {
-	group := router.Group("")
-	group.Use(shared_infrastructure.ErrorHandlerMiddleware())
-
-	session_infrastructure.StartSessionRoutes(group)
-	accounts_infrastructure.StartAccountsRoutes(group)
+	router = config_infrastructure.InstanceHttpServer()
 }
 
 func registerBaseAccounts() {

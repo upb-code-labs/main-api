@@ -1,4 +1,4 @@
-package domain
+package definitions
 
 type PasswordsHasher interface {
 	HashPassword(password string) (string, error)

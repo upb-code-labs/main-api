@@ -1,8 +1,6 @@
 package infrastructure
 
 import (
-	"fmt"
-
 	shared_errors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +31,7 @@ func WithAuthenticationMiddleware() gin.HandlerFunc {
 		cookie, err := c.Cookie("session")
 		if err != nil {
 			c.Error(shared_errors.UnauthorizedError{
-				Message: "No session was provided",
+				Message: "You must be logged in",
 			})
 			c.Abort()
 			return
@@ -42,7 +40,7 @@ func WithAuthenticationMiddleware() gin.HandlerFunc {
 		claims, err := GetJwtTokenHandler().ValidateToken(cookie)
 		if err != nil {
 			c.Error(shared_errors.UnauthorizedError{
-				Message: "Invalid session",
+				Message: "Your session has expired or is not valid",
 			})
 			c.Abort()
 			return
@@ -55,14 +53,20 @@ func WithAuthenticationMiddleware() gin.HandlerFunc {
 	}
 }
 
-func WithAuthorizationMiddleware(role string) gin.HandlerFunc {
+func WithAuthorizationMiddleware(role []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionRole, _ := c.Get("session_role")
 
-		if sessionRole != role {
-			c.Error(shared_errors.NotEnoughPermissionsError{
-				Message: fmt.Sprintf("%s role is required", role),
-			})
+		var isRoleAuthorized bool
+		for _, r := range role {
+			if sessionRole == r {
+				isRoleAuthorized = true
+				break
+			}
+		}
+
+		if !isRoleAuthorized {
+			c.Error(shared_errors.NotEnoughPermissionsError{})
 			c.Abort()
 		}
 

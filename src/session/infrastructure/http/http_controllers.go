@@ -1,4 +1,4 @@
-package infrastructure
+package http
 
 import (
 	"github.com/UPB-Code-Labs/main-api/src/session/application"

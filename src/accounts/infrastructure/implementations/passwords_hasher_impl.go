@@ -1,4 +1,4 @@
-package infrastructure
+package implementations
 
 import (
 	"github.com/alexedwards/argon2id"

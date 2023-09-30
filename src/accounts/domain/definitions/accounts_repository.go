@@ -1,4 +1,4 @@
-package domain
+package definitions
 
 import (
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/dtos"

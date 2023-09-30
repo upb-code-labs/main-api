@@ -19,19 +19,24 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS colors(
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "hexadecimal" VARCHAR(7) NOT NULL UNIQUE
+  "hexadecimal" VARCHAR(9) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS classes (
+CREATE TABLE IF NOT EXISTS courses (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "teacher_id" UUID NOT NULL REFERENCES users(id),
   "color_id" UUID NOT NULL REFERENCES colors(id),
-  "invitation_code" VARCHAR(8) NOT NULL UNIQUE,
-  "name" VARCHAR(255) NOT NULL
+  "name" VARCHAR(96) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS class_has_users (
-  "class_id" UUID NOT NULL REFERENCES classes(id),
+CREATE TABLE IF NOT EXISTS invitation_codes (
+  "course_id" UUID PRIMARY KEY REFERENCES courses(id),
+  "code" VARCHAR(9) NOT NULL UNIQUE CHECK (LENGTH(code) >= 9),
+  "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS courses_has_users (
+  "course_id" UUID NOT NULL REFERENCES courses(id),
   "user_id" UUID NOT NULL REFERENCES users(id),
   "is_class_hidden" BOOLEAN NOT NULL DEFAULT FALSE,
   "is_user_active" BOOLEAN NOT NULL DEFAULT TRUE
@@ -58,7 +63,7 @@ CREATE TABLE IF NOT EXISTS criteria (
 
 CREATE TABLE IF NOT EXISTS laboratories (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "class_id" UUID NOT NULL REFERENCES classes(id),
+  "course_id" UUID NOT NULL REFERENCES courses(id),
   "rubric_id" UUID NOT NULL REFERENCES rubrics(id),
   "name" VARCHAR(255) NOT NULL,
   "opening_date" TIMESTAMP NOT NULL,
@@ -113,7 +118,7 @@ CREATE TABLE IF NOT EXISTS grade_has_criteria (
 
 -- ## Indexes
 -- ### Unique indexes
-CREATE UNIQUE INDEX IF NOT EXISTS idx_class_users ON class_has_users(class_id, user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_class_users ON courses_has_users(course_id, user_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_submissions ON submissions(test_id, student_id);
 
@@ -124,7 +129,47 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_grade_criteria ON grade_has_criteria(grade
 -- ### Search indexes
 CREATE INDEX IF NOT EXISTS idx_users_fullname ON users(full_name);
 
+-- ## Views
+--- ### courses
+CREATE
+OR REPLACE VIEW courses_with_color AS
+SELECT
+  courses.id,
+  courses.teacher_id,
+  courses.name,
+  colors.hexadecimal AS color
+FROM
+  courses
+  INNER JOIN colors ON courses.color_id = colors.id;
+
+--- ### courses_has_users
+CREATE
+OR REPLACE VIEW courses_has_users_with_course AS
+SELECT
+  courses_has_users.course_id,
+  courses_has_users.user_id,
+  courses_has_users.is_class_hidden,
+  courses_has_users.is_user_active,
+  courses.name AS course_name,
+  courses.teacher_id AS course_teacher_id,
+  colors.hexadecimal AS course_color
+FROM
+  courses_has_users
+  INNER JOIN courses ON courses_has_users.course_id = courses.id
+  INNER JOIN colors ON courses.color_id = colors.id;
+
 -- ## Data
+-- ### Colors
+INSERT INTO
+  colors (hexadecimal)
+VALUES
+  ('#a78bfa'),
+  ('#34d399'),
+  ('#f87171'),
+  ('#22d3ee'),
+  ('#fbbf24'),
+  ('#f472b6');
+
 -- ### Admin user (To be used in development)
 INSERT INTO
   users (
