@@ -55,11 +55,19 @@ func WithAuthenticationMiddleware() gin.HandlerFunc {
 	}
 }
 
-func WithAuthorizationMiddleware(role string) gin.HandlerFunc {
+func WithAuthorizationMiddleware(role []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionRole, _ := c.Get("session_role")
 
-		if sessionRole != role {
+		var isRoleAuthorized bool
+		for _, r := range role {
+			if sessionRole == r {
+				isRoleAuthorized = true
+				break
+			}
+		}
+
+		if !isRoleAuthorized {
 			c.Error(shared_errors.NotEnoughPermissionsError{
 				Message: fmt.Sprintf("%s role is required", role),
 			})

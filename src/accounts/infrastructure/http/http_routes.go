@@ -23,18 +23,18 @@ func StartAccountsRoutes(g *gin.RouterGroup) {
 	accountsGroup.POST(
 		"/admins",
 		shared_infrastructure.WithAuthenticationMiddleware(),
-		shared_infrastructure.WithAuthorizationMiddleware("admin"),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"admin"}),
 		controller.HandleRegisterAdmin,
 	)
 	accountsGroup.GET(
 		"/admins",
 		shared_infrastructure.WithAuthenticationMiddleware(),
-		shared_infrastructure.WithAuthorizationMiddleware("admin"),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"admin"}),
 		controller.HandleGetAdmins,
 	)
 	accountsGroup.POST("/teachers",
 		shared_infrastructure.WithAuthenticationMiddleware(),
-		shared_infrastructure.WithAuthorizationMiddleware("admin"),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"admin"}),
 		controller.HandleRegisterTeacher,
 	)
 }
