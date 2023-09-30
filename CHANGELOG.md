@@ -1,3 +1,12 @@
+# [0.13.0](https://github.com/upb-code-labs/main-api/compare/v0.12.0...v0.13.0) (2023-09-30)
+
+
+### Features
+
+* Toggle course visibility ([#55](https://github.com/upb-code-labs/main-api/issues/55)) ([28ec783](https://github.com/upb-code-labs/main-api/commit/28ec7836685f0b69502f3313245ba5c276229d44))
+
+
+
 # [0.12.0](https://github.com/upb-code-labs/main-api/compare/v0.11.0...v0.12.0) (2023-09-30)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Create courses ([#43](https://github.com/upb-code-labs/main-api/issues/43)) ([09e15f8](https://github.com/upb-code-labs/main-api/commit/09e15f8c9460404a04eb30aa5417ca252f477a97))
-
-
-
-# [0.8.0](https://github.com/upb-code-labs/main-api/compare/v0.7.0...v0.8.0) (2023-09-25)
-
-
-### Features
-
-* List admins ([#40](https://github.com/upb-code-labs/main-api/issues/40)) ([7ba0762](https://github.com/upb-code-labs/main-api/commit/7ba076279c8074247aab37ad90eea9e35d935fc3))
 
 
 
