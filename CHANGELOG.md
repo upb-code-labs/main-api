@@ -1,3 +1,12 @@
+# [0.12.0](https://github.com/upb-code-labs/main-api/compare/v0.11.0...v0.12.0) (2023-09-30)
+
+
+### Features
+
+* Get teachers and students courses ([#52](https://github.com/upb-code-labs/main-api/issues/52)) ([2265a05](https://github.com/upb-code-labs/main-api/commit/2265a0550fc11c18e8eedd66bcc4d25ab07f5f50))
+
+
+
 # [0.11.0](https://github.com/upb-code-labs/main-api/compare/v0.10.0...v0.11.0) (2023-09-29)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * List admins ([#40](https://github.com/upb-code-labs/main-api/issues/40)) ([7ba0762](https://github.com/upb-code-labs/main-api/commit/7ba076279c8074247aab37ad90eea9e35d935fc3))
-
-
-
-# [0.7.0](https://github.com/upb-code-labs/main-api/compare/v0.6.0...v0.7.0) (2023-09-25)
-
-
-### Features
-
-* Logout ([#39](https://github.com/upb-code-labs/main-api/issues/39)) ([81d5536](https://github.com/upb-code-labs/main-api/commit/81d5536e16d5728e6449c9738c5b9b1f1e4420b0))
 
 
 
