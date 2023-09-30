@@ -329,3 +329,65 @@ func GetUserCourses(cookie *http.Cookie) (response map[string]interface{}, statu
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+func TestToggleCourseVisibility(t *testing.T) {
+	c := require.New(t)
+
+	// --- 1. Try with a student account ---
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredStudentEmail,
+		"password": registeredStudentPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Assertion> Try with an invalid course
+	_, code := ToggleCourseVisibility(cookie, "not-valid")
+	c.Equal(http.StatusBadRequest, code)
+
+	// Create a course
+	courseUUID, code := CreateCourse("Course [Test Toggle Visibility]")
+	c.Equal(http.StatusCreated, code)
+	c.NotEmpty(courseUUID)
+
+	// Assertion> Try to hide the course without being enrolled
+	_, code = ToggleCourseVisibility(cookie, courseUUID)
+	c.Equal(http.StatusForbidden, code)
+
+	// Add a student to the course
+	invitationCode, code := GetInvitationCode(courseUUID)
+	c.Equal(http.StatusOK, code)
+	c.NotEmpty(invitationCode)
+	code = AddStudentToCourse(invitationCode)
+	c.Equal(http.StatusNoContent, code)
+
+	// Assertion> Hide the course
+	json, code := ToggleCourseVisibility(cookie, courseUUID)
+	c.Equal(http.StatusOK, code)
+	c.False(json["visible"].(bool))
+
+	// Get the student courses
+	response, code := GetUserCourses(cookie)
+	c.Equal(http.StatusOK, code)
+	c.Equal(1, len(response["hidden_courses"].([]interface{})))
+
+	// Assertion> Show the course
+	json, code = ToggleCourseVisibility(cookie, courseUUID)
+	c.Equal(http.StatusOK, code)
+	c.True(json["visible"].(bool))
+
+	// Get the student courses
+	response, code = GetUserCourses(cookie)
+	c.Equal(http.StatusOK, code)
+	c.Equal(0, len(response["hidden_courses"].([]interface{})))
+}
+
+func ToggleCourseVisibility(cookie *http.Cookie, courseUUID string) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/visibility", courseUUID)
+	w, r := PrepareRequest("PATCH", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}
