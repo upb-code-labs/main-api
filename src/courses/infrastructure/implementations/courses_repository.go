@@ -335,3 +335,23 @@ func (repository *CoursesPostgresRepository) GetEnrolledCourses(studentUUID stri
 
 	return &enrolledCourses, nil
 }
+
+func (repository *CoursesPostgresRepository) ToggleCourseVisibility(courseUUID, studentUUID string) (isHiddenAfterUpdate bool, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		UPDATE courses_has_users
+		SET is_class_hidden = NOT is_class_hidden
+		WHERE course_id = $1 AND user_id = $2
+		RETURNING is_class_hidden
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, courseUUID, studentUUID)
+	if row.Err() != nil {
+		return false, row.Err()
+	}
+
+	err = row.Scan(&isHiddenAfterUpdate)
+	return isHiddenAfterUpdate, err
+}

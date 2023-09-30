@@ -116,3 +116,17 @@ func (useCases *CoursesUseCases) JoinCourseUsingInvitationCode(dto *dtos.JoinCou
 func (useCases *CoursesUseCases) GetEnrolledCourses(userUUID string) (*dtos.EnrolledCoursesDto, error) {
 	return useCases.Repository.GetEnrolledCourses(userUUID)
 }
+
+func (useCases *CoursesUseCases) ToggleCourseVisibility(courseUUID, userUUID string) (bool, error) {
+	// Check the user is enrolled in the course
+	isStudentInCourse, err := useCases.Repository.IsStudentInCourse(userUUID, courseUUID)
+	if err != nil {
+		return false, err
+	}
+	if !isStudentInCourse {
+		return false, errors.UserNotInCourseError{}
+	}
+
+	// Toggle the course visibility for the user
+	return useCases.Repository.ToggleCourseVisibility(courseUUID, userUUID)
+}
