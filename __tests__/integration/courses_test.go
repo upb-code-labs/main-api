@@ -236,9 +236,16 @@ func TestJoinCourse(t *testing.T) {
 	}
 
 	// --- 1. Try with a student account ---
+
+	for _, testCase := range testCases {
+		code := AddStudentToCourse(testCase.InvitationCode)
+		c.Equal(testCase.ExpectedStatusCode, code)
+	}
+
+	// --- 2. Try with a teacher account ---
 	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
-		"email":    registeredStudentEmail,
-		"password": registeredStudentPass,
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
 	})
 	router.ServeHTTP(w, r)
 	cookie := w.Result().Cookies()[0]
@@ -248,23 +255,24 @@ func TestJoinCourse(t *testing.T) {
 		w, r = PrepareRequest("POST", endpoint, nil)
 		r.AddCookie(cookie)
 		router.ServeHTTP(w, r)
-
-		c.Equal(testCase.ExpectedStatusCode, w.Code)
-	}
-
-	// --- 2. Try with a teacher account ---
-	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
-		"email":    registeredTeacherEmail,
-		"password": registeredTeacherPass,
-	})
-	router.ServeHTTP(w, r)
-	cookie = w.Result().Cookies()[0]
-
-	for _, testCase := range testCases {
-		endpoint := fmt.Sprintf("/api/v1/courses/join/%s", testCase.InvitationCode)
-		w, r = PrepareRequest("POST", endpoint, nil)
-		r.AddCookie(cookie)
-		router.ServeHTTP(w, r)
 		c.Equal(http.StatusForbidden, w.Code)
 	}
+}
+
+func AddStudentToCourse(invitationCode string) (statusCode int) {
+	// Login as a student
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredStudentEmail,
+		"password": registeredStudentPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Join the course
+	endpoint := fmt.Sprintf("/api/v1/courses/join/%s", invitationCode)
+	w, r = PrepareRequest("POST", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return w.Code
 }
