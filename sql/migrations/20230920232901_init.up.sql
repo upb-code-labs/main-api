@@ -142,6 +142,22 @@ FROM
   courses
   INNER JOIN colors ON courses.color_id = colors.id;
 
+--- ### courses_has_users
+CREATE
+OR REPLACE VIEW courses_has_users_with_course AS
+SELECT
+  courses_has_users.course_id,
+  courses_has_users.user_id,
+  courses_has_users.is_class_hidden,
+  courses_has_users.is_user_active,
+  courses.name AS course_name,
+  courses.teacher_id AS course_teacher_id,
+  colors.hexadecimal AS course_color
+FROM
+  courses_has_users
+  INNER JOIN courses ON courses_has_users.course_id = courses.id
+  INNER JOIN colors ON courses.color_id = colors.id;
+
 -- ## Data
 -- ### Colors
 INSERT INTO
