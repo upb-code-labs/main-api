@@ -127,3 +127,27 @@ func (controller *CoursesController) HandleGetEnrolledCourses(c *gin.Context) {
 	// Parse enrolled courses to response
 	c.JSON(http.StatusOK, responses.GetResponseFromDTO(enrolledCourses))
 }
+
+func (controller *CoursesController) HandleChangeCourseVisibility(c *gin.Context) {
+	userUUID := c.GetString("session_uuid")
+
+	// Validate course uuid
+	courseUUID := c.Param("course_uuid")
+	if err := infrastructure.GetValidator().Var(courseUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid course uuid",
+		})
+		return
+	}
+
+	// Change course visibility
+	isHiddenAfterUpdate, err := controller.UseCases.ToggleCourseVisibility(courseUUID, userUUID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"visible": !isHiddenAfterUpdate,
+	})
+}

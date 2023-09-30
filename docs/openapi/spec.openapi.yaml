@@ -485,6 +485,50 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+  
+  /courses/{course_uuid}/visibility:
+    patch:
+      tags:
+        - Courses
+      security:
+        - cookieAuth: []
+      description: Toggle the course visibility for the owner of the session.
+      parameters:
+        - in: path
+          name: course_uuid
+          schema:
+            type: string
+            example: "cf1d83df-ff67-4b59-8a5e-d04c53709268"
+          required: true
+      responses:
+        "200":
+          description: The visibility was toggled successfully. 
+          content: 
+            application/json: 
+              schema: 
+               type: object
+               properties: 
+                visible: 
+                  type: boolean
+                  example: false
+        "400":
+          description: The course UUID is not valid. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
 
   /courses/{course_uuid}/students:
     get:

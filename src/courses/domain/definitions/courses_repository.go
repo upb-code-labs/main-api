@@ -18,4 +18,5 @@ type CoursesRepository interface {
 	GetEnrolledCourses(studentUUID string) (*dtos.EnrolledCoursesDto, error)
 
 	GetRandomColor() (*entities.Color, error)
+	ToggleCourseVisibility(courseUUID, studentUUID string) (isHiddenAfterUpdate bool, err error)
 }

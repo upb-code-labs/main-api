@@ -1,8 +1,6 @@
 package infrastructure
 
 import (
-	"fmt"
-
 	shared_errors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
 	"github.com/gin-gonic/gin"
 )
@@ -68,9 +66,7 @@ func WithAuthorizationMiddleware(role []string) gin.HandlerFunc {
 		}
 
 		if !isRoleAuthorized {
-			c.Error(shared_errors.NotEnoughPermissionsError{
-				Message: fmt.Sprintf("%s role is required", role),
-			})
+			c.Error(shared_errors.NotEnoughPermissionsError{})
 			c.Abort()
 		}
 
