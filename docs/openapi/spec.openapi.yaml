@@ -347,6 +347,10 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/public_course_fields"
+                  hidden_courses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/public_course_fields"
         "403":
           description: The session token isn't valid or the user doesn't have enough permissions.
           content:
