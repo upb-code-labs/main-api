@@ -102,7 +102,7 @@ func (controller *CoursesController) HandleJoinCourse(c *gin.Context) {
 	}
 
 	// Join course
-	err := controller.UseCases.JoinCourseUsingInvitationCode(&dtos.JoinCourseUsingInvitationCodeDTO{
+	course, err := controller.UseCases.JoinCourseUsingInvitationCode(&dtos.JoinCourseUsingInvitationCodeDTO{
 		StudentUUID:    studentUUID,
 		InvitationCode: invitationCode,
 	})
@@ -111,7 +111,13 @@ func (controller *CoursesController) HandleJoinCourse(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusNoContent, nil)
+	c.JSON(http.StatusOK, gin.H{
+		"course": gin.H{
+			"uuid":  course.UUID,
+			"name":  course.Name,
+			"color": course.Color,
+		},
+	})
 }
 
 func (controller *CoursesController) HandleGetEnrolledCourses(c *gin.Context) {
