@@ -84,33 +84,33 @@ func (useCases *CoursesUseCases) SaveCourse(dto *dtos.CreateCourseDTO) (*entitie
 	return useCases.Repository.SaveCourse(dto)
 }
 
-func (useCases *CoursesUseCases) JoinCourseUsingInvitationCode(dto *dtos.JoinCourseUsingInvitationCodeDTO) error {
+func (useCases *CoursesUseCases) JoinCourseUsingInvitationCode(dto *dtos.JoinCourseUsingInvitationCodeDTO) (*entities.Course, error) {
 	// Get the course by the invitation code
 	course, err := useCases.Repository.GetCourseByInvitationCode(dto.InvitationCode)
 	if err != nil {
 		// Throw a domain error if no course with the given invitation code was found
 		if err == sql.ErrNoRows {
-			return errors.NoCourseWithInvitationCodeError{
+			return nil, errors.NoCourseWithInvitationCodeError{
 				Code: dto.InvitationCode,
 			}
 		}
 
-		return err
+		return nil, err
 	}
 
 	// Check if the student is already in the course
 	isStudentInCourse, err := useCases.Repository.IsStudentInCourse(dto.StudentUUID, course.UUID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if isStudentInCourse {
-		return errors.StudentAlreadyInCourse{
+		return nil, errors.StudentAlreadyInCourse{
 			CourseName: course.Name,
 		}
 	}
 
 	err = useCases.Repository.AddStudentToCourse(dto.StudentUUID, course.UUID)
-	return err
+	return course, err
 }
 
 func (useCases *CoursesUseCases) GetEnrolledCourses(userUUID string) (*dtos.EnrolledCoursesDto, error) {
