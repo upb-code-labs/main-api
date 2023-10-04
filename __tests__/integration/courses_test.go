@@ -227,7 +227,7 @@ func TestJoinCourse(t *testing.T) {
 		},
 		{
 			InvitationCode:     invitationCode,
-			ExpectedStatusCode: http.StatusNoContent,
+			ExpectedStatusCode: http.StatusOK,
 		},
 		{
 			InvitationCode:     invitationCode, // Already joined
@@ -238,8 +238,16 @@ func TestJoinCourse(t *testing.T) {
 	// --- 1. Try with a student account ---
 
 	for _, testCase := range testCases {
-		code := AddStudentToCourse(testCase.InvitationCode)
+		response, code := AddStudentToCourse(testCase.InvitationCode)
 		c.Equal(testCase.ExpectedStatusCode, code)
+
+		// Check the response fields
+		if code == http.StatusOK {
+			c.NotEmpty(response["course"])
+			c.NotEmpty(response["course"].(map[string]interface{})["uuid"])
+			c.NotEmpty(response["course"].(map[string]interface{})["name"])
+			c.NotEmpty(response["course"].(map[string]interface{})["color"])
+		}
 	}
 
 	// --- 2. Try with a teacher account ---
@@ -259,7 +267,7 @@ func TestJoinCourse(t *testing.T) {
 	}
 }
 
-func AddStudentToCourse(invitationCode string) (statusCode int) {
+func AddStudentToCourse(invitationCode string) (response map[string]interface{}, statusCode int) {
 	// Login as a student
 	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
 		"email":    registeredStudentEmail,
@@ -274,7 +282,7 @@ func AddStudentToCourse(invitationCode string) (statusCode int) {
 	r.AddCookie(cookie)
 	router.ServeHTTP(w, r)
 
-	return w.Code
+	return ParseJsonResponse(w.Body), w.Code
 }
 
 func TestGetCourses(t *testing.T) {
@@ -358,8 +366,8 @@ func TestToggleCourseVisibility(t *testing.T) {
 	invitationCode, code := GetInvitationCode(courseUUID)
 	c.Equal(http.StatusOK, code)
 	c.NotEmpty(invitationCode)
-	code = AddStudentToCourse(invitationCode)
-	c.Equal(http.StatusNoContent, code)
+	_, code = AddStudentToCourse(invitationCode)
+	c.Equal(http.StatusOK, code)
 
 	// Assertion> Hide the course
 	json, code := ToggleCourseVisibility(cookie, courseUUID)
