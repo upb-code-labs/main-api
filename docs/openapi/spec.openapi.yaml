@@ -423,8 +423,16 @@ paths:
             example: "8_JI4bFA7"
           required: true
       responses:
-        "204": 
+        "200": 
           description: The student joined the course successfully. 
+          content: 
+            application/json: 
+              schema: 
+                type: object
+                properties: 
+                  course:
+                    allOf:
+                      - $ref: "#/components/schemas/public_course_fields"
         "400":
           description: The invitation code is not valid. 
           content:
