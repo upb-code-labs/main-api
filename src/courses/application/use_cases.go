@@ -130,3 +130,24 @@ func (useCases *CoursesUseCases) ToggleCourseVisibility(courseUUID, userUUID str
 	// Toggle the course visibility for the user
 	return useCases.Repository.ToggleCourseVisibility(courseUUID, userUUID)
 }
+
+func (useCases *CoursesUseCases) UpdateCourseName(dto dtos.RenameCourseDTO) error {
+	// Check the user is the teacher of the course
+	course, err := useCases.Repository.GetCourseByUUID(dto.CourseUUID)
+	if err != nil {
+		return err
+	}
+
+	teacherOwnsCourse := course.TeacherUUID == dto.TeacherUUID
+	if !teacherOwnsCourse {
+		return errors.TeacherDoesNotOwnsCourseError{}
+	}
+
+	// Check the new name is different from the current one
+	if course.Name == dto.NewName {
+		return errors.UnchangedCourseNameError{}
+	}
+
+	// Update the course name
+	return useCases.Repository.UpdateCourseName(dto)
+}
