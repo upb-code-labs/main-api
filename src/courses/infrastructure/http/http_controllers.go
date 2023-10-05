@@ -157,3 +157,47 @@ func (controller *CoursesController) HandleChangeCourseVisibility(c *gin.Context
 		"visible": !isHiddenAfterUpdate,
 	})
 }
+
+func (controller *CoursesController) HandleChangeCourseName(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+
+	// Parse request body
+	var request requests.CreateCourseRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Validate course uuid
+	courseUUID := c.Param("course_uuid")
+	if err := infrastructure.GetValidator().Var(courseUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid course uuid",
+		})
+		return
+	}
+
+	// Change course name
+	err := controller.UseCases.UpdateCourseName(dtos.RenameCourseDTO{
+		TeacherUUID: teacherUUID,
+		CourseUUID:  courseUUID,
+		NewName:     request.Name,
+	})
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
