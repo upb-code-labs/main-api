@@ -1,3 +1,7 @@
+-- ## Triggers
+DROP TRIGGER IF EXISTS set_created_by ON users;
+DROP FUNCTION IF EXISTS update_created_by();
+
 -- ## Indexes
 DROP INDEX IF EXISTS idx_class_users;
 
@@ -11,6 +15,10 @@ DROP INDEX IF EXISTS idx_users_fullname;
 
 -- ## Views
 DROP VIEW IF EXISTS courses_with_color;
+
+DROP VIEW IF EXISTS courses_has_users_with_course;
+
+DROP VIEW IF EXISTS users_with_creator;
 
 -- ## Tables
 DROP TABLE IF EXISTS grade_has_criteria;
@@ -50,3 +58,4 @@ DROP TYPE IF EXISTS USER_ROLES;
 
 -- ## Extensions
 DROP EXTENSION IF EXISTS "uuid-ossp";
+DROP EXTENSION IF EXISTS "citext";
