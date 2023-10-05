@@ -8,4 +8,5 @@ type User struct {
 	InstitutionalId string
 	PasswordHash    string
 	CreatedAt       string
+	CreatedBy       string
 }

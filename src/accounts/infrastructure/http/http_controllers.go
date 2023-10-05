@@ -42,6 +42,8 @@ func (controller *AccountsController) HandleRegisterStudent(c *gin.Context) {
 }
 
 func (controller *AccountsController) HandleRegisterAdmin(c *gin.Context) {
+	adminUUID := c.GetString("session_uuid")
+
 	// Parse request body
 	var request requests.RegisterAdminRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -62,6 +64,7 @@ func (controller *AccountsController) HandleRegisterAdmin(c *gin.Context) {
 
 	// Register admin
 	dto := request.ToDTO()
+	dto.CreatedBy = adminUUID
 	err := controller.UseCases.RegisterAdmin(*dto)
 	if err != nil {
 		c.Error(err)
@@ -72,6 +75,8 @@ func (controller *AccountsController) HandleRegisterAdmin(c *gin.Context) {
 }
 
 func (controller *AccountsController) HandleRegisterTeacher(c *gin.Context) {
+	adminUUID := c.GetString("session_uuid")
+
 	// Parse request body
 	var request requests.RegisterTeacherRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -92,6 +97,7 @@ func (controller *AccountsController) HandleRegisterTeacher(c *gin.Context) {
 
 	// Register teacher
 	dto := request.ToDTO()
+	dto.CreatedBy = adminUUID
 	err := controller.UseCases.RegisterTeacher(*dto)
 	if err != nil {
 		c.Error(err)
@@ -114,6 +120,7 @@ func (controller *AccountsController) HandleGetAdmins(c *gin.Context) {
 			"uuid":       admin.UUID,
 			"full_name":  admin.FullName,
 			"created_at": admin.CreatedAt,
+			"created_by": admin.CreatedBy,
 		}
 	}
 
