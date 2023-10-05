@@ -1,3 +1,12 @@
+## [0.13.2](https://github.com/upb-code-labs/main-api/compare/v0.13.1...v0.13.2) (2023-10-05)
+
+
+### Bug Fixes
+
+* Use case insensitive text for emails ([#62](https://github.com/upb-code-labs/main-api/issues/62)) ([072a005](https://github.com/upb-code-labs/main-api/commit/072a0053606e988783fb9ad7055c145df054189d))
+
+
+
 ## [0.13.1](https://github.com/upb-code-labs/main-api/compare/v0.13.0...v0.13.1) (2023-10-04)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Join course using invitation code ([#51](https://github.com/upb-code-labs/main-api/issues/51)) ([6206f3c](https://github.com/upb-code-labs/main-api/commit/6206f3c78b7a6ff9bb2f10c6704a01ad75358d3b))
-
-
-
-# [0.10.0](https://github.com/upb-code-labs/main-api/compare/v0.9.0...v0.10.0) (2023-09-29)
-
-
-### Features
-
-* Get invitation code ([#50](https://github.com/upb-code-labs/main-api/issues/50)) ([35af762](https://github.com/upb-code-labs/main-api/commit/35af7627d6f51ac8a167b80db6ff25019e12a28c))
 
 
 
