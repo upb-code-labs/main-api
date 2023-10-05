@@ -1,6 +1,8 @@
 -- ## Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+CREATE EXTENSION IF NOT EXISTS citext;
+
 -- ## Types
 CREATE TYPE SUBMISSION_STATUS AS ENUM ('pending', 'running', 'ready');
 
@@ -11,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "role" USER_ROLES NOT NULL DEFAULT 'student',
   "institutional_id" VARCHAR(16) NULL UNIQUE,
-  "email" VARCHAR(64) NOT NULL UNIQUE,
+  "email" CITEXT NOT NULL UNIQUE,
   "full_name" VARCHAR NOT NULL,
   "password_hash" VARCHAR NOT NULL,
   "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
