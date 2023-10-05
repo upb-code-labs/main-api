@@ -355,3 +355,22 @@ func (repository *CoursesPostgresRepository) ToggleCourseVisibility(courseUUID, 
 	err = row.Scan(&isHiddenAfterUpdate)
 	return isHiddenAfterUpdate, err
 }
+
+func (repository *CoursesPostgresRepository) UpdateCourseName(dto dtos.RenameCourseDTO) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := "UPDATE courses SET name = $1 WHERE id = $2"
+
+	_, err := repository.Connection.ExecContext(
+		ctx,
+		query,
+		dto.NewName,
+		dto.CourseUUID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
