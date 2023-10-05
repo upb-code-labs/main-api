@@ -399,3 +399,91 @@ func ToggleCourseVisibility(cookie *http.Cookie, courseUUID string) (response ma
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+func TestRenameCourse(t *testing.T) {
+	c := require.New(t)
+
+	testCases := []GenericTestCase{
+		{
+			Payload: map[string]interface{}{
+				// Short name
+				"name": "a",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			Payload: map[string]interface{}{
+				"name": "Competitive Programming",
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+		{
+			Payload: map[string]interface{}{
+				// Same name
+				"name": "Competitive Programming",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+	}
+
+	// --- 1. Try with a teacher account ---
+	// Create a course
+	courseUUID, code := CreateCourse("Course [Test Rename Course]")
+	c.Equal(http.StatusCreated, code)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	for _, testCase := range testCases {
+		endpoint := fmt.Sprintf("/api/v1/courses/%s/name", courseUUID)
+		w, r = PrepareRequest("PATCH", endpoint, testCase.Payload)
+		r.AddCookie(cookie)
+		router.ServeHTTP(w, r)
+		c.Equal(testCase.ExpectedStatusCode, w.Code)
+	}
+
+	// Try with a non-valid course
+	code = RenameCourse(cookie, "not-valid", "New Name")
+	c.Equal(http.StatusBadRequest, code)
+
+	// Try with a non-existent course
+	code = RenameCourse(cookie, "ab41d891-8374-4eec-adef-5a129986b059", "New Name")
+	c.Equal(http.StatusNotFound, code)
+
+	// --- 2. Try with a teacher that does not own the course ---
+	// Register a teacher
+	registerTeacherPayload := requests.RegisterTeacherRequest{
+		FullName: "Santeri Rasim",
+		Email:    "santeri.rasim.2020@upb.edu.co",
+		Password: "santeri/password/2023",
+	}
+	code = RegisterTeacherAccount(registerTeacherPayload)
+	c.Equal(201, code)
+
+	// Login with the teacher
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registerTeacherPayload.Email,
+		"password": registerTeacherPayload.Password,
+	})
+	router.ServeHTTP(w, r)
+	cookie = w.Result().Cookies()[0]
+
+	code = RenameCourse(cookie, courseUUID, "New Name")
+	c.Equal(http.StatusForbidden, code)
+}
+
+func RenameCourse(cookie *http.Cookie, courseUUID string, name string) (statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/name", courseUUID)
+	w, r := PrepareRequest("PATCH", endpoint, map[string]interface{}{
+		"name": name,
+	})
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return w.Code
+}
