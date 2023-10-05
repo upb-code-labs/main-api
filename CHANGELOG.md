@@ -1,3 +1,12 @@
+# [0.14.0](https://github.com/upb-code-labs/main-api/compare/v0.13.3...v0.14.0) (2023-10-05)
+
+
+### Features
+
+* Rename course ([#64](https://github.com/upb-code-labs/main-api/issues/64)) ([7e7110b](https://github.com/upb-code-labs/main-api/commit/7e7110b6afe89fb7c10c7596df11ef17ee9de397))
+
+
+
 ## [0.13.3](https://github.com/upb-code-labs/main-api/compare/v0.13.2...v0.13.3) (2023-10-05)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Toggle course visibility ([#55](https://github.com/upb-code-labs/main-api/issues/55)) ([28ec783](https://github.com/upb-code-labs/main-api/commit/28ec7836685f0b69502f3313245ba5c276229d44))
-
-
-
-# [0.12.0](https://github.com/upb-code-labs/main-api/compare/v0.11.0...v0.12.0) (2023-09-30)
-
-
-### Features
-
-* Get teachers and students courses ([#52](https://github.com/upb-code-labs/main-api/issues/52)) ([2265a05](https://github.com/upb-code-labs/main-api/commit/2265a0550fc11c18e8eedd66bcc4d25ab07f5f50))
 
 
 
