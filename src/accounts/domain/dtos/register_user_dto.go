@@ -5,4 +5,5 @@ type RegisterUserDTO struct {
 	Email           string
 	InstitutionalId string
 	Password        string
+	CreatedBy       string
 }
