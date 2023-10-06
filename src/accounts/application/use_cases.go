@@ -93,3 +93,7 @@ func (useCases *AccountsUseCases) RegisterTeacher(dto dtos.RegisterUserDTO) erro
 func (useCases *AccountsUseCases) GetAdmins() ([]*entities.User, error) {
 	return useCases.AccountsRepository.GetAdmins()
 }
+
+func (useCases *AccountsUseCases) SearchStudentsByFullName(fullName string) ([]*entities.User, error) {
+	return useCases.AccountsRepository.SearchStudentsByFullName(fullName)
+}
