@@ -10,7 +10,7 @@ type StudentAlreadyInCourse struct {
 }
 
 func (err StudentAlreadyInCourse) Error() string {
-	return fmt.Sprintf("You are already in the course %s", err.CourseName)
+	return fmt.Sprintf("Student is already in the course %s", err.CourseName)
 }
 
 func (err StudentAlreadyInCourse) StatusCode() int {

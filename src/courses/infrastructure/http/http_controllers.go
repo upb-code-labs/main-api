@@ -201,3 +201,49 @@ func (controller *CoursesController) HandleChangeCourseName(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+func (controller *CoursesController) HandleAddStudentToCourse(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+
+	// Validate course uuid
+	courseUUID := c.Param("course_uuid")
+	if err := infrastructure.GetValidator().Var(courseUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid course uuid",
+		})
+		return
+	}
+
+	// Parse request body
+	var request requests.EnrollStudentRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Add student to course
+	dto := &dtos.AddStudentToCourseDTO{
+		TeacherUUID: teacherUUID,
+		StudentUUID: request.StudentUUID,
+		CourseUUID:  courseUUID,
+	}
+
+	err := controller.UseCases.AddStudentToCourse(dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
