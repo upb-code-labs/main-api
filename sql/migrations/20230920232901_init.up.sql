@@ -130,7 +130,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_grades ON grades(laboratory_id, student_id
 CREATE UNIQUE INDEX IF NOT EXISTS idx_grade_criteria ON grade_has_criteria(grade_id, objective_id);
 
 -- ### Search indexes
-CREATE INDEX IF NOT EXISTS idx_users_fullname ON users(full_name);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_lower_fullName ON users(LOWER(full_name));
 
 -- ## Views
 --- ### Users

@@ -259,3 +259,43 @@ func (repository *AccountsPostgresRepository) GetAdmins() ([]*entities.User, err
 
 	return admins, nil
 }
+
+func (repository *AccountsPostgresRepository) SearchStudentsByFullName(fullName string) ([]*entities.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT id, institutional_id, email, full_name
+		FROM users
+		WHERE role = 'student' AND lower(full_name) LIKE lower($1)
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, fullName+"%")
+	if err != nil {
+		return nil, err
+	}
+
+	var students []*entities.User
+	for rows.Next() {
+		var student entities.User
+		var studentInstitutionalId sql.NullString
+		err := rows.Scan(
+			&student.UUID,
+			&studentInstitutionalId,
+			&student.Email,
+			&student.FullName,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if studentInstitutionalId.Valid {
+			student.InstitutionalId = studentInstitutionalId.String
+		}
+
+		students = append(students, &student)
+	}
+
+	return students, nil
+}

@@ -15,4 +15,6 @@ type AccountsRepository interface {
 	GetUserByInstitutionalId(institutionalId string) (*entities.User, error)
 
 	GetAdmins() ([]*entities.User, error)
+
+	SearchStudentsByFullName(fullName string) ([]*entities.User, error)
 }

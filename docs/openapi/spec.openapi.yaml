@@ -159,6 +159,47 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+    get:
+      tags: 
+        - Accounts
+      description: Search students by fullName
+      parameters: 
+        - in: query
+          name: fullName
+          schema:
+            type: string
+            example: "Pedro"
+          required: true
+      responses: 
+        "200": 
+          description: Students whith the given fullName are listed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  students:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/public_student_fields"
+        "400":
+          description: The required parameter is empty.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
 
   /accounts/password:
     patch:
@@ -1337,7 +1378,7 @@ components:
     create_account_req:
       type: object
       properties:
-        fullname:
+        fullName:
           type: string
           example: "Pedro Chaparro"
         email:
@@ -1454,7 +1495,7 @@ components:
         institutional_id:
           type: string
           example: "000371272"
-        fullname:
+        fullName:
           type: string
           example: "Pedro Chaparro"
   
@@ -1463,12 +1504,24 @@ components:
         uuid:
           type: string
           example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
-        fullname:
+        fullName:
           type: string
           example: "Pedro Chaparro"
         created_at:
           type: string
           example: "2023-09-25T23:37:52.155652Z"
+    
+    public_student_fields: 
+      properties: 
+        uuid:
+          type: string
+          example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
+        fullName:
+          type: string
+          example: "Pedro Chaparro"
+        institutional_id: 
+          type: string
+          example: "000371272"
 
     public_course_fields:
       type: object
