@@ -1,3 +1,12 @@
+# [0.15.0](https://github.com/upb-code-labs/main-api/compare/v0.14.0...v0.15.0) (2023-10-06)
+
+
+### Features
+
+* Search students by full name ([#65](https://github.com/upb-code-labs/main-api/issues/65)) ([f72482b](https://github.com/upb-code-labs/main-api/commit/f72482b05b2e30be56fb3d8d12da837ab88daf9d))
+
+
+
 # [0.14.0](https://github.com/upb-code-labs/main-api/compare/v0.13.3...v0.14.0) (2023-10-05)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * Send course information when an student joins using invitation code ([#58](https://github.com/upb-code-labs/main-api/issues/58)) ([c534e71](https://github.com/upb-code-labs/main-api/commit/c534e711f12fbb78d674dc3ff50cddc0fe4ec416))
-
-
-
-# [0.13.0](https://github.com/upb-code-labs/main-api/compare/v0.12.0...v0.13.0) (2023-09-30)
-
-
-### Features
-
-* Toggle course visibility ([#55](https://github.com/upb-code-labs/main-api/issues/55)) ([28ec783](https://github.com/upb-code-labs/main-api/commit/28ec7836685f0b69502f3313245ba5c276229d44))
 
 
 
