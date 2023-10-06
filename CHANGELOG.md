@@ -1,3 +1,12 @@
+# [0.16.0](https://github.com/upb-code-labs/main-api/compare/v0.15.0...v0.16.0) (2023-10-06)
+
+
+### Features
+
+* Enroll student ([#66](https://github.com/upb-code-labs/main-api/issues/66)) ([565c90d](https://github.com/upb-code-labs/main-api/commit/565c90d210be303fb38874b12144146285283dc9))
+
+
+
 # [0.15.0](https://github.com/upb-code-labs/main-api/compare/v0.14.0...v0.15.0) (2023-10-06)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * Use case insensitive text for emails ([#62](https://github.com/upb-code-labs/main-api/issues/62)) ([072a005](https://github.com/upb-code-labs/main-api/commit/072a0053606e988783fb9ad7055c145df054189d))
-
-
-
-## [0.13.1](https://github.com/upb-code-labs/main-api/compare/v0.13.0...v0.13.1) (2023-10-04)
-
-
-### Bug Fixes
-
-* Send course information when an student joins using invitation code ([#58](https://github.com/upb-code-labs/main-api/issues/58)) ([c534e71](https://github.com/upb-code-labs/main-api/commit/c534e711f12fbb78d674dc3ff50cddc0fe4ec416))
 
 
 
