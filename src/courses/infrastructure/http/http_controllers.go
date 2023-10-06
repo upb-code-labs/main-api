@@ -157,3 +157,127 @@ func (controller *CoursesController) HandleChangeCourseVisibility(c *gin.Context
 		"visible": !isHiddenAfterUpdate,
 	})
 }
+
+func (controller *CoursesController) HandleChangeCourseName(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+
+	// Parse request body
+	var request requests.CreateCourseRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Validate course uuid
+	courseUUID := c.Param("course_uuid")
+	if err := infrastructure.GetValidator().Var(courseUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid course uuid",
+		})
+		return
+	}
+
+	// Change course name
+	err := controller.UseCases.UpdateCourseName(dtos.RenameCourseDTO{
+		TeacherUUID: teacherUUID,
+		CourseUUID:  courseUUID,
+		NewName:     request.Name,
+	})
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+func (controller *CoursesController) HandleAddStudentToCourse(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+
+	// Validate course uuid
+	courseUUID := c.Param("course_uuid")
+	if err := infrastructure.GetValidator().Var(courseUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid course uuid",
+		})
+		return
+	}
+
+	// Parse request body
+	var request requests.EnrollStudentRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Add student to course
+	dto := &dtos.AddStudentToCourseDTO{
+		TeacherUUID: teacherUUID,
+		StudentUUID: request.StudentUUID,
+		CourseUUID:  courseUUID,
+	}
+
+	err := controller.UseCases.AddStudentToCourse(dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+func (controller *CoursesController) HandleGetStudentsEnrolledInCourse(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+
+	// Validate course uuid
+	courseUUID := c.Param("course_uuid")
+	if err := infrastructure.GetValidator().Var(courseUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Not valid course uuid",
+		})
+		return
+	}
+
+	// Get enrolled students
+	enrolledStudents, err := controller.UseCases.GetEnrolledStudents(teacherUUID, courseUUID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	enrolledStudentsResponse := make([]gin.H, len(enrolledStudents))
+	for i, student := range enrolledStudents {
+		enrolledStudentsResponse[i] = gin.H{
+			"uuid":             student.UUID,
+			"full_name":        student.FullName,
+			"institutional_id": student.InstitutionalId,
+			"is_active":        student.IsActive,
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"students": enrolledStudentsResponse,
+	})
+}

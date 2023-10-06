@@ -293,3 +293,67 @@ func TestListAdmins(t *testing.T) {
 	router.ServeHTTP(w, r)
 	c.Equal(http.StatusForbidden, w.Code)
 }
+
+func TestSearchStudentsByFullName(t *testing.T) {
+	c := require.New(t)
+
+	// --- 1. Login as a teacher ---
+	// Register two students to search
+	code := RegisterStudent(requests.RegisterUserRequest{
+		FullName:        "Sydnie Dipali",
+		Email:           "sydnie.dipali.2020@upb.edu.co",
+		Password:        "sydnie/password/2023",
+		InstitutionalId: "000456789",
+	})
+	c.Equal(http.StatusCreated, code)
+
+	code = RegisterStudent(requests.RegisterUserRequest{
+		FullName:        "Sydnie Dipalu",
+		Email:           "sydnie.dipalu.2020@upb.edu.co",
+		Password:        "sydnie/password/2023",
+		InstitutionalId: "000567891",
+	})
+	c.Equal(http.StatusCreated, code)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Search students
+	response, code := SearchStudentsByFullName(cookie, "Sydnie")
+	c.Equal(http.StatusOK, code)
+	students := response["students"].([]interface{})
+	c.GreaterOrEqual(len(students), 2)
+	for _, s := range students {
+		student := s.(map[string]interface{})
+		c.NotEmpty(student["uuid"])
+		c.NotEmpty(student["institutional_id"])
+		c.NotEmpty(student["full_name"])
+	}
+
+	response, code = SearchStudentsByFullName(cookie, "Sydnie Dipali")
+	c.Equal(http.StatusOK, code)
+	students = response["students"].([]interface{})
+	c.Equal(len(students), 1)
+	for _, s := range students {
+		student := s.(map[string]interface{})
+		c.NotEmpty(student["uuid"])
+		c.NotEmpty(student["institutional_id"])
+		c.NotEmpty(student["full_name"])
+	}
+
+	// No full name
+	_, code = SearchStudentsByFullName(cookie, "")
+	c.Equal(http.StatusBadRequest, code)
+}
+
+func SearchStudentsByFullName(cookie *http.Cookie, fullName string) (response map[string]interface{}, statusCode int) {
+	w, r := PrepareRequest("GET", "/api/v1/accounts/students?fullName="+fullName, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+	return ParseJsonResponse(w.Body), w.Code
+}

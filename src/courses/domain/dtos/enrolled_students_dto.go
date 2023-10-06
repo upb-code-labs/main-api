@@ -1,9 +1,9 @@
 package dtos
 
-type RegisterUserDTO struct {
+type EnrolledStudentDTO struct {
+	UUID            string
 	FullName        string
 	Email           string
 	InstitutionalId string
-	Password        string
-	CreatedBy       string
+	IsActive        bool
 }

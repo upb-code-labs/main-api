@@ -296,7 +296,7 @@ func (repository *CoursesPostgresRepository) GetEnrolledCourses(studentUUID stri
 
 	query := `
 		SELECT course_id, course_teacher_id, course_name, course_color, is_class_hidden
-		FROM courses_has_users_with_course
+		FROM courses_has_users_views
 		WHERE user_id = $1
 		AND is_user_active = TRUE
 	`
@@ -354,4 +354,60 @@ func (repository *CoursesPostgresRepository) ToggleCourseVisibility(courseUUID, 
 
 	err = row.Scan(&isHiddenAfterUpdate)
 	return isHiddenAfterUpdate, err
+}
+
+func (repository *CoursesPostgresRepository) UpdateCourseName(dto dtos.RenameCourseDTO) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := "UPDATE courses SET name = $1 WHERE id = $2"
+
+	_, err := repository.Connection.ExecContext(
+		ctx,
+		query,
+		dto.NewName,
+		dto.CourseUUID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *CoursesPostgresRepository) GetEnrolledStudents(courseUUID string) ([]*dtos.EnrolledStudentDTO, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT user_id, user_full_name, user_email, user_institutional_id, is_user_active
+		FROM courses_has_users_views
+		WHERE course_id = $1 AND user_role = 'student'
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, courseUUID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	enrolledStudents := []*dtos.EnrolledStudentDTO{}
+	for rows.Next() {
+		var student dtos.EnrolledStudentDTO
+
+		err := rows.Scan(
+			&student.UUID,
+			&student.FullName,
+			&student.Email,
+			&student.InstitutionalId,
+			&student.IsActive,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		enrolledStudents = append(enrolledStudents, &student)
+	}
+
+	return enrolledStudents, nil
 }

@@ -58,8 +58,8 @@ func (repository *AccountsPostgresRepository) SaveAdmin(dto dtos.RegisterUserDTO
 	defer cancel()
 
 	query := `
-		INSERT INTO users (role, email, full_name, password_hash)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO users (role, email, full_name, password_hash, created_by)
+		VALUES ($1, $2, $3, $4, $5)
 	`
 
 	_, err := repository.Connection.ExecContext(
@@ -69,6 +69,7 @@ func (repository *AccountsPostgresRepository) SaveAdmin(dto dtos.RegisterUserDTO
 		dto.Email,
 		dto.FullName,
 		dto.Password,
+		dto.CreatedBy,
 	)
 	if err != nil {
 		return err
@@ -83,8 +84,8 @@ func (repository *AccountsPostgresRepository) SaveTeacher(dto dtos.RegisterUserD
 	defer cancel()
 
 	query := `
-		INSERT INTO users (role, email, full_name, password_hash)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO users (role, email, full_name, password_hash, created_by)
+		VALUES ($1, $2, $3, $4, $5)
 	`
 
 	_, err := repository.Connection.ExecContext(
@@ -94,6 +95,7 @@ func (repository *AccountsPostgresRepository) SaveTeacher(dto dtos.RegisterUserD
 		dto.Email,
 		dto.FullName,
 		dto.Password,
+		dto.CreatedBy,
 	)
 	if err != nil {
 		return err
@@ -221,8 +223,8 @@ func (repository *AccountsPostgresRepository) GetAdmins() ([]*entities.User, err
 	defer cancel()
 
 	query := `
-		SELECT id, institutional_id, email, full_name, created_at
-		FROM users
+		SELECT id, institutional_id, email, full_name, created_at, creator_full_name
+		FROM users_with_creator
 		WHERE role = 'admin'
 	`
 
@@ -241,6 +243,7 @@ func (repository *AccountsPostgresRepository) GetAdmins() ([]*entities.User, err
 			&admin.Email,
 			&admin.FullName,
 			&admin.CreatedAt,
+			&admin.CreatedBy,
 		)
 
 		if err != nil {
@@ -255,4 +258,44 @@ func (repository *AccountsPostgresRepository) GetAdmins() ([]*entities.User, err
 	}
 
 	return admins, nil
+}
+
+func (repository *AccountsPostgresRepository) SearchStudentsByFullName(fullName string) ([]*entities.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT id, institutional_id, email, full_name
+		FROM users
+		WHERE role = 'student' AND lower(full_name) LIKE lower($1)
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, fullName+"%")
+	if err != nil {
+		return nil, err
+	}
+
+	var students []*entities.User
+	for rows.Next() {
+		var student entities.User
+		var studentInstitutionalId sql.NullString
+		err := rows.Scan(
+			&student.UUID,
+			&studentInstitutionalId,
+			&student.Email,
+			&student.FullName,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if studentInstitutionalId.Valid {
+			student.InstitutionalId = studentInstitutionalId.String
+		}
+
+		students = append(students, &student)
+	}
+
+	return students, nil
 }

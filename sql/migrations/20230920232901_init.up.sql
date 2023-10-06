@@ -1,6 +1,8 @@
 -- ## Extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+CREATE EXTENSION IF NOT EXISTS citext;
+
 -- ## Types
 CREATE TYPE SUBMISSION_STATUS AS ENUM ('pending', 'running', 'ready');
 
@@ -11,9 +13,10 @@ CREATE TABLE IF NOT EXISTS users (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "role" USER_ROLES NOT NULL DEFAULT 'student',
   "institutional_id" VARCHAR(16) NULL UNIQUE,
-  "email" VARCHAR(64) NOT NULL UNIQUE,
+  "email" CITEXT NOT NULL UNIQUE,
   "full_name" VARCHAR NOT NULL,
   "password_hash" VARCHAR NOT NULL,
+  "created_by" UUID NULL REFERENCES users(id),
   "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -127,9 +130,26 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_grades ON grades(laboratory_id, student_id
 CREATE UNIQUE INDEX IF NOT EXISTS idx_grade_criteria ON grade_has_criteria(grade_id, objective_id);
 
 -- ### Search indexes
-CREATE INDEX IF NOT EXISTS idx_users_fullname ON users(full_name);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_lower_fullName ON users(LOWER(full_name));
 
 -- ## Views
+--- ### Users
+CREATE
+OR REPLACE VIEW users_with_creator AS 
+SELECT
+  users.id,
+  users.role,
+  users.institutional_id,
+  users.email,
+  users.full_name,
+  users.created_by,
+  creator.full_name AS creator_full_name,
+  users.created_at
+FROM
+  users
+  LEFT JOIN users AS creator ON users.created_by = creator.id;
+
 --- ### courses
 CREATE
 OR REPLACE VIEW courses_with_color AS
@@ -144,19 +164,45 @@ FROM
 
 --- ### courses_has_users
 CREATE
-OR REPLACE VIEW courses_has_users_with_course AS
+OR REPLACE VIEW courses_has_users_views AS
 SELECT
   courses_has_users.course_id,
-  courses_has_users.user_id,
-  courses_has_users.is_class_hidden,
-  courses_has_users.is_user_active,
   courses.name AS course_name,
   courses.teacher_id AS course_teacher_id,
-  colors.hexadecimal AS course_color
+  colors.hexadecimal AS course_color,
+  courses_has_users.user_id,
+  users.full_name AS user_full_name,
+  users.email AS user_email,
+  users.role AS user_role,
+  users.institutional_id AS user_institutional_id,
+  courses_has_users.is_class_hidden,
+  courses_has_users.is_user_active
 FROM
   courses_has_users
+  INNER JOIN users ON courses_has_users.user_id = users.id
   INNER JOIN courses ON courses_has_users.course_id = courses.id
   INNER JOIN colors ON courses.color_id = colors.id;
+
+-- ## Triggers
+--- ### Update created_by on users
+CREATE
+OR REPLACE FUNCTION update_created_by()
+RETURNS TRIGGER 
+LANGUAGE PLPGSQL
+AS $$
+BEGIN
+  IF NEW.created_by IS NULL THEN
+    NEW.created_by := NEW.id;
+  END IF;
+
+  RETURN NEW;
+END $$
+;
+
+CREATE OR REPLACE TRIGGER set_created_by
+  BEFORE INSERT ON users
+  FOR EACH ROW
+  EXECUTE PROCEDURE update_created_by();
 
 -- ## Data
 -- ### Colors

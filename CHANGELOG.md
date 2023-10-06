@@ -1,45 +1,45 @@
-## [0.13.1](https://github.com/upb-code-labs/main-api/compare/v0.13.0...v0.13.1) (2023-10-04)
+# [0.17.0](https://github.com/upb-code-labs/main-api/compare/v0.16.0...v0.17.0) (2023-10-06)
+
+
+### Features
+
+* List enrolled students ([#68](https://github.com/upb-code-labs/main-api/issues/68)) ([f4b8741](https://github.com/upb-code-labs/main-api/commit/f4b8741daeb7e8c3926a1132879c6b9df1683682))
+
+
+
+# [0.16.0](https://github.com/upb-code-labs/main-api/compare/v0.15.0...v0.16.0) (2023-10-06)
+
+
+### Features
+
+* Enroll student ([#66](https://github.com/upb-code-labs/main-api/issues/66)) ([565c90d](https://github.com/upb-code-labs/main-api/commit/565c90d210be303fb38874b12144146285283dc9))
+
+
+
+# [0.15.0](https://github.com/upb-code-labs/main-api/compare/v0.14.0...v0.15.0) (2023-10-06)
+
+
+### Features
+
+* Search students by full name ([#65](https://github.com/upb-code-labs/main-api/issues/65)) ([f72482b](https://github.com/upb-code-labs/main-api/commit/f72482b05b2e30be56fb3d8d12da837ab88daf9d))
+
+
+
+# [0.14.0](https://github.com/upb-code-labs/main-api/compare/v0.13.3...v0.14.0) (2023-10-05)
+
+
+### Features
+
+* Rename course ([#64](https://github.com/upb-code-labs/main-api/issues/64)) ([7e7110b](https://github.com/upb-code-labs/main-api/commit/7e7110b6afe89fb7c10c7596df11ef17ee9de397))
+
+
+
+## [0.13.3](https://github.com/upb-code-labs/main-api/compare/v0.13.2...v0.13.3) (2023-10-05)
 
 
 ### Bug Fixes
 
-* Send course information when an student joins using invitation code ([#58](https://github.com/upb-code-labs/main-api/issues/58)) ([c534e71](https://github.com/upb-code-labs/main-api/commit/c534e711f12fbb78d674dc3ff50cddc0fe4ec416))
-
-
-
-# [0.13.0](https://github.com/upb-code-labs/main-api/compare/v0.12.0...v0.13.0) (2023-09-30)
-
-
-### Features
-
-* Toggle course visibility ([#55](https://github.com/upb-code-labs/main-api/issues/55)) ([28ec783](https://github.com/upb-code-labs/main-api/commit/28ec7836685f0b69502f3313245ba5c276229d44))
-
-
-
-# [0.12.0](https://github.com/upb-code-labs/main-api/compare/v0.11.0...v0.12.0) (2023-09-30)
-
-
-### Features
-
-* Get teachers and students courses ([#52](https://github.com/upb-code-labs/main-api/issues/52)) ([2265a05](https://github.com/upb-code-labs/main-api/commit/2265a0550fc11c18e8eedd66bcc4d25ab07f5f50))
-
-
-
-# [0.11.0](https://github.com/upb-code-labs/main-api/compare/v0.10.0...v0.11.0) (2023-09-29)
-
-
-### Features
-
-* Join course using invitation code ([#51](https://github.com/upb-code-labs/main-api/issues/51)) ([6206f3c](https://github.com/upb-code-labs/main-api/commit/6206f3c78b7a6ff9bb2f10c6704a01ad75358d3b))
-
-
-
-# [0.10.0](https://github.com/upb-code-labs/main-api/compare/v0.9.0...v0.10.0) (2023-09-29)
-
-
-### Features
-
-* Get invitation code ([#50](https://github.com/upb-code-labs/main-api/issues/50)) ([35af762](https://github.com/upb-code-labs/main-api/commit/35af7627d6f51ac8a167b80db6ff25019e12a28c))
+* Save who created admin and teacher accounts ([#63](https://github.com/upb-code-labs/main-api/issues/63)) ([313d795](https://github.com/upb-code-labs/main-api/commit/313d795ca236cbf2f188e9f3985a364a7d4ff25c))
 
 
 

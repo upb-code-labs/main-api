@@ -399,3 +399,232 @@ func ToggleCourseVisibility(cookie *http.Cookie, courseUUID string) (response ma
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+func TestRenameCourse(t *testing.T) {
+	c := require.New(t)
+
+	testCases := []GenericTestCase{
+		{
+			Payload: map[string]interface{}{
+				// Short name
+				"name": "a",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			Payload: map[string]interface{}{
+				"name": "Competitive Programming",
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+		{
+			Payload: map[string]interface{}{
+				// Same name
+				"name": "Competitive Programming",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+	}
+
+	// --- 1. Try with a teacher account ---
+	// Create a course
+	courseUUID, code := CreateCourse("Course [Test Rename Course]")
+	c.Equal(http.StatusCreated, code)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	for _, testCase := range testCases {
+		endpoint := fmt.Sprintf("/api/v1/courses/%s/name", courseUUID)
+		w, r = PrepareRequest("PATCH", endpoint, testCase.Payload)
+		r.AddCookie(cookie)
+		router.ServeHTTP(w, r)
+		c.Equal(testCase.ExpectedStatusCode, w.Code)
+	}
+
+	// Try with a non-valid course
+	code = RenameCourse(cookie, "not-valid", "New Name")
+	c.Equal(http.StatusBadRequest, code)
+
+	// Try with a non-existent course
+	code = RenameCourse(cookie, "ab41d891-8374-4eec-adef-5a129986b059", "New Name")
+	c.Equal(http.StatusNotFound, code)
+
+	// --- 2. Try with a teacher that does not own the course ---
+	// Register a teacher
+	registerTeacherPayload := requests.RegisterTeacherRequest{
+		FullName: "Santeri Rasim",
+		Email:    "santeri.rasim.2020@upb.edu.co",
+		Password: "santeri/password/2023",
+	}
+	code = RegisterTeacherAccount(registerTeacherPayload)
+	c.Equal(201, code)
+
+	// Login with the teacher
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registerTeacherPayload.Email,
+		"password": registerTeacherPayload.Password,
+	})
+	router.ServeHTTP(w, r)
+	cookie = w.Result().Cookies()[0]
+
+	code = RenameCourse(cookie, courseUUID, "New Name")
+	c.Equal(http.StatusForbidden, code)
+}
+
+func RenameCourse(cookie *http.Cookie, courseUUID string, name string) (statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/name", courseUUID)
+	w, r := PrepareRequest("PATCH", endpoint, map[string]interface{}{
+		"name": name,
+	})
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return w.Code
+}
+
+func TestEnrollStudentToCourse(t *testing.T) {
+	c := require.New(t)
+
+	// Register an student
+	registerStudentPayload := requests.RegisterUserRequest{
+		FullName:        "Karl Ivica",
+		Email:           "karl.ivica.2020@upb.edu.co",
+		InstitutionalId: "000814593",
+		Password:        "karl/password/2023",
+	}
+	code := RegisterStudent(registerStudentPayload)
+	c.Equal(http.StatusCreated, code)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Get the student UUID
+	response, code := SearchStudentsByFullName(cookie, "Karl Ivica")
+	students := response["students"].([]interface{})
+	c.Equal(http.StatusOK, code)
+	c.Equal(1, len(students))
+	student_uuid := students[0].(map[string]interface{})["uuid"].(string)
+
+	// Create a course
+	courseUUID, code := CreateCourse("Course [Test Enroll Student]")
+	c.Equal(http.StatusCreated, code)
+
+	enrollTestCases := []GenericTestCase{
+		{
+			Payload: map[string]interface{}{
+				// Non-valid student
+				"student_uuid": "not-valid",
+				"course_uuid":  courseUUID,
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			Payload: map[string]interface{}{
+				"student_uuid": student_uuid,
+				// Non-valid course
+				"course_uuid": "not-valid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			Payload: map[string]interface{}{
+				"student_uuid": student_uuid,
+				// Non-existent course
+				"course_uuid": "7eb30f08-f097-4ff9-b760-2d692adda73a",
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		{
+			Payload: map[string]interface{}{
+				"student_uuid": student_uuid,
+				"course_uuid":  courseUUID,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+		{
+			Payload: map[string]interface{}{
+				"student_uuid": student_uuid,
+				"course_uuid":  courseUUID,
+			},
+			ExpectedStatusCode: http.StatusConflict,
+		},
+	}
+
+	for _, testCase := range enrollTestCases {
+		_, code := EnrollSTudentToCourse(cookie, testCase.Payload["course_uuid"].(string), testCase.Payload["student_uuid"].(string))
+		c.Equal(testCase.ExpectedStatusCode, code)
+	}
+
+	// Get the enrolled students
+	getEnrolledTestCases := []GenericTestCase{
+		{
+			Payload: map[string]interface{}{
+				"course_uuid": "not-valid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			Payload: map[string]interface{}{
+				// Non-existent course
+				"course_uuid": "7eb30f08-f097-4ff9-b760-2d692adda73a",
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		{
+			Payload: map[string]interface{}{
+				"course_uuid": courseUUID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+		},
+	}
+
+	for _, testCase := range getEnrolledTestCases {
+		response, code := GetEnrolledStudents(cookie, testCase.Payload["course_uuid"].(string))
+		c.Equal(testCase.ExpectedStatusCode, code)
+
+		if code == http.StatusOK {
+			students := response["students"].([]interface{})
+			c.Equal(1, len(students))
+
+			// Assert the student fields
+			student := students[0].(map[string]interface{})
+			c.Equal(student_uuid, student["uuid"])
+			c.Equal(registerStudentPayload.FullName, student["full_name"])
+			c.Equal(registerStudentPayload.InstitutionalId, student["institutional_id"])
+			c.Equal(true, student["is_active"])
+		}
+	}
+}
+
+func EnrollSTudentToCourse(cookie *http.Cookie, courseUUID string, studentUUID string) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/students", courseUUID)
+	w, r := PrepareRequest("POST", endpoint, map[string]interface{}{
+		"student_uuid": studentUUID,
+	})
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}
+
+func GetEnrolledStudents(cookie *http.Cookie, courseUUID string) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/students", courseUUID)
+	w, r := PrepareRequest("GET", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}

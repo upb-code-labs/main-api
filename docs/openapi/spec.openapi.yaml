@@ -159,6 +159,47 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+    get:
+      tags: 
+        - Accounts
+      description: Search students by fullname
+      parameters: 
+        - in: query
+          name: fullname
+          schema:
+            type: string
+            example: "Pedro"
+          required: true
+      responses: 
+        "200": 
+          description: Students whith the given fullname are listed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  students:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/public_student_fields"
+        "400":
+          description: The required parameter is empty.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
 
   /accounts/password:
     patch:
@@ -539,6 +580,49 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
 
   /courses/{course_uuid}/students:
+    post: 
+      tags:
+        - Courses
+      security:
+        - cookieAuth: []
+      description: Enroll an student to a course.
+      parameters:
+        - in: path
+          name: course_uuid
+          schema:
+            type: string
+            example: "cf1d83df-ff67-4b59-8a5e-d04c53709268"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                student_uuid:
+                  type: string
+                  example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
+      responses: 
+        "204":
+          description: The student was enrolled to the course. 
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
     get:
       tags:
         - Courses
@@ -560,7 +644,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  admins:
+                  students:
                     type: array
                     items:
                       $ref: "#/components/schemas/public_user_fields"
@@ -1469,6 +1553,18 @@ components:
         created_at:
           type: string
           example: "2023-09-25T23:37:52.155652Z"
+    
+    public_student_fields: 
+      properties: 
+        uuid:
+          type: string
+          example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
+        fullname:
+          type: string
+          example: "Pedro Chaparro"
+        institutional_id: 
+          type: string
+          example: "000371272"
 
     public_course_fields:
       type: object

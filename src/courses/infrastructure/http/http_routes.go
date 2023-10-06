@@ -53,4 +53,25 @@ func StartCoursesRoutes(g *gin.RouterGroup) {
 		infrastructure.WithAuthorizationMiddleware([]string{"teacher", "student"}),
 		controller.HandleChangeCourseVisibility,
 	)
+
+	coursesGroup.PATCH(
+		":course_uuid/name",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleChangeCourseName,
+	)
+
+	coursesGroup.POST(
+		":course_uuid/students",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleAddStudentToCourse,
+	)
+
+	coursesGroup.GET(
+		":course_uuid/students",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleGetStudentsEnrolledInCourse,
+	)
 }
