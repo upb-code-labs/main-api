@@ -16,6 +16,7 @@ type CoursesRepository interface {
 	AddStudentToCourse(studentUUID, courseUUID string) error
 	IsStudentInCourse(studentUUID, courseUUID string) (bool, error)
 	GetEnrolledCourses(studentUUID string) (*dtos.EnrolledCoursesDto, error)
+	GetEnrolledStudents(courseUUID string) ([]*dtos.EnrolledStudentDTO, error)
 
 	GetRandomColor() (*entities.Color, error)
 	ToggleCourseVisibility(courseUUID, studentUUID string) (isHiddenAfterUpdate bool, err error)
