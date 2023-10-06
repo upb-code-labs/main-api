@@ -1,3 +1,12 @@
+# [0.17.0](https://github.com/upb-code-labs/main-api/compare/v0.16.0...v0.17.0) (2023-10-06)
+
+
+### Features
+
+* List enrolled students ([#68](https://github.com/upb-code-labs/main-api/issues/68)) ([f4b8741](https://github.com/upb-code-labs/main-api/commit/f4b8741daeb7e8c3926a1132879c6b9df1683682))
+
+
+
 # [0.16.0](https://github.com/upb-code-labs/main-api/compare/v0.15.0...v0.16.0) (2023-10-06)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * Save who created admin and teacher accounts ([#63](https://github.com/upb-code-labs/main-api/issues/63)) ([313d795](https://github.com/upb-code-labs/main-api/commit/313d795ca236cbf2f188e9f3985a364a7d4ff25c))
-
-
-
-## [0.13.2](https://github.com/upb-code-labs/main-api/compare/v0.13.1...v0.13.2) (2023-10-05)
-
-
-### Bug Fixes
-
-* Use case insensitive text for emails ([#62](https://github.com/upb-code-labs/main-api/issues/62)) ([072a005](https://github.com/upb-code-labs/main-api/commit/072a0053606e988783fb9ad7055c145df054189d))
 
 
 
