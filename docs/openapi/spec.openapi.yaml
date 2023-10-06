@@ -178,7 +178,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  admins:
+                  students:
                     type: array
                     items:
                       $ref: "#/components/schemas/public_student_fields"
@@ -644,7 +644,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  admins:
+                  students:
                     type: array
                     items:
                       $ref: "#/components/schemas/public_user_fields"
