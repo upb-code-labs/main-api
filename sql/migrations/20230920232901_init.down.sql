@@ -11,7 +11,9 @@ DROP INDEX IF EXISTS idx_grades;
 
 DROP INDEX IF EXISTS idx_grade_criteria;
 
-DROP INDEX IF EXISTS idx_users_fullname;
+DROP INDEX IF EXISTS idx_users_lower_fullName;
+
+DROP INDEX IF EXISTS idx_users_role;
 
 -- ## Views
 DROP VIEW IF EXISTS courses_with_color;
