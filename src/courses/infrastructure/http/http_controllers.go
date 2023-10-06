@@ -247,3 +247,37 @@ func (controller *CoursesController) HandleAddStudentToCourse(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+func (controller *CoursesController) HandleGetStudentsEnrolledInCourse(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+
+	// Validate course uuid
+	courseUUID := c.Param("course_uuid")
+	if err := infrastructure.GetValidator().Var(courseUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Not valid course uuid",
+		})
+		return
+	}
+
+	// Get enrolled students
+	enrolledStudents, err := controller.UseCases.GetEnrolledStudents(teacherUUID, courseUUID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	enrolledStudentsResponse := make([]gin.H, len(enrolledStudents))
+	for i, student := range enrolledStudents {
+		enrolledStudentsResponse[i] = gin.H{
+			"uuid":             student.UUID,
+			"full_name":        student.FullName,
+			"institutional_id": student.InstitutionalId,
+			"is_active":        student.IsActive,
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"students": enrolledStudentsResponse,
+	})
+}

@@ -520,7 +520,7 @@ func TestEnrollStudentToCourse(t *testing.T) {
 	courseUUID, code := CreateCourse("Course [Test Enroll Student]")
 	c.Equal(http.StatusCreated, code)
 
-	testCases := []GenericTestCase{
+	enrollTestCases := []GenericTestCase{
 		{
 			Payload: map[string]interface{}{
 				// Non-valid student
@@ -561,9 +561,49 @@ func TestEnrollStudentToCourse(t *testing.T) {
 		},
 	}
 
-	for _, testCase := range testCases {
+	for _, testCase := range enrollTestCases {
 		_, code := EnrollSTudentToCourse(cookie, testCase.Payload["course_uuid"].(string), testCase.Payload["student_uuid"].(string))
 		c.Equal(testCase.ExpectedStatusCode, code)
+	}
+
+	// Get the enrolled students
+	getEnrolledTestCases := []GenericTestCase{
+		{
+			Payload: map[string]interface{}{
+				"course_uuid": "not-valid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			Payload: map[string]interface{}{
+				// Non-existent course
+				"course_uuid": "7eb30f08-f097-4ff9-b760-2d692adda73a",
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		{
+			Payload: map[string]interface{}{
+				"course_uuid": courseUUID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+		},
+	}
+
+	for _, testCase := range getEnrolledTestCases {
+		response, code := GetEnrolledStudents(cookie, testCase.Payload["course_uuid"].(string))
+		c.Equal(testCase.ExpectedStatusCode, code)
+
+		if code == http.StatusOK {
+			students := response["students"].([]interface{})
+			c.Equal(1, len(students))
+
+			// Assert the student fields
+			student := students[0].(map[string]interface{})
+			c.Equal(student_uuid, student["uuid"])
+			c.Equal(registerStudentPayload.FullName, student["full_name"])
+			c.Equal(registerStudentPayload.InstitutionalId, student["institutional_id"])
+			c.Equal(true, student["is_active"])
+		}
 	}
 }
 
@@ -572,6 +612,16 @@ func EnrollSTudentToCourse(cookie *http.Cookie, courseUUID string, studentUUID s
 	w, r := PrepareRequest("POST", endpoint, map[string]interface{}{
 		"student_uuid": studentUUID,
 	})
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}
+
+func GetEnrolledStudents(cookie *http.Cookie, courseUUID string) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/students", courseUUID)
+	w, r := PrepareRequest("GET", endpoint, nil)
 	r.AddCookie(cookie)
 	router.ServeHTTP(w, r)
 
