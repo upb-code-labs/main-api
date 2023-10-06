@@ -151,3 +151,30 @@ func (useCases *CoursesUseCases) UpdateCourseName(dto dtos.RenameCourseDTO) erro
 	// Update the course name
 	return useCases.Repository.UpdateCourseName(dto)
 }
+
+func (useCases *CoursesUseCases) AddStudentToCourse(dto *dtos.AddStudentToCourseDTO) error {
+	// Check the user is the teacher of the course
+	course, err := useCases.Repository.GetCourseByUUID(dto.CourseUUID)
+	if err != nil {
+		return err
+	}
+
+	teacherOwnsCourse := course.TeacherUUID == dto.TeacherUUID
+	if !teacherOwnsCourse {
+		return errors.TeacherDoesNotOwnsCourseError{}
+	}
+
+	// Check the student is not already in the course
+	isStudentInCourse, err := useCases.Repository.IsStudentInCourse(dto.StudentUUID, dto.CourseUUID)
+	if err != nil {
+		return err
+	}
+	if isStudentInCourse {
+		return errors.StudentAlreadyInCourse{
+			CourseName: course.Name,
+		}
+	}
+
+	// Add the student to the course
+	return useCases.Repository.AddStudentToCourse(dto.StudentUUID, dto.CourseUUID)
+}

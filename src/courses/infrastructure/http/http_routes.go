@@ -60,4 +60,11 @@ func StartCoursesRoutes(g *gin.RouterGroup) {
 		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleChangeCourseName,
 	)
+
+	coursesGroup.POST(
+		":course_uuid/students",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleAddStudentToCourse,
+	)
 }
