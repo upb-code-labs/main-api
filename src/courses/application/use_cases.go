@@ -178,3 +178,19 @@ func (useCases *CoursesUseCases) AddStudentToCourse(dto *dtos.AddStudentToCourse
 	// Add the student to the course
 	return useCases.Repository.AddStudentToCourse(dto.StudentUUID, dto.CourseUUID)
 }
+
+func (useCases *CoursesUseCases) GetEnrolledStudents(teacherUUID, courseUUID string) ([]*dtos.EnrolledStudentDTO, error) {
+	// Check the user is the teacher of the course
+	course, err := useCases.Repository.GetCourseByUUID(courseUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	teacherOwnsCourse := course.TeacherUUID == teacherUUID
+	if !teacherOwnsCourse {
+		return nil, errors.TeacherDoesNotOwnsCourseError{}
+	}
+
+	// Get the enrolled students
+	return useCases.Repository.GetEnrolledStudents(courseUUID)
+}
