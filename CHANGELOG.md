@@ -1,3 +1,12 @@
+# [0.18.0](https://github.com/upb-code-labs/main-api/compare/v0.17.0...v0.18.0) (2023-10-08)
+
+
+### Features
+
+* Get course by UUID ([#71](https://github.com/upb-code-labs/main-api/issues/71)) ([ae60ba4](https://github.com/upb-code-labs/main-api/commit/ae60ba45081750d68edb079f201f0317eecd3ceb))
+
+
+
 # [0.17.0](https://github.com/upb-code-labs/main-api/compare/v0.16.0...v0.17.0) (2023-10-06)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Rename course ([#64](https://github.com/upb-code-labs/main-api/issues/64)) ([7e7110b](https://github.com/upb-code-labs/main-api/commit/7e7110b6afe89fb7c10c7596df11ef17ee9de397))
-
-
-
-## [0.13.3](https://github.com/upb-code-labs/main-api/compare/v0.13.2...v0.13.3) (2023-10-05)
-
-
-### Bug Fixes
-
-* Save who created admin and teacher accounts ([#63](https://github.com/upb-code-labs/main-api/issues/63)) ([313d795](https://github.com/upb-code-labs/main-api/commit/313d795ca236cbf2f188e9f3985a364a7d4ff25c))
 
 
 
