@@ -164,7 +164,7 @@ FROM
 
 --- ### courses_has_users
 CREATE
-OR REPLACE VIEW courses_has_users_views AS
+OR REPLACE VIEW courses_has_users_view AS
 SELECT
   courses_has_users.course_id,
   courses.name AS course_name,
