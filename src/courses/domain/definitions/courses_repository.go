@@ -14,7 +14,7 @@ type CoursesRepository interface {
 	GetCourseByInvitationCode(invitationCode string) (*entities.Course, error)
 
 	AddStudentToCourse(studentUUID, courseUUID string) error
-	IsStudentInCourse(studentUUID, courseUUID string) (bool, error)
+	IsUserInCourse(userUUID, courseUUID string) (bool, error)
 	GetEnrolledCourses(studentUUID string) (*dtos.EnrolledCoursesDto, error)
 	GetEnrolledStudents(courseUUID string) ([]*dtos.EnrolledStudentDTO, error)
 

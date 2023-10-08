@@ -266,17 +266,19 @@ func (repository *CoursesPostgresRepository) AddStudentToCourse(studentUUID, cou
 	return nil
 }
 
-func (repository *CoursesPostgresRepository) IsStudentInCourse(studentUUID, courseUUID string) (bool, error) {
+func (repository *CoursesPostgresRepository) IsUserInCourse(userUUID, courseUUID string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	query := `
 		SELECT COUNT(user_id) > 0
-		FROM courses_has_users
-		WHERE course_id = $1 AND user_id = $2
+		FROM courses_has_users_view
+		WHERE course_id = $1 AND 
+		user_id = $2 AND 
+		is_user_active = TRUE
 	`
 
-	row := repository.Connection.QueryRowContext(ctx, query, courseUUID, studentUUID)
+	row := repository.Connection.QueryRowContext(ctx, query, courseUUID, userUUID)
 	if row.Err() != nil {
 		return false, row.Err()
 	}
@@ -296,7 +298,7 @@ func (repository *CoursesPostgresRepository) GetEnrolledCourses(studentUUID stri
 
 	query := `
 		SELECT course_id, course_teacher_id, course_name, course_color, is_class_hidden
-		FROM courses_has_users_views
+		FROM courses_has_users_view
 		WHERE user_id = $1
 		AND is_user_active = TRUE
 	`
@@ -381,7 +383,7 @@ func (repository *CoursesPostgresRepository) GetEnrolledStudents(courseUUID stri
 
 	query := `
 		SELECT user_id, user_full_name, user_email, user_institutional_id, is_user_active
-		FROM courses_has_users_views
+		FROM courses_has_users_view
 		WHERE course_id = $1 AND user_role = 'student'
 	`
 

@@ -18,7 +18,7 @@ DROP INDEX IF EXISTS idx_users_role;
 -- ## Views
 DROP VIEW IF EXISTS courses_with_color;
 
-DROP VIEW IF EXISTS courses_has_users_views;
+DROP VIEW IF EXISTS courses_has_users_view;
 
 DROP VIEW IF EXISTS users_with_creator;
 
