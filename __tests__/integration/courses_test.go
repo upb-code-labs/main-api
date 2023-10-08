@@ -117,6 +117,61 @@ type InvitationCodeTestCase struct {
 	ExpectedStatusCode int
 }
 
+func TestGetCourseByUUID(t *testing.T) {
+	c := require.New(t)
+
+	// Create a course
+	courseName := "Course [Test Get Course By UUID]"
+	courseUUID, code := CreateCourse(courseName)
+	c.Equal(http.StatusCreated, code)
+	c.NotEmpty(courseUUID)
+
+	testCases := []InvitationCodeTestCase{
+		{
+			CourseUUID:         "not-valid",
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			// Non-existent course
+			CourseUUID:         "3febe413-d8cc-4d77-961a-cba1a4eaa64e",
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		{
+			CourseUUID:         courseUUID,
+			ExpectedStatusCode: http.StatusOK,
+		},
+	}
+
+	// --- 1. Try with a teacher account ---
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	for _, testCase := range testCases {
+		response, code := GetCourseByUUID(cookie, testCase.CourseUUID)
+		c.Equal(testCase.ExpectedStatusCode, code)
+
+		if code == http.StatusOK {
+			c.Equal(courseName, response["name"])
+			c.Equal(courseUUID, response["uuid"])
+			c.NotEmpty(response["color"])
+		}
+	}
+}
+
+func GetCourseByUUID(cookie *http.Cookie, courseUUID string) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s", courseUUID)
+	w, r := PrepareRequest("GET", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}
+
 func TestGetInvitationCode(t *testing.T) {
 	c := require.New(t)
 
