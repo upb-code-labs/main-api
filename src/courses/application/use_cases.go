@@ -84,6 +84,26 @@ func (useCases *CoursesUseCases) SaveCourse(dto *dtos.CreateCourseDTO) (*entitie
 	return useCases.Repository.SaveCourse(dto)
 }
 
+func (useCases *CoursesUseCases) GetCourse(userUUID, courseUUID string) (*entities.Course, error) {
+	// Get the course
+	course, err := useCases.Repository.GetCourseByUUID(courseUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check the user is enrolled in the course
+	isStudentInCourse, err := useCases.Repository.IsUserInCourse(userUUID, courseUUID)
+	if err != nil {
+		return nil, err
+	}
+	if !isStudentInCourse {
+		return nil, errors.UserNotInCourseError{}
+	}
+
+	// Return the data
+	return course, nil
+}
+
 func (useCases *CoursesUseCases) JoinCourseUsingInvitationCode(dto *dtos.JoinCourseUsingInvitationCodeDTO) (*entities.Course, error) {
 	// Get the course by the invitation code
 	course, err := useCases.Repository.GetCourseByInvitationCode(dto.InvitationCode)
@@ -99,7 +119,7 @@ func (useCases *CoursesUseCases) JoinCourseUsingInvitationCode(dto *dtos.JoinCou
 	}
 
 	// Check if the student is already in the course
-	isStudentInCourse, err := useCases.Repository.IsStudentInCourse(dto.StudentUUID, course.UUID)
+	isStudentInCourse, err := useCases.Repository.IsUserInCourse(dto.StudentUUID, course.UUID)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +139,7 @@ func (useCases *CoursesUseCases) GetEnrolledCourses(userUUID string) (*dtos.Enro
 
 func (useCases *CoursesUseCases) ToggleCourseVisibility(courseUUID, userUUID string) (bool, error) {
 	// Check the user is enrolled in the course
-	isStudentInCourse, err := useCases.Repository.IsStudentInCourse(userUUID, courseUUID)
+	isStudentInCourse, err := useCases.Repository.IsUserInCourse(userUUID, courseUUID)
 	if err != nil {
 		return false, err
 	}
@@ -165,7 +185,7 @@ func (useCases *CoursesUseCases) AddStudentToCourse(dto *dtos.AddStudentToCourse
 	}
 
 	// Check the student is not already in the course
-	isStudentInCourse, err := useCases.Repository.IsStudentInCourse(dto.StudentUUID, dto.CourseUUID)
+	isStudentInCourse, err := useCases.Repository.IsUserInCourse(dto.StudentUUID, dto.CourseUUID)
 	if err != nil {
 		return err
 	}
