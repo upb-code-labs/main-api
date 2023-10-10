@@ -1,3 +1,12 @@
+# [0.20.0](https://github.com/upb-code-labs/main-api/compare/v0.19.0...v0.20.0) (2023-10-10)
+
+
+### Features
+
+* Get rubrics created by teacher ([#81](https://github.com/upb-code-labs/main-api/issues/81)) ([356af40](https://github.com/upb-code-labs/main-api/commit/356af40e2c6838752de196bf7c010ff19d7058ba))
+
+
+
 # [0.19.0](https://github.com/upb-code-labs/main-api/compare/v0.18.0...v0.19.0) (2023-10-10)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Enroll student ([#66](https://github.com/upb-code-labs/main-api/issues/66)) ([565c90d](https://github.com/upb-code-labs/main-api/commit/565c90d210be303fb38874b12144146285283dc9))
-
-
-
-# [0.15.0](https://github.com/upb-code-labs/main-api/compare/v0.14.0...v0.15.0) (2023-10-06)
-
-
-### Features
-
-* Search students by full name ([#65](https://github.com/upb-code-labs/main-api/issues/65)) ([f72482b](https://github.com/upb-code-labs/main-api/commit/f72482b05b2e30be56fb3d8d12da837ab88daf9d))
 
 
 
