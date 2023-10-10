@@ -54,3 +54,18 @@ func (controller *RubricsController) HandleCreateRubric(c *gin.Context) {
 		"name":    rubric.Name,
 	})
 }
+
+func (controller *RubricsController) HandleGetRubricsCreatedByTeacher(c *gin.Context) {
+	teacher_uuid := c.GetString("session_uuid")
+
+	rubrics, err := controller.UseCases.GetRubricsCreatedByTeacher(teacher_uuid)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"rubrics": rubrics,
+		"message": "Rubrics were retrieved",
+	})
+}

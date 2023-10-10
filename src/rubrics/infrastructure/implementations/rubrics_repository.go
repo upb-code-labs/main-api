@@ -162,3 +162,31 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 
 	return rubric, nil
 }
+
+func (repository *RubricsPostgresRepository) GetAllCreatedByTeacher(teacherUUID string) ([]*dtos.CreatedRubricDTO, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the rubrics
+	rows, err := repository.Connection.QueryContext(ctx, `
+		SELECT id, teacher_id, name
+		FROM rubrics
+		WHERE teacher_id = $1
+	`, teacherUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	rubrics := make([]*dtos.CreatedRubricDTO, 0)
+	for rows.Next() {
+		rubric := &dtos.CreatedRubricDTO{}
+		err = rows.Scan(&rubric.UUID, &rubric.TeacherUUID, &rubric.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		rubrics = append(rubrics, rubric)
+	}
+
+	return rubrics, nil
+}

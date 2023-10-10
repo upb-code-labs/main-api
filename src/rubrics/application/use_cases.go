@@ -18,3 +18,12 @@ func (useCases *RubricsUseCases) CreateRubric(dto *dtos.CreateRubricDTO) (rubric
 
 	return savedRubric, nil
 }
+
+func (useCases *RubricsUseCases) GetRubricsCreatedByTeacher(teacherUUID string) (rubrics []*dtos.CreatedRubricDTO, err error) {
+	rubrics, err = useCases.RubricsRepository.GetAllCreatedByTeacher(teacherUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return rubrics, nil
+}
