@@ -163,7 +163,7 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 	return rubric, nil
 }
 
-func (repository *RubricsPostgresRepository) GetAllCreatedByTeacher(teacherUUID string) (rubrics []*dtos.CreatedRubricDTO, err error) {
+func (repository *RubricsPostgresRepository) GetAllCreatedByTeacher(teacherUUID string) ([]*dtos.CreatedRubricDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -177,6 +177,7 @@ func (repository *RubricsPostgresRepository) GetAllCreatedByTeacher(teacherUUID 
 		return nil, err
 	}
 
+	rubrics := make([]*dtos.CreatedRubricDTO, 0)
 	for rows.Next() {
 		rubric := &dtos.CreatedRubricDTO{}
 		err = rows.Scan(&rubric.UUID, &rubric.TeacherUUID, &rubric.Name)

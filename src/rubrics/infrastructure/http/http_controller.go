@@ -64,5 +64,8 @@ func (controller *RubricsController) HandleGetRubricsCreatedByTeacher(c *gin.Con
 		return
 	}
 
-	c.JSON(http.StatusOK, rubrics)
+	c.JSON(http.StatusOK, gin.H{
+		"rubrics": rubrics,
+		"message": "Rubrics were retrieved",
+	})
 }
