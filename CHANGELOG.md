@@ -1,3 +1,12 @@
+# [0.19.0](https://github.com/upb-code-labs/main-api/compare/v0.18.0...v0.19.0) (2023-10-10)
+
+
+### Features
+
+* Create rubric ([#80](https://github.com/upb-code-labs/main-api/issues/80)) ([ec43d55](https://github.com/upb-code-labs/main-api/commit/ec43d55be58b31d570476bbcac176168a2813873))
+
+
+
 # [0.18.0](https://github.com/upb-code-labs/main-api/compare/v0.17.0...v0.18.0) (2023-10-08)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Search students by full name ([#65](https://github.com/upb-code-labs/main-api/issues/65)) ([f72482b](https://github.com/upb-code-labs/main-api/commit/f72482b05b2e30be56fb3d8d12da837ab88daf9d))
-
-
-
-# [0.14.0](https://github.com/upb-code-labs/main-api/compare/v0.13.3...v0.14.0) (2023-10-05)
-
-
-### Features
-
-* Rename course ([#64](https://github.com/upb-code-labs/main-api/issues/64)) ([7e7110b](https://github.com/upb-code-labs/main-api/commit/7e7110b6afe89fb7c10c7596df11ef17ee9de397))
 
 
 
