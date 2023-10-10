@@ -24,4 +24,11 @@ func StartRubricsRoutes(g *gin.RouterGroup) {
 		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleCreateRubric,
 	)
+
+	rubricsGroup.GET(
+		"",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleGetRubricsCreatedByTeacher,
+	)
 }
