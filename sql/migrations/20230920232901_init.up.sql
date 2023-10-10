@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS rubrics (
 CREATE TABLE IF NOT EXISTS objectives (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "rubric_id" UUID NOT NULL REFERENCES rubrics(id),
-  "name" VARCHAR NOT NULL
+  "description" VARCHAR NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS criteria (
