@@ -1210,7 +1210,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/rubric"
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: "Rubric was retrieved"
+                  rubric: 
+                    allOf:
+                      - $ref: "#/components/schemas/rubric"
         "400":
           description: Required fields were missed or doesn't fulfill the required format.
           content:

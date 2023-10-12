@@ -3,7 +3,6 @@ package implementations
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/domain/dtos"
@@ -140,7 +139,6 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 		WHERE objective_id = ANY($1)
 	`, pq.Array(objectivesUUIDs))
 	if err != nil {
-		fmt.Println("Error selecting criteria")
 		return nil, err
 	}
 
