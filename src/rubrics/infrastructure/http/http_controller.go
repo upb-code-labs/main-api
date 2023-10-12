@@ -100,3 +100,53 @@ func (controller *RubricsController) HandleGetRubricByUUID(c *gin.Context) {
 		"rubric":  rubric,
 	})
 }
+
+func (controller *RubricsController) HandleAddObjectiveToRubric(c *gin.Context) {
+	teacher_uuid := c.GetString("session_uuid")
+
+	// Validate rubric UUID
+	rubric_uuid := c.Param("rubricUUID")
+	if err := shared_infrastructure.GetValidator().Var(rubric_uuid, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid rubric uuid",
+		})
+		return
+	}
+
+	// Parse request body
+	var request requests.AddObjectiveToRubricRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := shared_infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Create DTO
+	dto := dtos.AddObjectiveToRubricDTO{
+		TeacherUUID:          teacher_uuid,
+		RubricUUID:           rubric_uuid,
+		ObjectiveDescription: request.Description,
+	}
+
+	// Add the objective
+	objective_uuid, err := controller.UseCases.AddObjectiveToRubric(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Objective added to rubric",
+		"uuid":    objective_uuid,
+	})
+}

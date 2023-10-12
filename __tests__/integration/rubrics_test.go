@@ -211,3 +211,78 @@ func GetRubricByUUID(cookie *http.Cookie, uuid string) (response map[string]inte
 
 	return ParseJsonResponse(w.Body), w.Code
 }
+
+func TestAddObjectiveToRubric(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(cookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	rubricUUID := response["uuid"].(string)
+
+	// Test cases
+	objectiveDescription := "Objective 1"
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"rubricUUID":  "not-valid-uuid",
+				"description": "Objective 1",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"rubricUUID":  rubricUUID,
+				"description": "short",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"rubricUUID":  rubricUUID,
+				"description": objectiveDescription,
+			},
+			ExpectedStatusCode: http.StatusCreated,
+		},
+	}
+
+	for _, testCase := range testCases {
+		response, status := AddObjectiveToRubric(cookie, testCase.Payload["rubricUUID"].(string), testCase.Payload)
+		c.Equal(testCase.ExpectedStatusCode, status)
+
+		if testCase.ExpectedStatusCode == http.StatusCreated {
+			c.NotEmpty(response["uuid"])
+			c.NotEmpty(response["message"])
+		}
+	}
+
+	// Get rubric
+	response, status = GetRubricByUUID(cookie, rubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(2, len(rubric["objectives"].([]interface{})))
+
+	objective := rubric["objectives"].([]interface{})[1].(map[string]interface{})
+	c.Equal(objectiveDescription, objective["description"])
+	c.NotEmpty(objective["uuid"])
+	c.Empty(objective["criteria"])
+}
+
+func AddObjectiveToRubric(cookie *http.Cookie, rubricUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
+	w, r := PrepareRequest("POST", "/api/v1/rubrics/"+rubricUUID+"/objectives", payload)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return ParseJsonResponse(w.Body), w.Code
+}

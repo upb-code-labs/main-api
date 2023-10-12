@@ -54,13 +54,13 @@ CREATE TABLE IF NOT EXISTS rubrics (
 CREATE TABLE IF NOT EXISTS objectives (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "rubric_id" UUID NOT NULL REFERENCES rubrics(id),
-  "description" VARCHAR NOT NULL
+  "description" VARCHAR(510) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS criteria (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "objective_id" UUID NOT NULL REFERENCES objectives(id),
-  "description" VARCHAR NOT NULL,
+  "description" VARCHAR(510) NOT NULL,
   "weight" DECIMAL(5, 2) NOT NULL
 );
 

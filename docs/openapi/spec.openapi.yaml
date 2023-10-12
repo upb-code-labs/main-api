@@ -1488,7 +1488,7 @@ components:
     create_objective_req:
       type: object
       properties:
-        name:
+        description:
           type: string
           example: "Desarrollo de métodos para la estructura de datos planteada"
 
