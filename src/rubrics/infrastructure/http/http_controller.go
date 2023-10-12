@@ -69,3 +69,34 @@ func (controller *RubricsController) HandleGetRubricsCreatedByTeacher(c *gin.Con
 		"message": "Rubrics were retrieved",
 	})
 }
+
+func (controller *RubricsController) HandleGetRubricByUUID(c *gin.Context) {
+	teacher_uuid := c.GetString("session_uuid")
+
+	// Validate rubric UUID
+	rubric_uuid := c.Param("rubricUUID")
+	if err := shared_infrastructure.GetValidator().Var(rubric_uuid, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid rubric uuid",
+		})
+		return
+	}
+
+	// Create DTO
+	dto := dtos.GetRubricDto{
+		TeacherUUID: teacher_uuid,
+		RubricUUID:  rubric_uuid,
+	}
+
+	// Get the rubric
+	rubric, err := controller.UseCases.GetRubricByUUID(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Rubric was retrieved",
+		"rubric":  rubric,
+	})
+}

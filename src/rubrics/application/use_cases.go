@@ -4,6 +4,7 @@ import (
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/domain/entities"
+	"github.com/UPB-Code-Labs/main-api/src/rubrics/domain/errors"
 )
 
 type RubricsUseCases struct {
@@ -26,4 +27,19 @@ func (useCases *RubricsUseCases) GetRubricsCreatedByTeacher(teacherUUID string) 
 	}
 
 	return rubrics, nil
+}
+
+func (useCases *RubricsUseCases) GetRubricByUUID(dto *dtos.GetRubricDto) (rubric *entities.Rubric, err error) {
+	// Get the rubric
+	rubric, err = useCases.RubricsRepository.GetByUUID(dto.RubricUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if the rubric belongs to the teacher
+	if rubric.TeacherUUID != dto.TeacherUUID {
+		return nil, &errors.TeacherDoesNotOwnsRubric{}
+	}
+
+	return rubric, nil
 }
