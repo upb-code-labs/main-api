@@ -43,3 +43,24 @@ func (useCases *RubricsUseCases) GetRubricByUUID(dto *dtos.GetRubricDto) (rubric
 
 	return rubric, nil
 }
+
+func (useCases *RubricsUseCases) AddObjectiveToRubric(dto *dtos.AddObjectiveToRubricDTO) (objectiveUUID string, err error) {
+	// Get the rubric
+	rubric, err := useCases.RubricsRepository.GetByUUID(dto.RubricUUID)
+	if err != nil {
+		return "", err
+	}
+
+	// Check if the rubric belongs to the teacher
+	if rubric.TeacherUUID != dto.TeacherUUID {
+		return "", &errors.TeacherDoesNotOwnsRubric{}
+	}
+
+	// Add the objective
+	objectiveUUID, err = useCases.RubricsRepository.AddObjectiveToRubric(dto.RubricUUID, dto.ObjectiveDescription)
+	if err != nil {
+		return "", err
+	}
+
+	return objectiveUUID, nil
+}

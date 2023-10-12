@@ -188,3 +188,23 @@ func (repository *RubricsPostgresRepository) GetAllCreatedByTeacher(teacherUUID 
 
 	return rubrics, nil
 }
+
+func (repository *RubricsPostgresRepository) AddObjectiveToRubric(rubricUUID string, objectiveDescription string) (objectiveUUID string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Create the objective
+	query := `
+		INSERT INTO objectives (rubric_id, description)
+		VALUES ($1, $2)
+		RETURNING id
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, rubricUUID, objectiveDescription)
+	err = row.Scan(&objectiveUUID)
+	if err != nil {
+		return "", err
+	}
+
+	return objectiveUUID, nil
+}
