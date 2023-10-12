@@ -1,3 +1,12 @@
+# [0.22.0](https://github.com/upb-code-labs/main-api/compare/v0.21.0...v0.22.0) (2023-10-12)
+
+
+### Features
+
+* Add objective to rubric ([#83](https://github.com/upb-code-labs/main-api/issues/83)) ([9d91a94](https://github.com/upb-code-labs/main-api/commit/9d91a94639df4380340fec778656d516a1734950))
+
+
+
 # [0.21.0](https://github.com/upb-code-labs/main-api/compare/v0.20.0...v0.21.0) (2023-10-12)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Get course by UUID ([#71](https://github.com/upb-code-labs/main-api/issues/71)) ([ae60ba4](https://github.com/upb-code-labs/main-api/commit/ae60ba45081750d68edb079f201f0317eecd3ceb))
-
-
-
-# [0.17.0](https://github.com/upb-code-labs/main-api/compare/v0.16.0...v0.17.0) (2023-10-06)
-
-
-### Features
-
-* List enrolled students ([#68](https://github.com/upb-code-labs/main-api/issues/68)) ([f4b8741](https://github.com/upb-code-labs/main-api/commit/f4b8741daeb7e8c3926a1132879c6b9df1683682))
 
 
 
