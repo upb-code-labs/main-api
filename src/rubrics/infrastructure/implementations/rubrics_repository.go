@@ -98,7 +98,10 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 		WHERE id = $1
 	`, uuid)
 
-	rubric = &entities.Rubric{}
+	rubric = &entities.Rubric{
+		Objectives: make([]entities.RubricObjective, 0),
+	}
+
 	err = row.Scan(&rubric.UUID, &rubric.TeacherUUID, &rubric.Name)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -122,7 +125,10 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 	objectivesUUIDs := make([]string, 0)
 	objectivesMap := make(map[string]*entities.RubricObjective)
 	for rows.Next() {
-		objective := &entities.RubricObjective{}
+		objective := &entities.RubricObjective{
+			Criteria: make([]entities.RubricObjectiveCriteria, 0),
+		}
+
 		err = rows.Scan(&objective.UUID, &objective.RubricUUID, &objective.Description)
 		if err != nil {
 			return nil, err
