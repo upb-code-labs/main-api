@@ -1,3 +1,12 @@
+# [0.21.0](https://github.com/upb-code-labs/main-api/compare/v0.20.0...v0.21.0) (2023-10-12)
+
+
+### Features
+
+* Get rubric by UUID ([#82](https://github.com/upb-code-labs/main-api/issues/82)) ([533c8f4](https://github.com/upb-code-labs/main-api/commit/533c8f44bfb9479cbc6e4d70a21c902b103b7ee6))
+
+
+
 # [0.20.0](https://github.com/upb-code-labs/main-api/compare/v0.19.0...v0.20.0) (2023-10-10)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * List enrolled students ([#68](https://github.com/upb-code-labs/main-api/issues/68)) ([f4b8741](https://github.com/upb-code-labs/main-api/commit/f4b8741daeb7e8c3926a1132879c6b9df1683682))
-
-
-
-# [0.16.0](https://github.com/upb-code-labs/main-api/compare/v0.15.0...v0.16.0) (2023-10-06)
-
-
-### Features
-
-* Enroll student ([#66](https://github.com/upb-code-labs/main-api/issues/66)) ([565c90d](https://github.com/upb-code-labs/main-api/commit/565c90d210be303fb38874b12144146285283dc9))
 
 
 
