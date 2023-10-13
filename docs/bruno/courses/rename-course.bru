@@ -1,0 +1,21 @@
+meta {
+  name: rename-course
+  type: http
+  seq: 13
+}
+
+patch {
+  url: {{BASE_URL}}/courses/d58ed001-36fd-465b-904c-4cd61d9946a9/name
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Semillero programación competitiva"
+  }
+}
