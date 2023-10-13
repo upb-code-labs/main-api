@@ -116,6 +116,7 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 		SELECT id, rubric_id, description
 		FROM objectives
 		WHERE rubric_id = $1
+		ORDER BY created_at ASC
 	`, uuid)
 	if err != nil {
 		return nil, err
@@ -143,6 +144,7 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 		SELECT id, objective_id, description, weight
 		FROM criteria
 		WHERE objective_id = ANY($1)
+		ORDER BY created_at ASC
 	`, pq.Array(objectivesUUIDs))
 	if err != nil {
 		return nil, err
@@ -165,6 +167,78 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 	}
 
 	return rubric, nil
+}
+
+func (repository *RubricsPostgresRepository) DoesTeacherOwnRubric(teacherUUID string, rubricUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the rubric
+	row := repository.Connection.QueryRowContext(ctx, `
+		SELECT teacher_id
+		FROM rubrics
+		WHERE id = $1
+	`, rubricUUID)
+
+	var rubricTeacherUUID string
+	err := row.Scan(&rubricTeacherUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, &errors.RubricNotFoundError{}
+		}
+
+		return false, err
+	}
+
+	return rubricTeacherUUID == teacherUUID, nil
+}
+
+func (repository *RubricsPostgresRepository) DoesTeacherOwnObjective(teacherUUID string, objectiveUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the objective
+	row := repository.Connection.QueryRowContext(ctx, `
+		SELECT teacher_id
+		FROM objectives_owners
+		WHERE objective_id = $1
+	`, objectiveUUID)
+
+	var objectiveTeacherUUID string
+	err := row.Scan(&objectiveTeacherUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, &errors.ObjectiveNotFoundError{}
+		}
+
+		return false, err
+	}
+
+	return objectiveTeacherUUID == teacherUUID, nil
+}
+
+func (repository *RubricsPostgresRepository) DoesTeacherOwnCriteria(teacherUUID string, criteriaUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the criteria
+	row := repository.Connection.QueryRowContext(ctx, `
+		SELECT teacher_id
+		FROM criteria_owners
+		WHERE criteria_id = $1
+	`, criteriaUUID)
+
+	var criteriaTeacherUUID string
+	err := row.Scan(&criteriaTeacherUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, &errors.CriteriaNotFoundError{}
+		}
+
+		return false, err
+	}
+
+	return criteriaTeacherUUID == teacherUUID, nil
 }
 
 func (repository *RubricsPostgresRepository) GetAllCreatedByTeacher(teacherUUID string) ([]*dtos.CreatedRubricDTO, error) {
@@ -213,4 +287,24 @@ func (repository *RubricsPostgresRepository) AddObjectiveToRubric(rubricUUID str
 	}
 
 	return objectiveUUID, nil
+}
+
+func (repository *RubricsPostgresRepository) AddCriteriaToObjective(dto *dtos.AddCriteriaToObjectiveDTO) (criteriaUUID string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Create the criteria
+	query := `
+		INSERT INTO criteria (objective_id, description, weight)
+		VALUES ($1, $2, $3)
+		RETURNING id
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, dto.ObjectiveUUID, dto.CriteriaDescription, dto.CriteriaWeight)
+	err = row.Scan(&criteriaUUID)
+	if err != nil {
+		return "", err
+	}
+
+	return criteriaUUID, nil
 }

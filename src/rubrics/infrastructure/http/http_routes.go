@@ -45,4 +45,11 @@ func StartRubricsRoutes(g *gin.RouterGroup) {
 		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleAddObjectiveToRubric,
 	)
+
+	rubricsGroup.POST(
+		"/objectives/:objectiveUUID/criteria",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleAddCriteriaToObjective,
+	)
 }

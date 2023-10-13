@@ -286,3 +286,128 @@ func AddObjectiveToRubric(cookie *http.Cookie, rubricUUID string, payload map[st
 
 	return ParseJsonResponse(w.Body), w.Code
 }
+
+func TestAddCriteriaToObjective(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	firstTeacherCookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(firstTeacherCookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	firstTeacherRubricUUID := response["uuid"].(string)
+
+	// Create an objective
+	response, status = AddObjectiveToRubric(firstTeacherCookie, firstTeacherRubricUUID, map[string]interface{}{
+		"description": "Objective 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	firstTeacherObjectiveUUID := response["uuid"].(string)
+
+	// Login as the second teacher
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    secondRegisteredTeacherEmail,
+		"password": secondRegisteredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	secondTeacherCookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status = CreateRubric(secondTeacherCookie, map[string]interface{}{
+		"name": "Rubric 2",
+	})
+	c.Equal(http.StatusCreated, status)
+	secondTeacherRubricUUID := response["uuid"].(string)
+
+	// Create an objective
+	response, status = AddObjectiveToRubric(secondTeacherCookie, secondTeacherRubricUUID, map[string]interface{}{
+		"description": "Objective 2",
+	})
+	c.Equal(http.StatusCreated, status)
+	secondTeacherObjectiveUUID := response["uuid"].(string)
+
+	// Test cases
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": "not-valid-uuid",
+				"description":   "Criteria 1",
+				"weight":        5.00,
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": firstTeacherObjectiveUUID,
+				"description":   "Criteria 1",
+				"weight":        5.00,
+			},
+			ExpectedStatusCode: http.StatusForbidden,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": secondTeacherObjectiveUUID,
+				"description":   "short",
+				"weight":        5.00,
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": "adc73ae3-80ad-45d3-ae23-bd81e6e0b805",
+				"description":   "Criteria 1",
+				"weight":        5.00,
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": secondTeacherObjectiveUUID,
+				"description":   "Criteria 1",
+				"weight":        5.00,
+			},
+			ExpectedStatusCode: http.StatusCreated,
+		},
+	}
+
+	for _, testCase := range testCases {
+		response, status := AddCriteriaToObjective(secondTeacherCookie, testCase.Payload["objectiveUUID"].(string), testCase.Payload)
+		c.Equal(testCase.ExpectedStatusCode, status)
+
+		if testCase.ExpectedStatusCode == http.StatusCreated {
+			c.NotEmpty(response["uuid"])
+			c.NotEmpty(response["message"])
+		}
+	}
+
+	// Get rubric
+	response, status = GetRubricByUUID(secondTeacherCookie, secondTeacherRubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(2, len(rubric["objectives"].([]interface{})))
+
+	objective := rubric["objectives"].([]interface{})[1].(map[string]interface{})
+	c.Equal(1, len(objective["criteria"].([]interface{})))
+
+	criteria := objective["criteria"].([]interface{})[0].(map[string]interface{})
+	c.Equal("Criteria 1", criteria["description"])
+	c.NotEmpty(criteria["uuid"])
+	c.NotEmpty(criteria["weight"])
+}
+
+func AddCriteriaToObjective(cookie *http.Cookie, objectiveUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
+	w, r := PrepareRequest("POST", "/api/v1/rubrics/objectives/"+objectiveUUID+"/criteria", payload)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return ParseJsonResponse(w.Body), w.Code
+}

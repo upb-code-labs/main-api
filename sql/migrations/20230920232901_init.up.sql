@@ -54,14 +54,16 @@ CREATE TABLE IF NOT EXISTS rubrics (
 CREATE TABLE IF NOT EXISTS objectives (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "rubric_id" UUID NOT NULL REFERENCES rubrics(id),
-  "description" VARCHAR(510) NOT NULL
+  "description" VARCHAR(510) NOT NULL, 
+  "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS criteria (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "objective_id" UUID NOT NULL REFERENCES objectives(id),
   "description" VARCHAR(510) NOT NULL,
-  "weight" DECIMAL(5, 2) NOT NULL
+  "weight" DECIMAL(5, 2) NOT NULL,
+  "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS laboratories (
@@ -182,6 +184,27 @@ FROM
   INNER JOIN users ON courses_has_users.user_id = users.id
   INNER JOIN courses ON courses_has_users.course_id = courses.id
   INNER JOIN colors ON courses.color_id = colors.id;
+
+--- ### Objectives
+CREATE
+OR REPLACE VIEW objectives_owners AS
+SELECT
+  objectives.id AS objective_id,
+  rubrics.teacher_id
+FROM
+  objectives
+  INNER JOIN rubrics ON objectives.rubric_id = rubrics.id;
+
+--- ### Criteria
+CREATE
+OR REPLACE VIEW criteria_owners AS
+SELECT
+  criteria.id AS criteria_id,
+  rubrics.teacher_id
+FROM
+  criteria
+  INNER JOIN objectives ON criteria.objective_id = objectives.id
+  INNER JOIN rubrics ON objectives.rubric_id = rubrics.id;
 
 -- ## Triggers
 --- ### Update created_by on users

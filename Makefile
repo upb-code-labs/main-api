@@ -12,5 +12,6 @@ delete_pakage:
 	rm -rf src/$$name; 
 	
 coverage:
+	go clean -testcache; \
 	go test -coverpkg ./... -coverprofile coverage.txt __tests__/integration/*.go; \
 	go tool cover -html=coverage.txt -o coverage.html; 

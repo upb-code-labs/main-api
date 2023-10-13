@@ -1286,7 +1286,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
 
-  /rubrics/{objective_uuid}/criteria:
+  /rubrics/objectives/{objective_uuid}/criteria:
     post:
       tags:
         - Rubrics
@@ -1498,7 +1498,7 @@ components:
         description:
           type: string
           example: "Se evidencia desarrollo de, al menos, el 75% de los métodos solicitados para la estructura de datos planteada"
-        grade:
+        weight:
           type: number
           example: 0.20
 
