@@ -116,6 +116,7 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 		SELECT id, rubric_id, description
 		FROM objectives
 		WHERE rubric_id = $1
+		ORDER BY created_at ASC
 	`, uuid)
 	if err != nil {
 		return nil, err
@@ -143,6 +144,7 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 		SELECT id, objective_id, description, weight
 		FROM criteria
 		WHERE objective_id = ANY($1)
+		ORDER BY created_at ASC
 	`, pq.Array(objectivesUUIDs))
 	if err != nil {
 		return nil, err
