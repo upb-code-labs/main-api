@@ -26,6 +26,9 @@ var (
 
 	registeredTeacherEmail string
 	registeredTeacherPass  string
+
+	secondRegisteredTeacherEmail string
+	secondRegisteredTeacherPass  string
 )
 
 type GenericTestCase struct {
@@ -59,7 +62,7 @@ func setupRouter() {
 
 func registerBaseAccounts() {
 	registerBaseStudent()
-	registerBaseTeacher()
+	registerBaseTeachers()
 }
 
 func registerBaseStudent() {
@@ -80,7 +83,8 @@ func registerBaseStudent() {
 	registeredStudentPass = studentPassword
 }
 
-func registerBaseTeacher() {
+func registerBaseTeachers() {
+	// Register the first teacher
 	teacherEmail := "judy.arroyo.2020@upb.edu.co"
 	teacherPassword := "judy/password/2023"
 
@@ -95,6 +99,22 @@ func registerBaseTeacher() {
 
 	registeredTeacherEmail = teacherEmail
 	registeredTeacherPass = teacherPassword
+
+	// Register the second teacher
+	secondTeacherEmail := "trofim.vijay.2020@upb.edu.co"
+	secondTeacherPassword := "trofim/password/2023"
+
+	code = RegisterTeacherAccount(requests.RegisterTeacherRequest{
+		FullName: "Trofim Vijay",
+		Email:    secondTeacherEmail,
+		Password: secondTeacherPassword,
+	})
+	if code != http.StatusCreated {
+		panic("Error registering base teacher")
+	}
+
+	secondRegisteredTeacherEmail = secondTeacherEmail
+	secondRegisteredTeacherPass = secondTeacherPassword
 }
 
 // --- Helpers ---
