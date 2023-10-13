@@ -1,0 +1,23 @@
+meta {
+  name: register-teacher
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{BASE_URL}}/accounts/teachers
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "full_name": "Veli Ayele", 
+    "email": "veli.ayele.2020@upb.edu.co", 
+    "password": "upbbbga2023*/"
+  }
+}

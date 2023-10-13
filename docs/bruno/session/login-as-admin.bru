@@ -1,0 +1,22 @@
+meta {
+  name: login-as-admin
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{BASE_URL}}/session/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "development.admin@gmail.com", 
+    "password": "changeme123*/"
+  }
+}

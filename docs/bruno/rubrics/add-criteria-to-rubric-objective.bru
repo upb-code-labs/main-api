@@ -1,0 +1,22 @@
+meta {
+  name: add-criteria-to-rubric-objective
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{BASE_URL}}/rubrics/objectives/2ea3f1eb-58dc-4191-8ace-fcb0a0e01e1a/criteria
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "description": "It does not present a list of functional requirements",
+    "weight": 0.5
+  }
+}
