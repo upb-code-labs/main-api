@@ -198,7 +198,7 @@ func (repository *RubricsPostgresRepository) DoesTeacherOwnObjective(teacherUUID
 	// Get the objective
 	row := repository.Connection.QueryRowContext(ctx, `
 		SELECT teacher_id
-		FROM criteria_objectives_owners
+		FROM objectives_owners
 		WHERE objective_id = $1
 	`, objectiveUUID)
 
@@ -222,7 +222,7 @@ func (repository *RubricsPostgresRepository) DoesTeacherOwnCriteria(teacherUUID 
 	// Get the criteria
 	row := repository.Connection.QueryRowContext(ctx, `
 		SELECT teacher_id
-		FROM criteria_objectives_owners
+		FROM criteria_owners
 		WHERE criteria_id = $1
 	`, criteriaUUID)
 
