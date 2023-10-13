@@ -183,6 +183,19 @@ FROM
   INNER JOIN courses ON courses_has_users.course_id = courses.id
   INNER JOIN colors ON courses.color_id = colors.id;
 
+--- ### Criteria
+CREATE
+OR REPLACE VIEW criteria_objectives_owners AS
+SELECT
+  criteria.id AS criteria_id,
+  criteria.objective_id,
+  objectives.rubric_id,
+  rubrics.teacher_id
+FROM
+  criteria
+  INNER JOIN objectives ON criteria.objective_id = objectives.id
+  INNER JOIN rubrics ON objectives.rubric_id = rubrics.id;
+
 -- ## Triggers
 --- ### Update created_by on users
 CREATE

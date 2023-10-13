@@ -10,5 +10,10 @@ type RubricsRepository interface {
 	GetByUUID(uuid string) (rubric *entities.Rubric, err error)
 	GetAllCreatedByTeacher(teacherUUID string) (rubrics []*dtos.CreatedRubricDTO, err error)
 
+	DoesTeacherOwnRubric(teacherUUID string, rubricUUID string) (bool, error)
+	DoesTeacherOwnObjective(teacherUUID string, objectiveUUID string) (bool, error)
+	DoesTeacherOwnCriteria(teacherUUID string, criteriaUUID string) (bool, error)
+
 	AddObjectiveToRubric(rubricUUID string, objectiveDescription string) (objectiveUUID string, err error)
+	AddCriteriaToObjective(dto *dtos.AddCriteriaToObjectiveDTO) (criteriaUUID string, err error)
 }
