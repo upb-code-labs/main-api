@@ -22,6 +22,10 @@ DROP VIEW IF EXISTS courses_has_users_view;
 
 DROP VIEW IF EXISTS users_with_creator;
 
+DROP VIEW IF EXISTS objectives_owners;
+
+DROP VIEW IF EXISTS criteria_owners;
+
 -- ## Tables
 DROP TABLE IF EXISTS grade_has_criteria;
 

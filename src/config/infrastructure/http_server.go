@@ -3,6 +3,7 @@ package infrastructure
 import (
 	accounts_http "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/http"
 	courses_http "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/http"
+	rubrics_http "github.com/UPB-Code-Labs/main-api/src/rubrics/infrastructure/http"
 	session_http "github.com/UPB-Code-Labs/main-api/src/session/infrastructure/http"
 	shared_infra "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-contrib/cors"
@@ -13,6 +14,7 @@ var routesGroups = []func(*gin.RouterGroup){
 	accounts_http.StartAccountsRoutes,
 	session_http.StartSessionRoutes,
 	courses_http.StartCoursesRoutes,
+	rubrics_http.StartRubricsRoutes,
 }
 
 func InstanceHttpServer() (r *gin.Engine) {
