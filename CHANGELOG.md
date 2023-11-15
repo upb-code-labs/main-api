@@ -1,3 +1,12 @@
+## [0.23.1](https://github.com/upb-code-labs/main-api/compare/v0.23.0...v0.23.1) (2023-11-15)
+
+
+### Bug Fixes
+
+* Sort rubric objectives by creation date ([#90](https://github.com/upb-code-labs/main-api/issues/90)) ([85cb925](https://github.com/upb-code-labs/main-api/commit/85cb925a18903c244f12e36556c98f77c1e671c6))
+
+
+
 # [0.23.0](https://github.com/upb-code-labs/main-api/compare/v0.22.0...v0.23.0) (2023-10-13)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Get rubrics created by teacher ([#81](https://github.com/upb-code-labs/main-api/issues/81)) ([356af40](https://github.com/upb-code-labs/main-api/commit/356af40e2c6838752de196bf7c010ff19d7058ba))
-
-
-
-# [0.19.0](https://github.com/upb-code-labs/main-api/compare/v0.18.0...v0.19.0) (2023-10-10)
-
-
-### Features
-
-* Create rubric ([#80](https://github.com/upb-code-labs/main-api/issues/80)) ([ec43d55](https://github.com/upb-code-labs/main-api/commit/ec43d55be58b31d570476bbcac176168a2813873))
 
 
 
