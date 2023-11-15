@@ -1,3 +1,12 @@
+## [0.23.2](https://github.com/upb-code-labs/main-api/compare/v0.23.1...v0.23.2) (2023-11-15)
+
+
+### Bug Fixes
+
+* Min criteria weight ([#91](https://github.com/upb-code-labs/main-api/issues/91)) ([a2cfb46](https://github.com/upb-code-labs/main-api/commit/a2cfb46b74ff7a39a096df1977c20444e13f6a1f))
+
+
+
 ## [0.23.1](https://github.com/upb-code-labs/main-api/compare/v0.23.0...v0.23.1) (2023-11-15)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Get rubric by UUID ([#82](https://github.com/upb-code-labs/main-api/issues/82)) ([533c8f4](https://github.com/upb-code-labs/main-api/commit/533c8f44bfb9479cbc6e4d70a21c902b103b7ee6))
-
-
-
-# [0.20.0](https://github.com/upb-code-labs/main-api/compare/v0.19.0...v0.20.0) (2023-10-10)
-
-
-### Features
-
-* Get rubrics created by teacher ([#81](https://github.com/upb-code-labs/main-api/issues/81)) ([356af40](https://github.com/upb-code-labs/main-api/commit/356af40e2c6838752de196bf7c010ff19d7058ba))
 
 
 
