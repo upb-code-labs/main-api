@@ -49,14 +49,6 @@ func TestCreateRubric(t *testing.T) {
 	}
 }
 
-func CreateRubric(cookie *http.Cookie, payload map[string]interface{}) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("POST", "/api/v1/rubrics", payload)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return ParseJsonResponse(w.Body), w.Code
-}
-
 func TestGetCreatedRubrics(t *testing.T) {
 	c := require.New(t)
 
@@ -79,7 +71,7 @@ func TestGetCreatedRubrics(t *testing.T) {
 	cookie := w.Result().Cookies()[0]
 
 	// Get created rubrics
-	response, status := GetCreatedRubrics(cookie)
+	response, status := GetRubricsCreatedByUser(cookie)
 	rubrics := response["rubrics"].([]interface{})
 	c.Equal(http.StatusOK, status)
 	c.Equal(0, len(rubrics))
@@ -92,7 +84,7 @@ func TestGetCreatedRubrics(t *testing.T) {
 	c.Equal(http.StatusCreated, status)
 
 	// Get created rubrics
-	response, status = GetCreatedRubrics(cookie)
+	response, status = GetRubricsCreatedByUser(cookie)
 	rubrics = response["rubrics"].([]interface{})
 	c.Equal(http.StatusOK, status)
 	c.Equal(1, len(rubrics))
@@ -101,14 +93,6 @@ func TestGetCreatedRubrics(t *testing.T) {
 	rubric := rubrics[0].(map[string]interface{})
 	c.NotEmpty(rubric["uuid"])
 	c.NotEmpty(rubric["name"])
-}
-
-func GetCreatedRubrics(cookie *http.Cookie) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("GET", "/api/v1/rubrics", nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return ParseJsonResponse(w.Body), w.Code
 }
 
 func TestGetRubricByUUID(t *testing.T) {
@@ -204,14 +188,6 @@ func TestGetRubricByUUID(t *testing.T) {
 	}
 }
 
-func GetRubricByUUID(cookie *http.Cookie, uuid string) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("GET", "/api/v1/rubrics/"+uuid, nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return ParseJsonResponse(w.Body), w.Code
-}
-
 func TestAddObjectiveToRubric(t *testing.T) {
 	c := require.New(t)
 
@@ -279,14 +255,6 @@ func TestAddObjectiveToRubric(t *testing.T) {
 	c.Empty(objective["criteria"])
 }
 
-func AddObjectiveToRubric(cookie *http.Cookie, rubricUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("POST", "/api/v1/rubrics/"+rubricUUID+"/objectives", payload)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return ParseJsonResponse(w.Body), w.Code
-}
-
 func TestUpdateObjective(t *testing.T) {
 	c := require.New(t)
 
@@ -344,14 +312,6 @@ func TestUpdateObjective(t *testing.T) {
 	objective := rubric["objectives"].([]interface{})[1].(map[string]interface{})
 	c.Equal(newDescription, objective["description"])
 	c.NotEmpty(objective["uuid"])
-}
-
-func UpdateObjective(cookie *http.Cookie, objectiveUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("PUT", "/api/v1/rubrics/objectives/"+objectiveUUID, payload)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return ParseJsonResponse(w.Body), w.Code
 }
 
 func TestAddCriteriaToObjective(t *testing.T) {
@@ -469,12 +429,4 @@ func TestAddCriteriaToObjective(t *testing.T) {
 	c.Equal("Criteria 1", criteria["description"])
 	c.NotEmpty(criteria["uuid"])
 	c.NotEmpty(criteria["weight"])
-}
-
-func AddCriteriaToObjective(cookie *http.Cookie, objectiveUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("POST", "/api/v1/rubrics/objectives/"+objectiveUUID+"/criteria", payload)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return ParseJsonResponse(w.Body), w.Code
 }

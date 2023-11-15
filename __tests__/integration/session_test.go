@@ -11,13 +11,13 @@ func TestLogin(t *testing.T) {
 	c := require.New(t)
 
 	// Register an student
-	registerStudentPayload := requests.RegisterUserRequest{
+	RegisterStudentAccountPayload := requests.RegisterUserRequest{
 		FullName:        "Delia Conn",
 		Email:           "delia.conn.2020@upb.edu.co",
 		InstitutionalId: "000149536",
 		Password:        "delia/password/2023",
 	}
-	code := RegisterStudent(registerStudentPayload)
+	code := RegisterStudentAccount(RegisterStudentAccountPayload)
 	c.Equal(201, code)
 
 	// Register an admin
@@ -31,8 +31,8 @@ func TestLogin(t *testing.T) {
 
 	// Login with an student
 	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
-		"email":    registerStudentPayload.Email,
-		"password": registerStudentPayload.Password,
+		"email":    RegisterStudentAccountPayload.Email,
+		"password": RegisterStudentAccountPayload.Password,
 	})
 	router.ServeHTTP(w, r)
 	jsonResponse := ParseJsonResponse(w.Body)
@@ -41,7 +41,7 @@ func TestLogin(t *testing.T) {
 	c.Equal(200, w.Code)
 	hasCookie := len(w.Result().Cookies()) == 1
 	c.True(hasCookie)
-	c.Equal(registerStudentPayload.FullName, responseUser["full_name"])
+	c.Equal(RegisterStudentAccountPayload.FullName, responseUser["full_name"])
 	c.Equal("student", responseUser["role"])
 
 	// Login with an admin

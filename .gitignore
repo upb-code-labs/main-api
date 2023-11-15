@@ -8,6 +8,7 @@ volumes/
 .air.toml
 **/tmp
 coverage.*
+docker-compose.testing.yaml
 
 # Build
 dist/

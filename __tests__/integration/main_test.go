@@ -69,7 +69,7 @@ func registerBaseStudent() {
 	studentEmail := "greta.mann.2020@upb.edu.co"
 	studentPassword := "greta/password/2023"
 
-	code := RegisterStudent(requests.RegisterUserRequest{
+	code := RegisterStudentAccount(requests.RegisterUserRequest{
 		FullName:        "Greta Mann",
 		Email:           studentEmail,
 		InstitutionalId: "000123456",
