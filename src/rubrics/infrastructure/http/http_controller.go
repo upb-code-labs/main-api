@@ -246,7 +246,5 @@ func (controller *RubricsController) HandleUpdateObjective(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Objective updated",
-	})
+	c.Status(http.StatusNoContent)
 }

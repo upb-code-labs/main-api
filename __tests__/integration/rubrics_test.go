@@ -287,6 +287,73 @@ func AddObjectiveToRubric(cookie *http.Cookie, rubricUUID string, payload map[st
 	return ParseJsonResponse(w.Body), w.Code
 }
 
+func TestUpdateObjective(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(cookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	rubricUUID := response["uuid"].(string)
+
+	// Create an objective
+	response, status = AddObjectiveToRubric(cookie, rubricUUID, map[string]interface{}{
+		"description": "Old description",
+	})
+	c.Equal(http.StatusCreated, status)
+	objectiveUUID := response["uuid"].(string)
+
+	// Test cases
+	newDescription := "New description"
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"description": "short",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"description": newDescription,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := UpdateObjective(cookie, objectiveUUID, testCase.Payload)
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+
+	// Get rubric
+	response, status = GetRubricByUUID(cookie, rubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(2, len(rubric["objectives"].([]interface{})))
+
+	objective := rubric["objectives"].([]interface{})[1].(map[string]interface{})
+	c.Equal(newDescription, objective["description"])
+	c.NotEmpty(objective["uuid"])
+}
+
+func UpdateObjective(cookie *http.Cookie, objectiveUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
+	w, r := PrepareRequest("PUT", "/api/v1/rubrics/objectives/"+objectiveUUID, payload)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return ParseJsonResponse(w.Body), w.Code
+}
+
 func TestAddCriteriaToObjective(t *testing.T) {
 	c := require.New(t)
 
