@@ -123,8 +123,10 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 	}
 
 	// Save the objectives into a map
+	objectives := make([]*entities.RubricObjective, 0)
 	objectivesUUIDs := make([]string, 0)
-	objectivesMap := make(map[string]*entities.RubricObjective)
+	objectivesIndex := make(map[string]int)
+
 	for rows.Next() {
 		objective := &entities.RubricObjective{
 			Criteria: make([]entities.RubricObjectiveCriteria, 0),
@@ -135,8 +137,9 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 			return nil, err
 		}
 
+		objectives = append(objectives, objective)
 		objectivesUUIDs = append(objectivesUUIDs, objective.UUID)
-		objectivesMap[objective.UUID] = objective
+		objectivesIndex[objective.UUID] = len(objectives) - 1
 	}
 
 	// Get the objectives' criteria
@@ -158,11 +161,11 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 			return nil, err
 		}
 
-		objectivesMap[criteria.ObjectiveUUID].Criteria = append(objectivesMap[criteria.ObjectiveUUID].Criteria, *criteria)
+		objectives[objectivesIndex[criteria.ObjectiveUUID]].Criteria = append(objectives[objectivesIndex[criteria.ObjectiveUUID]].Criteria, *criteria)
 	}
 
 	// Append the objectives to the rubric
-	for _, objective := range objectivesMap {
+	for _, objective := range objectives {
 		rubric.Objectives = append(rubric.Objectives, *objective)
 	}
 

@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   codelabs_postgres_db: 
-    image: postgres:alpine3.18
+    image: docker.io/library/postgres:alpine3.18
     container_name: codelabs_postgres_db
     restart: on-failure
     environment:
@@ -15,7 +15,7 @@ services:
       - ./volumes/postgres:/var/lib/postgresql/data
   
   postgres_db_admin: 
-    image: dpage/pgadmin4:7.6
+    image: docker.io/dpage/pgadmin4:7.6
     container_name: postgres_db_admin
     restart: on-failure
     environment:
