@@ -67,6 +67,13 @@ func StartRubricsRoutes(g *gin.RouterGroup) {
 		controller.HandleUpdateObjective,
 	)
 
+	rubricsGroup.DELETE(
+		"/objectives/:objectiveUUID",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleDeleteObjective,
+	)
+
 	rubricsGroup.PUT(
 		"/criteria/:criteriaUUID",
 		shared_infrastructure.WithAuthenticationMiddleware(),
