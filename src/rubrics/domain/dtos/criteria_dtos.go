@@ -13,3 +13,8 @@ type UpdateCriteriaDTO struct {
 	CriteriaDescription string
 	CriteriaWeight      float64
 }
+
+type DeleteCriteriaDTO struct {
+	TeacherUUID  string
+	CriteriaUUID string
+}

@@ -22,4 +22,5 @@ type RubricsRepository interface {
 
 	AddCriteriaToObjective(dto *dtos.AddCriteriaToObjectiveDTO) (criteriaUUID string, err error)
 	UpdateCriteria(dto *dtos.UpdateCriteriaDTO) (err error)
+	DeleteCriteria(criteriaUUID string) (err error)
 }

@@ -157,3 +157,22 @@ func (useCases *RubricsUseCases) UpdateCriteria(dto *dtos.UpdateCriteriaDTO) (er
 
 	return nil
 }
+
+func (useCases *RubricsUseCases) DeleteCriteria(dto *dtos.DeleteCriteriaDTO) (err error) {
+	// Check if the criteria belongs to a rubric that belongs to the teacher
+	teacherOwnsCriteria, err := useCases.RubricsRepository.DoesTeacherOwnCriteria(dto.TeacherUUID, dto.CriteriaUUID)
+	if err != nil {
+		return err
+	}
+	if !teacherOwnsCriteria {
+		return &errors.TeacherDoesNotOwnsRubric{}
+	}
+
+	// Delete the criteria
+	err = useCases.RubricsRepository.DeleteCriteria(dto.CriteriaUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
