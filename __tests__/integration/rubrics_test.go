@@ -188,6 +188,55 @@ func TestGetRubricByUUID(t *testing.T) {
 	}
 }
 
+func TestUpdateRubricName(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(cookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	rubricUUID := response["uuid"].(string)
+
+	// Test cases
+	newName := "New name"
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"name": "a",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"name": newName,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := UpdateRubricName(cookie, rubricUUID, testCase.Payload)
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+
+	// Get rubric
+	response, status = GetRubricByUUID(cookie, rubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(newName, rubric["name"])
+	c.NotEmpty(rubric["uuid"])
+}
+
 func TestAddObjectiveToRubric(t *testing.T) {
 	c := require.New(t)
 
