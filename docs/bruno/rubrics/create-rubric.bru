@@ -1,0 +1,21 @@
+meta {
+  name: create-rubric
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{BASE_URL}}/rubrics
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Programming I rubric"
+  }
+}

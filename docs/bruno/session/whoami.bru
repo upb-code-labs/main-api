@@ -1,0 +1,15 @@
+meta {
+  name: whoami
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{BASE_URL}}/session/whoami
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}

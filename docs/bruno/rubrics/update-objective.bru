@@ -1,0 +1,17 @@
+meta {
+  name: update-objective
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{BASE_URL}}/rubrics/objectives/1fc6b653-6977-4025-981e-6c937a10a251
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "description": "Situación problema"
+  }
+}

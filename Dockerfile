@@ -1,5 +1,5 @@
 # -- Stage 1 --
-FROM golang:1.21.0-alpine3.18 AS builder
+FROM golang:1.21.4-alpine3.18 AS builder
 
 # Install upx
 WORKDIR /source

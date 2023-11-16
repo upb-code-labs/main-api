@@ -1,0 +1,21 @@
+meta {
+  name: create-course
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{BASE_URL}}/courses
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Estructuras de datos NRC 17452"
+  }
+}

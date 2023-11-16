@@ -1,45 +1,45 @@
-# [0.23.0](https://github.com/upb-code-labs/main-api/compare/v0.22.0...v0.23.0) (2023-10-13)
+# [0.28.0](https://github.com/upb-code-labs/main-api/compare/v0.27.0...v0.28.0) (2023-11-16)
 
 
 ### Features
 
-* Add criteria to rubric objective ([#84](https://github.com/upb-code-labs/main-api/issues/84)) ([2bca229](https://github.com/upb-code-labs/main-api/commit/2bca22944a19789f8e448305e7aa74917941c052))
+* Delete objective criteria ([#99](https://github.com/upb-code-labs/main-api/issues/99)) ([b7fe282](https://github.com/upb-code-labs/main-api/commit/b7fe28294d05a10c2eb1d4811e1877b795f6b1b8))
 
 
 
-# [0.22.0](https://github.com/upb-code-labs/main-api/compare/v0.21.0...v0.22.0) (2023-10-12)
-
-
-### Features
-
-* Add objective to rubric ([#83](https://github.com/upb-code-labs/main-api/issues/83)) ([9d91a94](https://github.com/upb-code-labs/main-api/commit/9d91a94639df4380340fec778656d516a1734950))
-
-
-
-# [0.21.0](https://github.com/upb-code-labs/main-api/compare/v0.20.0...v0.21.0) (2023-10-12)
+# [0.27.0](https://github.com/upb-code-labs/main-api/compare/v0.26.0...v0.27.0) (2023-11-16)
 
 
 ### Features
 
-* Get rubric by UUID ([#82](https://github.com/upb-code-labs/main-api/issues/82)) ([533c8f4](https://github.com/upb-code-labs/main-api/commit/533c8f44bfb9479cbc6e4d70a21c902b103b7ee6))
+* Remove objective ([#98](https://github.com/upb-code-labs/main-api/issues/98)) ([a3d9eda](https://github.com/upb-code-labs/main-api/commit/a3d9eda6f7f7b7e5440668f0e149d90addd52ceb))
 
 
 
-# [0.20.0](https://github.com/upb-code-labs/main-api/compare/v0.19.0...v0.20.0) (2023-10-10)
-
-
-### Features
-
-* Get rubrics created by teacher ([#81](https://github.com/upb-code-labs/main-api/issues/81)) ([356af40](https://github.com/upb-code-labs/main-api/commit/356af40e2c6838752de196bf7c010ff19d7058ba))
-
-
-
-# [0.19.0](https://github.com/upb-code-labs/main-api/compare/v0.18.0...v0.19.0) (2023-10-10)
+# [0.26.0](https://github.com/upb-code-labs/main-api/compare/v0.25.0...v0.26.0) (2023-11-16)
 
 
 ### Features
 
-* Create rubric ([#80](https://github.com/upb-code-labs/main-api/issues/80)) ([ec43d55](https://github.com/upb-code-labs/main-api/commit/ec43d55be58b31d570476bbcac176168a2813873))
+* Update rubric name ([#95](https://github.com/upb-code-labs/main-api/issues/95)) ([2f32e64](https://github.com/upb-code-labs/main-api/commit/2f32e6479e09804248bcd98f652ba251fc0993a1))
+
+
+
+# [0.25.0](https://github.com/upb-code-labs/main-api/compare/v0.24.0...v0.25.0) (2023-11-16)
+
+
+### Features
+
+* Update objectives criteria ([#94](https://github.com/upb-code-labs/main-api/issues/94)) ([6d4e5e9](https://github.com/upb-code-labs/main-api/commit/6d4e5e957d6fed3d471ac1f9848efd2222ee245e))
+
+
+
+# [0.24.0](https://github.com/upb-code-labs/main-api/compare/v0.23.2...v0.24.0) (2023-11-16)
+
+
+### Features
+
+* Update rubric objective ([#93](https://github.com/upb-code-labs/main-api/issues/93)) ([aabeec6](https://github.com/upb-code-labs/main-api/commit/aabeec6434aaad4966294688f02175f2f733c662))
 
 
 

@@ -1,0 +1,24 @@
+meta {
+  name: register-student
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{BASE_URL}}/accounts/students
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "full_name": "Bertie Sanne", 
+    "email": "bertie.sanne.2020@upb.edu.co", 
+    "institutional_id": "000432172", 
+    "password": "upbbbga2023*/"
+  }
+}

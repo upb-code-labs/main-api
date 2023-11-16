@@ -1,0 +1,15 @@
+meta {
+  name: search-students-by-fullname
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{BASE_URL}}/accounts/students?fullName=Pedro Andr
+  body: none
+  auth: none
+}
+
+query {
+  fullName: Pedro Andr
+}

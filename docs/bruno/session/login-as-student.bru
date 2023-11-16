@@ -1,0 +1,22 @@
+meta {
+  name: login-as-student
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{BASE_URL}}/session/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "bertie.sanne.2020@upb.edu.co", 
+    "password": "upbbbga2023*/"
+  }
+}

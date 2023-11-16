@@ -39,6 +39,13 @@ func StartRubricsRoutes(g *gin.RouterGroup) {
 		controller.HandleGetRubricByUUID,
 	)
 
+	rubricsGroup.PATCH(
+		"/:rubricUUID/name",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleUpdateRubricName,
+	)
+
 	rubricsGroup.POST(
 		"/:rubricUUID/objectives",
 		shared_infrastructure.WithAuthenticationMiddleware(),
@@ -51,5 +58,33 @@ func StartRubricsRoutes(g *gin.RouterGroup) {
 		shared_infrastructure.WithAuthenticationMiddleware(),
 		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleAddCriteriaToObjective,
+	)
+
+	rubricsGroup.PUT(
+		"/objectives/:objectiveUUID",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleUpdateObjective,
+	)
+
+	rubricsGroup.DELETE(
+		"/objectives/:objectiveUUID",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleDeleteObjective,
+	)
+
+	rubricsGroup.PUT(
+		"/criteria/:criteriaUUID",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleUpdateCriteria,
+	)
+
+	rubricsGroup.DELETE(
+		"/criteria/:criteriaUUID",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleDeleteCriteria,
 	)
 }

@@ -65,19 +65,19 @@ func TestCreateCourse(t *testing.T) {
 
 	// --- 2. Try with a non-teacher account ---
 	// Register an student
-	registerStudentPayload := requests.RegisterUserRequest{
+	RegisterStudentAccountPayload := requests.RegisterUserRequest{
 		FullName:        "Jeffrey Richardson",
 		Email:           "jeffrey.richardson.2020@upb.edu.co",
 		InstitutionalId: "000345678",
 		Password:        "jeffrey/password/2023",
 	}
-	code = RegisterStudent(registerStudentPayload)
+	code = RegisterStudentAccount(RegisterStudentAccountPayload)
 	c.Equal(201, code)
 
 	// Login with the student
 	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
-		"email":    registerStudentPayload.Email,
-		"password": registerStudentPayload.Password,
+		"email":    RegisterStudentAccountPayload.Email,
+		"password": RegisterStudentAccountPayload.Password,
 	})
 	router.ServeHTTP(w, r)
 	hasCookie = len(w.Result().Cookies()) == 1
@@ -90,26 +90,6 @@ func TestCreateCourse(t *testing.T) {
 		router.ServeHTTP(w, r)
 		c.Equal(http.StatusForbidden, w.Code)
 	}
-}
-
-func CreateCourse(name string) (courseUUID string, statusCode int) {
-	// Login as a teacher
-	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
-		"email":    registeredTeacherEmail,
-		"password": registeredTeacherPass,
-	})
-	router.ServeHTTP(w, r)
-	cookie := w.Result().Cookies()[0]
-
-	// Create the course
-	w, r = PrepareRequest("POST", "/api/v1/courses", map[string]interface{}{
-		"name": name,
-	})
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	jsonResponse := ParseJsonResponse(w.Body)
-	return jsonResponse["uuid"].(string), w.Code
 }
 
 type InvitationCodeTestCase struct {
@@ -160,16 +140,6 @@ func TestGetCourseByUUID(t *testing.T) {
 			c.NotEmpty(response["color"])
 		}
 	}
-}
-
-func GetCourseByUUID(cookie *http.Cookie, courseUUID string) (response map[string]interface{}, statusCode int) {
-	endpoint := fmt.Sprintf("/api/v1/courses/%s", courseUUID)
-	w, r := PrepareRequest("GET", endpoint, nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	jsonResponse := ParseJsonResponse(w.Body)
-	return jsonResponse, w.Code
 }
 
 func TestGetInvitationCode(t *testing.T) {
@@ -232,25 +202,6 @@ func TestGetInvitationCode(t *testing.T) {
 		router.ServeHTTP(w, r)
 		c.Equal(http.StatusForbidden, w.Code)
 	}
-}
-
-func GetInvitationCode(courseUUID string) (invitationCode string, statusCode int) {
-	// Login as a teacher
-	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
-		"email":    registeredTeacherEmail,
-		"password": registeredTeacherPass,
-	})
-	router.ServeHTTP(w, r)
-	cookie := w.Result().Cookies()[0]
-
-	// Get the invitation code
-	endpoint := fmt.Sprintf("/api/v1/courses/%s/invitation-code", courseUUID)
-	w, r = PrepareRequest("GET", endpoint, nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	jsonResponse := ParseJsonResponse(w.Body)
-	return jsonResponse["code"].(string), w.Code
 }
 
 type JoinCourseTestCase struct {
@@ -322,24 +273,6 @@ func TestJoinCourse(t *testing.T) {
 	}
 }
 
-func AddStudentToCourse(invitationCode string) (response map[string]interface{}, statusCode int) {
-	// Login as a student
-	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
-		"email":    registeredStudentEmail,
-		"password": registeredStudentPass,
-	})
-	router.ServeHTTP(w, r)
-	cookie := w.Result().Cookies()[0]
-
-	// Join the course
-	endpoint := fmt.Sprintf("/api/v1/courses/join/%s", invitationCode)
-	w, r = PrepareRequest("POST", endpoint, nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return ParseJsonResponse(w.Body), w.Code
-}
-
 func TestGetCourses(t *testing.T) {
 	c := require.New(t)
 
@@ -350,7 +283,7 @@ func TestGetCourses(t *testing.T) {
 	})
 	router.ServeHTTP(w, r)
 	cookie := w.Result().Cookies()[0]
-	response, code := GetUserCourses(cookie)
+	response, code := GetCoursesUserIsEnrolledIn(cookie)
 
 	// Assertions
 	c.Equal(http.StatusOK, code)
@@ -363,7 +296,7 @@ func TestGetCourses(t *testing.T) {
 	})
 	router.ServeHTTP(w, r)
 	cookie = w.Result().Cookies()[0]
-	response, code = GetUserCourses(cookie)
+	response, code = GetCoursesUserIsEnrolledIn(cookie)
 
 	// Assertions
 	c.Equal(http.StatusOK, code)
@@ -382,15 +315,6 @@ func assertGetCoursesResponse(c *require.Assertions, response map[string]interfa
 		c.NotEmpty(course["name"])
 		c.NotEmpty(course["color"])
 	}
-}
-
-func GetUserCourses(cookie *http.Cookie) (response map[string]interface{}, statusCode int) {
-	w, r := PrepareRequest("GET", "/api/v1/courses", nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	jsonResponse := ParseJsonResponse(w.Body)
-	return jsonResponse, w.Code
 }
 
 func TestToggleCourseVisibility(t *testing.T) {
@@ -430,7 +354,7 @@ func TestToggleCourseVisibility(t *testing.T) {
 	c.False(json["visible"].(bool))
 
 	// Get the student courses
-	response, code := GetUserCourses(cookie)
+	response, code := GetCoursesUserIsEnrolledIn(cookie)
 	c.Equal(http.StatusOK, code)
 	c.Equal(1, len(response["hidden_courses"].([]interface{})))
 
@@ -440,19 +364,9 @@ func TestToggleCourseVisibility(t *testing.T) {
 	c.True(json["visible"].(bool))
 
 	// Get the student courses
-	response, code = GetUserCourses(cookie)
+	response, code = GetCoursesUserIsEnrolledIn(cookie)
 	c.Equal(http.StatusOK, code)
 	c.Equal(0, len(response["hidden_courses"].([]interface{})))
-}
-
-func ToggleCourseVisibility(cookie *http.Cookie, courseUUID string) (response map[string]interface{}, statusCode int) {
-	endpoint := fmt.Sprintf("/api/v1/courses/%s/visibility", courseUUID)
-	w, r := PrepareRequest("PATCH", endpoint, nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	jsonResponse := ParseJsonResponse(w.Body)
-	return jsonResponse, w.Code
 }
 
 func TestRenameCourse(t *testing.T) {
@@ -532,28 +446,17 @@ func TestRenameCourse(t *testing.T) {
 	c.Equal(http.StatusForbidden, code)
 }
 
-func RenameCourse(cookie *http.Cookie, courseUUID string, name string) (statusCode int) {
-	endpoint := fmt.Sprintf("/api/v1/courses/%s/name", courseUUID)
-	w, r := PrepareRequest("PATCH", endpoint, map[string]interface{}{
-		"name": name,
-	})
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return w.Code
-}
-
 func TestEnrollStudentToCourse(t *testing.T) {
 	c := require.New(t)
 
 	// Register an student
-	registerStudentPayload := requests.RegisterUserRequest{
+	RegisterStudentAccountPayload := requests.RegisterUserRequest{
 		FullName:        "Karl Ivica",
 		Email:           "karl.ivica.2020@upb.edu.co",
 		InstitutionalId: "000814593",
 		Password:        "karl/password/2023",
 	}
-	code := RegisterStudent(registerStudentPayload)
+	code := RegisterStudentAccount(RegisterStudentAccountPayload)
 	c.Equal(http.StatusCreated, code)
 
 	// Login as a teacher
@@ -645,7 +548,7 @@ func TestEnrollStudentToCourse(t *testing.T) {
 	}
 
 	for _, testCase := range getEnrolledTestCases {
-		response, code := GetEnrolledStudents(cookie, testCase.Payload["course_uuid"].(string))
+		response, code := GetStudentsEnrolledInCourse(cookie, testCase.Payload["course_uuid"].(string))
 		c.Equal(testCase.ExpectedStatusCode, code)
 
 		if code == http.StatusOK {
@@ -655,31 +558,9 @@ func TestEnrollStudentToCourse(t *testing.T) {
 			// Assert the student fields
 			student := students[0].(map[string]interface{})
 			c.Equal(student_uuid, student["uuid"])
-			c.Equal(registerStudentPayload.FullName, student["full_name"])
-			c.Equal(registerStudentPayload.InstitutionalId, student["institutional_id"])
+			c.Equal(RegisterStudentAccountPayload.FullName, student["full_name"])
+			c.Equal(RegisterStudentAccountPayload.InstitutionalId, student["institutional_id"])
 			c.Equal(true, student["is_active"])
 		}
 	}
-}
-
-func EnrollSTudentToCourse(cookie *http.Cookie, courseUUID string, studentUUID string) (response map[string]interface{}, statusCode int) {
-	endpoint := fmt.Sprintf("/api/v1/courses/%s/students", courseUUID)
-	w, r := PrepareRequest("POST", endpoint, map[string]interface{}{
-		"student_uuid": studentUUID,
-	})
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	jsonResponse := ParseJsonResponse(w.Body)
-	return jsonResponse, w.Code
-}
-
-func GetEnrolledStudents(cookie *http.Cookie, courseUUID string) (response map[string]interface{}, statusCode int) {
-	endpoint := fmt.Sprintf("/api/v1/courses/%s/students", courseUUID)
-	w, r := PrepareRequest("GET", endpoint, nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	jsonResponse := ParseJsonResponse(w.Body)
-	return jsonResponse, w.Code
 }

@@ -1,0 +1,21 @@
+meta {
+  name: add-objective-to-rubric
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{BASE_URL}}/rubrics/fd91f1fa-7557-47cd-8b69-d822aff35b17/objectives
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "description": "Specify the functional and non-functional requirements of the system following a format based on the IEEE 830 standard."
+  }
+}

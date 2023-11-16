@@ -123,8 +123,10 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 	}
 
 	// Save the objectives into a map
+	objectives := make([]*entities.RubricObjective, 0)
 	objectivesUUIDs := make([]string, 0)
-	objectivesMap := make(map[string]*entities.RubricObjective)
+	objectivesIndex := make(map[string]int)
+
 	for rows.Next() {
 		objective := &entities.RubricObjective{
 			Criteria: make([]entities.RubricObjectiveCriteria, 0),
@@ -135,8 +137,9 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 			return nil, err
 		}
 
+		objectives = append(objectives, objective)
 		objectivesUUIDs = append(objectivesUUIDs, objective.UUID)
-		objectivesMap[objective.UUID] = objective
+		objectivesIndex[objective.UUID] = len(objectives) - 1
 	}
 
 	// Get the objectives' criteria
@@ -158,15 +161,34 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 			return nil, err
 		}
 
-		objectivesMap[criteria.ObjectiveUUID].Criteria = append(objectivesMap[criteria.ObjectiveUUID].Criteria, *criteria)
+		objectives[objectivesIndex[criteria.ObjectiveUUID]].Criteria = append(objectives[objectivesIndex[criteria.ObjectiveUUID]].Criteria, *criteria)
 	}
 
 	// Append the objectives to the rubric
-	for _, objective := range objectivesMap {
+	for _, objective := range objectives {
 		rubric.Objectives = append(rubric.Objectives, *objective)
 	}
 
 	return rubric, nil
+}
+
+func (repository *RubricsPostgresRepository) UpdateName(dto *dtos.UpdateRubricNameDTO) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Update the rubric
+	query := `
+		UPDATE rubrics
+		SET name = $1
+		WHERE id = $2
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, dto.Name, dto.RubricUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (repository *RubricsPostgresRepository) DoesTeacherOwnRubric(teacherUUID string, rubricUUID string) (bool, error) {
@@ -289,6 +311,43 @@ func (repository *RubricsPostgresRepository) AddObjectiveToRubric(rubricUUID str
 	return objectiveUUID, nil
 }
 
+func (repository *RubricsPostgresRepository) UpdateObjective(dto *dtos.UpdateObjectiveDTO) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Update the objective
+	query := `
+		UPDATE objectives
+		SET description = $1
+		WHERE id = $2
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, dto.UpdatedDescription, dto.ObjectiveUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *RubricsPostgresRepository) DeleteObjective(objectiveUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Delete the objective
+	query := `
+		DELETE FROM objectives
+		WHERE id = $1
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, objectiveUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repository *RubricsPostgresRepository) AddCriteriaToObjective(dto *dtos.AddCriteriaToObjectiveDTO) (criteriaUUID string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -307,4 +366,41 @@ func (repository *RubricsPostgresRepository) AddCriteriaToObjective(dto *dtos.Ad
 	}
 
 	return criteriaUUID, nil
+}
+
+func (repository *RubricsPostgresRepository) UpdateCriteria(dto *dtos.UpdateCriteriaDTO) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Update the criteria
+	query := `
+		UPDATE criteria
+		SET description = $1, weight = $2
+		WHERE id = $3
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, dto.CriteriaDescription, dto.CriteriaWeight, dto.CriteriaUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *RubricsPostgresRepository) DeleteCriteria(criteriaUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Delete the criteria
+	query := `
+		DELETE FROM criteria
+		WHERE id = $1
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, criteriaUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

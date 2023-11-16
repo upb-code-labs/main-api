@@ -49,14 +49,6 @@ func TestCreateRubric(t *testing.T) {
 	}
 }
 
-func CreateRubric(cookie *http.Cookie, payload map[string]interface{}) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("POST", "/api/v1/rubrics", payload)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return ParseJsonResponse(w.Body), w.Code
-}
-
 func TestGetCreatedRubrics(t *testing.T) {
 	c := require.New(t)
 
@@ -79,7 +71,7 @@ func TestGetCreatedRubrics(t *testing.T) {
 	cookie := w.Result().Cookies()[0]
 
 	// Get created rubrics
-	response, status := GetCreatedRubrics(cookie)
+	response, status := GetRubricsCreatedByUser(cookie)
 	rubrics := response["rubrics"].([]interface{})
 	c.Equal(http.StatusOK, status)
 	c.Equal(0, len(rubrics))
@@ -92,7 +84,7 @@ func TestGetCreatedRubrics(t *testing.T) {
 	c.Equal(http.StatusCreated, status)
 
 	// Get created rubrics
-	response, status = GetCreatedRubrics(cookie)
+	response, status = GetRubricsCreatedByUser(cookie)
 	rubrics = response["rubrics"].([]interface{})
 	c.Equal(http.StatusOK, status)
 	c.Equal(1, len(rubrics))
@@ -101,14 +93,6 @@ func TestGetCreatedRubrics(t *testing.T) {
 	rubric := rubrics[0].(map[string]interface{})
 	c.NotEmpty(rubric["uuid"])
 	c.NotEmpty(rubric["name"])
-}
-
-func GetCreatedRubrics(cookie *http.Cookie) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("GET", "/api/v1/rubrics", nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return ParseJsonResponse(w.Body), w.Code
 }
 
 func TestGetRubricByUUID(t *testing.T) {
@@ -204,12 +188,53 @@ func TestGetRubricByUUID(t *testing.T) {
 	}
 }
 
-func GetRubricByUUID(cookie *http.Cookie, uuid string) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("GET", "/api/v1/rubrics/"+uuid, nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
+func TestUpdateRubricName(t *testing.T) {
+	c := require.New(t)
 
-	return ParseJsonResponse(w.Body), w.Code
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(cookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	rubricUUID := response["uuid"].(string)
+
+	// Test cases
+	newName := "New name"
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"name": "a",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"name": newName,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := UpdateRubricName(cookie, rubricUUID, testCase.Payload)
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+
+	// Get rubric
+	response, status = GetRubricByUUID(cookie, rubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(newName, rubric["name"])
+	c.NotEmpty(rubric["uuid"])
 }
 
 func TestAddObjectiveToRubric(t *testing.T) {
@@ -279,12 +304,126 @@ func TestAddObjectiveToRubric(t *testing.T) {
 	c.Empty(objective["criteria"])
 }
 
-func AddObjectiveToRubric(cookie *http.Cookie, rubricUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("POST", "/api/v1/rubrics/"+rubricUUID+"/objectives", payload)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
+func TestUpdateObjective(t *testing.T) {
+	c := require.New(t)
 
-	return ParseJsonResponse(w.Body), w.Code
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(cookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	rubricUUID := response["uuid"].(string)
+
+	// Create an objective
+	response, status = AddObjectiveToRubric(cookie, rubricUUID, map[string]interface{}{
+		"description": "Old description",
+	})
+	c.Equal(http.StatusCreated, status)
+	objectiveUUID := response["uuid"].(string)
+
+	// Test cases
+	newDescription := "New description"
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"description": "short",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"description": newDescription,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := UpdateObjective(cookie, objectiveUUID, testCase.Payload)
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+
+	// Get rubric
+	response, status = GetRubricByUUID(cookie, rubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(2, len(rubric["objectives"].([]interface{})))
+
+	objective := rubric["objectives"].([]interface{})[1].(map[string]interface{})
+	c.Equal(newDescription, objective["description"])
+	c.NotEmpty(objective["uuid"])
+}
+
+func TestDeleteObjective(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(cookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	rubricUUID := response["uuid"].(string)
+
+	// Get the rubric
+	response, status = GetRubricByUUID(cookie, rubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(1, len(rubric["objectives"].([]interface{})))
+
+	objective := rubric["objectives"].([]interface{})[0].(map[string]interface{})
+	objectiveUUID := objective["uuid"].(string)
+
+	// Test cases
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": "not-valid-uuid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": "8bf7e0a1-6475-41b6-81f6-e804484a9d67",
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": objectiveUUID,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := DeleteObjective(cookie, testCase.Payload["objectiveUUID"].(string))
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+
+	// Get rubric
+	response, status = GetRubricByUUID(cookie, rubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric = response["rubric"].(map[string]interface{})
+	c.Equal(0, len(rubric["objectives"].([]interface{})))
 }
 
 func TestAddCriteriaToObjective(t *testing.T) {
@@ -404,10 +543,129 @@ func TestAddCriteriaToObjective(t *testing.T) {
 	c.NotEmpty(criteria["weight"])
 }
 
-func AddCriteriaToObjective(cookie *http.Cookie, objectiveUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
-	w, r := PrepareRequest("POST", "/api/v1/rubrics/objectives/"+objectiveUUID+"/criteria", payload)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
+func TestUpdateCriteria(t *testing.T) {
+	c := require.New(t)
 
-	return ParseJsonResponse(w.Body), w.Code
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	firstTeacherCookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(firstTeacherCookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	firstTeacherRubricUUID := response["uuid"].(string)
+
+	// Get the criteria UUID
+	response, status = GetRubricByUUID(firstTeacherCookie, firstTeacherRubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(1, len(rubric["objectives"].([]interface{})))
+
+	objective := rubric["objectives"].([]interface{})[0].(map[string]interface{})
+	c.Equal(1, len(objective["criteria"].([]interface{})))
+
+	criteria := objective["criteria"].([]interface{})[0].(map[string]interface{})
+	criteriaUUID := criteria["uuid"].(string)
+
+	// Test cases
+	newDescription := "New description"
+	newWeight := 0.125
+
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"description": "short",
+				"weight":      0.125,
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"description": newDescription,
+				"weight":      newWeight,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := UpdateCriteria(firstTeacherCookie, criteriaUUID, testCase.Payload)
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+}
+
+func TestDeleteCriteria(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	firstTeacherCookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(firstTeacherCookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	firstTeacherRubricUUID := response["uuid"].(string)
+
+	// Get the criteria UUID
+	response, status = GetRubricByUUID(firstTeacherCookie, firstTeacherRubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(1, len(rubric["objectives"].([]interface{})))
+
+	objective := rubric["objectives"].([]interface{})[0].(map[string]interface{})
+	c.Equal(1, len(objective["criteria"].([]interface{})))
+
+	criteria := objective["criteria"].([]interface{})[0].(map[string]interface{})
+	criteriaUUID := criteria["uuid"].(string)
+
+	// Test cases
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"criteriaUUID": "not-valid-uuid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"criteriaUUID": "ceb714e2-3e97-4b25-a8b7-6f5e919a3e3c",
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"criteriaUUID": criteriaUUID,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := DeleteCriteria(firstTeacherCookie, testCase.Payload["criteriaUUID"].(string))
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+
+	// Get rubric
+	response, status = GetRubricByUUID(firstTeacherCookie, firstTeacherRubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric = response["rubric"].(map[string]interface{})
+	c.Equal(1, len(rubric["objectives"].([]interface{})))
+
+	objective = rubric["objectives"].([]interface{})[0].(map[string]interface{})
+	c.Equal(0, len(objective["criteria"].([]interface{})))
 }

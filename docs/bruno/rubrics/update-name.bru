@@ -1,0 +1,17 @@
+meta {
+  name: update-name
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{BASE_URL}}/rubrics/41c2cbc8-d86d-42fc-a0e7-dadf5fcf5b6d/name
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "New name"
+  }
+}

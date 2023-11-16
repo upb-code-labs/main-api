@@ -44,6 +44,25 @@ func (useCases *RubricsUseCases) GetRubricByUUID(dto *dtos.GetRubricDto) (rubric
 	return rubric, nil
 }
 
+func (useCases *RubricsUseCases) UpdateRubricName(dto *dtos.UpdateRubricNameDTO) (err error) {
+	// Check if the rubric belongs to the teacher
+	teacherOwnsRubric, err := useCases.RubricsRepository.DoesTeacherOwnRubric(dto.TeacherUUID, dto.RubricUUID)
+	if err != nil {
+		return err
+	}
+	if !teacherOwnsRubric {
+		return &errors.TeacherDoesNotOwnsRubric{}
+	}
+
+	// Update the name
+	err = useCases.RubricsRepository.UpdateName(dto)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (useCases *RubricsUseCases) AddObjectiveToRubric(dto *dtos.AddObjectiveToRubricDTO) (objectiveUUID string, err error) {
 	// Check if the rubric belongs to the teacher
 	teacherOwnsRubric, err := useCases.RubricsRepository.DoesTeacherOwnRubric(dto.TeacherUUID, dto.RubricUUID)
@@ -63,6 +82,44 @@ func (useCases *RubricsUseCases) AddObjectiveToRubric(dto *dtos.AddObjectiveToRu
 	return objectiveUUID, nil
 }
 
+func (useCases *RubricsUseCases) UpdateObjective(dto *dtos.UpdateObjectiveDTO) (err error) {
+	// Check if the objective belongs to a rubric that belongs to the teacher
+	teacherOwnsObjective, err := useCases.RubricsRepository.DoesTeacherOwnObjective(dto.TeacherUUID, dto.ObjectiveUUID)
+	if err != nil {
+		return err
+	}
+	if !teacherOwnsObjective {
+		return &errors.TeacherDoesNotOwnsRubric{}
+	}
+
+	// Update the objective
+	err = useCases.RubricsRepository.UpdateObjective(dto)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (useCases *RubricsUseCases) DeleteObjective(dto *dtos.DeleteObjectiveDTO) (err error) {
+	// Check if the objective belongs to a rubric that belongs to the teacher
+	teacherOwnsObjective, err := useCases.RubricsRepository.DoesTeacherOwnObjective(dto.TeacherUUID, dto.ObjectiveUUID)
+	if err != nil {
+		return err
+	}
+	if !teacherOwnsObjective {
+		return &errors.TeacherDoesNotOwnsRubric{}
+	}
+
+	// Delete the objective
+	err = useCases.RubricsRepository.DeleteObjective(dto.ObjectiveUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (useCases *RubricsUseCases) AddCriteriaToObjective(dto *dtos.AddCriteriaToObjectiveDTO) (criteriaUUID string, err error) {
 	// Check if the objective belongs to a rubric that belongs to the teacher
 	teacherOwnsObjective, err := useCases.RubricsRepository.DoesTeacherOwnObjective(dto.TeacherUUID, dto.ObjectiveUUID)
@@ -80,4 +137,42 @@ func (useCases *RubricsUseCases) AddCriteriaToObjective(dto *dtos.AddCriteriaToO
 	}
 
 	return criteriaUUID, nil
+}
+
+func (useCases *RubricsUseCases) UpdateCriteria(dto *dtos.UpdateCriteriaDTO) (err error) {
+	// Check if the criteria belongs to a rubric that belongs to the teacher
+	teacherOwnsCriteria, err := useCases.RubricsRepository.DoesTeacherOwnCriteria(dto.TeacherUUID, dto.CriteriaUUID)
+	if err != nil {
+		return err
+	}
+	if !teacherOwnsCriteria {
+		return &errors.TeacherDoesNotOwnsRubric{}
+	}
+
+	// Update the criteria
+	err = useCases.RubricsRepository.UpdateCriteria(dto)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (useCases *RubricsUseCases) DeleteCriteria(dto *dtos.DeleteCriteriaDTO) (err error) {
+	// Check if the criteria belongs to a rubric that belongs to the teacher
+	teacherOwnsCriteria, err := useCases.RubricsRepository.DoesTeacherOwnCriteria(dto.TeacherUUID, dto.CriteriaUUID)
+	if err != nil {
+		return err
+	}
+	if !teacherOwnsCriteria {
+		return &errors.TeacherDoesNotOwnsRubric{}
+	}
+
+	// Delete the criteria
+	err = useCases.RubricsRepository.DeleteCriteria(dto.CriteriaUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

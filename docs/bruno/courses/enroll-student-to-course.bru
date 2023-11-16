@@ -1,0 +1,21 @@
+meta {
+  name: enroll-student-to-course
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{BASE_URL}}/courses/28aa7ca4-113a-47ea-bb96-de8a3a11b777/students
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "student_uuid": "1f8d6c8e-f971-4da1-9140-bb180d64e433"
+  }
+}
