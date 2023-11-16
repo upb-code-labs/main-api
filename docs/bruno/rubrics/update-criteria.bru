@@ -1,0 +1,18 @@
+meta {
+  name: update-criteria
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{BASE_URL}}/rubrics/criteria/d986f035-4d1b-4498-8ab3-1b9c923dbf9d
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "description": "Sin evidencia",
+    "weight": 0
+  }
+}
