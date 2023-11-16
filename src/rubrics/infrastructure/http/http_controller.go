@@ -248,3 +248,51 @@ func (controller *RubricsController) HandleUpdateObjective(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+func (controller *RubricsController) HandleUpdateCriteria(c *gin.Context) {
+	teacher_uuid := c.GetString("session_uuid")
+
+	// Validate criteria UUID
+	criteria_uuid := c.Param("criteriaUUID")
+	if err := shared_infrastructure.GetValidator().Var(criteria_uuid, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid criteria uuid",
+		})
+		return
+	}
+
+	// Parse request body
+	var request requests.UpdateCriteriaRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := shared_infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Create DTO
+	dto := dtos.UpdateCriteriaDTO{
+		TeacherUUID:         teacher_uuid,
+		CriteriaUUID:        criteria_uuid,
+		CriteriaDescription: request.Description,
+		CriteriaWeight:      request.Weight,
+	}
+
+	// Update the criteria
+	err := controller.UseCases.UpdateCriteria(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
