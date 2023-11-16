@@ -39,6 +39,13 @@ func StartRubricsRoutes(g *gin.RouterGroup) {
 		controller.HandleGetRubricByUUID,
 	)
 
+	rubricsGroup.PATCH(
+		"/:rubricUUID/name",
+		shared_infrastructure.WithAuthenticationMiddleware(),
+		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleUpdateRubricName,
+	)
+
 	rubricsGroup.POST(
 		"/:rubricUUID/objectives",
 		shared_infrastructure.WithAuthenticationMiddleware(),

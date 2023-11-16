@@ -101,6 +101,53 @@ func (controller *RubricsController) HandleGetRubricByUUID(c *gin.Context) {
 	})
 }
 
+func (controller *RubricsController) HandleUpdateRubricName(c *gin.Context) {
+	teacher_uuid := c.GetString("session_uuid")
+
+	// Validate rubric UUID
+	rubric_uuid := c.Param("rubricUUID")
+	if err := shared_infrastructure.GetValidator().Var(rubric_uuid, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid rubric uuid",
+		})
+		return
+	}
+
+	// Parse request body
+	var request requests.UpdateRubricNameRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := shared_infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Create DTO
+	dto := dtos.UpdateRubricNameDTO{
+		TeacherUUID: teacher_uuid,
+		RubricUUID:  rubric_uuid,
+		Name:        request.Name,
+	}
+
+	// Update the rubric
+	err := controller.UseCases.UpdateRubricName(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
 func (controller *RubricsController) HandleAddObjectiveToRubric(c *gin.Context) {
 	teacher_uuid := c.GetString("session_uuid")
 
