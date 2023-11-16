@@ -600,3 +600,72 @@ func TestUpdateCriteria(t *testing.T) {
 		c.Equal(testCase.ExpectedStatusCode, status)
 	}
 }
+
+func TestDeleteCriteria(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	firstTeacherCookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(firstTeacherCookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	firstTeacherRubricUUID := response["uuid"].(string)
+
+	// Get the criteria UUID
+	response, status = GetRubricByUUID(firstTeacherCookie, firstTeacherRubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(1, len(rubric["objectives"].([]interface{})))
+
+	objective := rubric["objectives"].([]interface{})[0].(map[string]interface{})
+	c.Equal(1, len(objective["criteria"].([]interface{})))
+
+	criteria := objective["criteria"].([]interface{})[0].(map[string]interface{})
+	criteriaUUID := criteria["uuid"].(string)
+
+	// Test cases
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"criteriaUUID": "not-valid-uuid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"criteriaUUID": "ceb714e2-3e97-4b25-a8b7-6f5e919a3e3c",
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"criteriaUUID": criteriaUUID,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := DeleteCriteria(firstTeacherCookie, testCase.Payload["criteriaUUID"].(string))
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+
+	// Get rubric
+	response, status = GetRubricByUUID(firstTeacherCookie, firstTeacherRubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric = response["rubric"].(map[string]interface{})
+	c.Equal(1, len(rubric["objectives"].([]interface{})))
+
+	objective = rubric["objectives"].([]interface{})[0].(map[string]interface{})
+	c.Equal(0, len(objective["criteria"].([]interface{})))
+}
