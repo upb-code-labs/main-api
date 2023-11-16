@@ -1,13 +1,13 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2023-11-16T00:00:17.420Z",
-  "__export_source": "insomnia.desktop.app:v8.4.1",
+  "__export_date": "2023-11-16T12:35:55.652Z",
+  "__export_source": "insomnia.desktop.app:v8.4.2",
   "resources": [
     {
       "_id": "req_c2f0c73479b541a49dbada7341b1c575",
       "parentId": "fld_471e0003712e4ff0a2978078fa774ef7",
-      "modified": 1699472729783,
+      "modified": 1700137908954,
       "created": 1699472694976,
       "url": "{{BASE_URL}}/accounts/admins",
       "name": "register-admin",
@@ -660,7 +660,7 @@
     {
       "_id": "req_00f7ec30e93c4a3bb7ec90e2b80407b6",
       "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
-      "modified": 1700090526394,
+      "modified": 1700092857989,
       "created": 1700090427249,
       "url": "{{ _.BASE_URL }}/rubrics/objectives/1fc6b653-6977-4025-981e-6c937a10a251",
       "name": "update-objective",
@@ -689,7 +689,7 @@
     {
       "_id": "req_dc979436daa84e19bfc983515f7f0f9b",
       "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
-      "modified": 1700060008053,
+      "modified": 1700137892992,
       "created": 1699473189242,
       "url": "{{ _.BASE_URL }}/rubrics/objectives/e81fecb0-620c-4af5-80d9-5e9a6af88b68/criteria",
       "name": "add-criteria-to-objective",
@@ -697,7 +697,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n\t\"description\": \"It does not present a list of functional requirements\",\n\t\"weight\": -1\n}"
+        "text": "{\n\t\"description\": \"It does not present a list of functional requirements\",\n\t\"weight\": 0\n}"
       },
       "parameters": [],
       "headers": [
@@ -706,6 +706,35 @@
       ],
       "authentication": {},
       "metaSortKey": -1699473189242,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_73cce43293304b7cb3b760903512af7a",
+      "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
+      "modified": 1700137970119,
+      "created": 1700137853193,
+      "url": "{{ _.BASE_URL }}/rubrics/criteria/d986f035-4d1b-4498-8ab3-1b9c923dbf9d",
+      "name": "update-criteria",
+      "description": "",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n\t\"description\": \"Sin evidencia\",\n\t\"weight\": 0\n}"
+      },
+      "parameters": [],
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "User-Agent", "value": "insomnia/8.4.2" }
+      ],
+      "authentication": {},
+      "metaSortKey": -1699473189142,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,
@@ -731,21 +760,21 @@
     {
       "_id": "jar_c0a0aa13c1388a57edad6b5876667ffb89c3f19d",
       "parentId": "wrk_d434a8527f444bf9a18c549e59efeee5",
-      "modified": 1700090481591,
+      "modified": 1700137934108,
       "created": 1699472219279,
       "name": "Default Jar",
       "cookies": [
         {
           "key": "session",
-          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMmI3OTAxOTUtNzkxZC00ODFiLTk0NjMtZjg3ZTIxNjYzZDk2Iiwicm9sZSI6InRlYWNoZXIiLCJpc3MiOiJjb2RlbGFicyIsImV4cCI6MTcwMDExMjA4MSwibmJmIjoxNzAwMDkwNDgxLCJpYXQiOjE3MDAwOTA0ODF9.2Zo3CV7Qf1H7q9fbeqrhyrqTYn-UGiJnelDsAvMm92A",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMmI3OTAxOTUtNzkxZC00ODFiLTk0NjMtZjg3ZTIxNjYzZDk2Iiwicm9sZSI6InRlYWNoZXIiLCJpc3MiOiJjb2RlbGFicyIsImV4cCI6MTcwMDE1OTUzNCwibmJmIjoxNzAwMTM3OTM0LCJpYXQiOjE3MDAxMzc5MzR9.49rizwDc8xUg5k6-auur9tdCvokp-8FWSEW3l2aRqxc",
           "maxAge": 21600,
           "domain": "localhost",
           "path": "/",
           "httpOnly": true,
           "hostOnly": true,
           "creation": "2023-11-08T19:42:29.254Z",
-          "lastAccessed": "2023-11-15T23:21:21.590Z",
-          "id": "91936dac-fbdd-49bc-96e2-50326472280f"
+          "lastAccessed": "2023-11-16T12:32:14.108Z",
+          "id": "ac7429d7-8082-4484-a6b1-6b2bcb838153"
         }
       ],
       "_type": "cookie_jar"
