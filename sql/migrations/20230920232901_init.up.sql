@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS grades (
 
 CREATE TABLE IF NOT EXISTS grade_has_criteria (
   "grade_id" UUID NOT NULL REFERENCES grades(id),
-  "criteria_id" UUID NOT NULL REFERENCES criteria(id),
+  "criteria_id" UUID NOT NULL REFERENCES criteria(id) ON DELETE CASCADE,
   "objective_id" UUID NOT NULL REFERENCES objectives(id) ON DELETE CASCADE
 );
 
