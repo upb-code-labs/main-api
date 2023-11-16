@@ -1,3 +1,12 @@
+# [0.28.0](https://github.com/upb-code-labs/main-api/compare/v0.27.0...v0.28.0) (2023-11-16)
+
+
+### Features
+
+* Delete objective criteria ([#99](https://github.com/upb-code-labs/main-api/issues/99)) ([b7fe282](https://github.com/upb-code-labs/main-api/commit/b7fe28294d05a10c2eb1d4811e1877b795f6b1b8))
+
+
+
 # [0.27.0](https://github.com/upb-code-labs/main-api/compare/v0.26.0...v0.27.0) (2023-11-16)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Update rubric objective ([#93](https://github.com/upb-code-labs/main-api/issues/93)) ([aabeec6](https://github.com/upb-code-labs/main-api/commit/aabeec6434aaad4966294688f02175f2f733c662))
-
-
-
-## [0.23.2](https://github.com/upb-code-labs/main-api/compare/v0.23.1...v0.23.2) (2023-11-15)
-
-
-### Bug Fixes
-
-* Min criteria weight ([#91](https://github.com/upb-code-labs/main-api/issues/91)) ([a2cfb46](https://github.com/upb-code-labs/main-api/commit/a2cfb46b74ff7a39a096df1977c20444e13f6a1f))
 
 
 
