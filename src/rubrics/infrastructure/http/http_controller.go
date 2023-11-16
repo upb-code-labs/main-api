@@ -296,6 +296,34 @@ func (controller *RubricsController) HandleUpdateObjective(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+func (controller *RubricsController) HandleDeleteObjective(c *gin.Context) {
+	teacher_uuid := c.GetString("session_uuid")
+
+	// Validate objective UUID
+	objective_uuid := c.Param("objectiveUUID")
+	if err := shared_infrastructure.GetValidator().Var(objective_uuid, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid objective uuid",
+		})
+		return
+	}
+
+	// Create DTO
+	dto := dtos.DeleteObjectiveDTO{
+		TeacherUUID:   teacher_uuid,
+		ObjectiveUUID: objective_uuid,
+	}
+
+	// Delete the objective
+	err := controller.UseCases.DeleteObjective(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
 func (controller *RubricsController) HandleUpdateCriteria(c *gin.Context) {
 	teacher_uuid := c.GetString("session_uuid")
 

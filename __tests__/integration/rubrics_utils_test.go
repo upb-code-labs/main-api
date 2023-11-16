@@ -51,6 +51,14 @@ func UpdateObjective(cookie *http.Cookie, objectiveUUID string, payload map[stri
 	return ParseJsonResponse(w.Body), w.Code
 }
 
+func DeleteObjective(cookie *http.Cookie, objectiveUUID string) (response map[string]interface{}, status int) {
+	w, r := PrepareRequest("DELETE", "/api/v1/rubrics/objectives/"+objectiveUUID, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return ParseJsonResponse(w.Body), w.Code
+}
+
 func AddCriteriaToObjective(cookie *http.Cookie, objectiveUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
 	w, r := PrepareRequest("POST", "/api/v1/rubrics/objectives/"+objectiveUUID+"/criteria", payload)
 	r.AddCookie(cookie)

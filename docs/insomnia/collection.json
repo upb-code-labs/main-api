@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2023-11-16T13:08:55.553Z",
+  "__export_date": "2023-11-16T13:41:31.656Z",
   "__export_source": "insomnia.desktop.app:v8.4.2",
   "resources": [
     {
@@ -608,9 +608,9 @@
     {
       "_id": "req_ea83c56618a04e4c82721c339ffb070f",
       "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
-      "modified": 1700090461747,
+      "modified": 1700141901628,
       "created": 1699473282698,
-      "url": "{{ _.BASE_URL }}/rubrics/41c2cbc8-d86d-42fc-a0e7-dadf5fcf5b6d",
+      "url": "{{ _.BASE_URL }}/rubrics/3fa4cadc-89e6-4fb2-bfb9-477dbff87b43",
       "name": "get-rubric-by-uuid",
       "description": "",
       "method": "GET",
@@ -660,15 +660,15 @@
     {
       "_id": "req_cd6f968311ae475faa7f78fdf7574cb0",
       "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
-      "modified": 1700090447110,
+      "modified": 1700141887595,
       "created": 1699473230292,
-      "url": "{{ _.BASE_URL }}/rubrics/41c2cbc8-d86d-42fc-a0e7-dadf5fcf5b6d/objectives",
+      "url": "{{ _.BASE_URL }}/rubrics/3fa4cadc-89e6-4fb2-bfb9-477dbff87b43/objectives",
       "name": "add-objective",
       "description": "",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n\t\"description\": \"Resultados\"\n}"
+        "text": "{\n\t\"description\": \"Objetivos\"\n}"
       },
       "parameters": [],
       "headers": [
@@ -716,17 +716,40 @@
       "_type": "request"
     },
     {
+      "_id": "req_841bc206ecc34ca4b704d11c259ed48d",
+      "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
+      "modified": 1700141994783,
+      "created": 1700141917966,
+      "url": "{{ _.BASE_URL }}/rubrics/objectives/a5326f2c-1b35-405b-a1be-8b235faf8eba",
+      "name": "delete-objective",
+      "description": "",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [{ "name": "User-Agent", "value": "insomnia/8.4.2" }],
+      "authentication": {},
+      "metaSortKey": -1699473199504.5,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
       "_id": "req_dc979436daa84e19bfc983515f7f0f9b",
       "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
-      "modified": 1700137892992,
+      "modified": 1700141978054,
       "created": 1699473189242,
-      "url": "{{ _.BASE_URL }}/rubrics/objectives/e81fecb0-620c-4af5-80d9-5e9a6af88b68/criteria",
+      "url": "{{ _.BASE_URL }}/rubrics/objectives/a5326f2c-1b35-405b-a1be-8b235faf8eba/criteria",
       "name": "add-criteria-to-objective",
       "description": "",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n\t\"description\": \"It does not present a list of functional requirements\",\n\t\"weight\": 0\n}"
+        "text": "{\n\t\"description\": \"Second criteria\",\n\t\"weight\": 0.125\n}"
       },
       "parameters": [],
       "headers": [
@@ -789,21 +812,21 @@
     {
       "_id": "jar_c0a0aa13c1388a57edad6b5876667ffb89c3f19d",
       "parentId": "wrk_d434a8527f444bf9a18c549e59efeee5",
-      "modified": 1700137934108,
+      "modified": 1700141863706,
       "created": 1699472219279,
       "name": "Default Jar",
       "cookies": [
         {
           "key": "session",
-          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMmI3OTAxOTUtNzkxZC00ODFiLTk0NjMtZjg3ZTIxNjYzZDk2Iiwicm9sZSI6InRlYWNoZXIiLCJpc3MiOiJjb2RlbGFicyIsImV4cCI6MTcwMDE1OTUzNCwibmJmIjoxNzAwMTM3OTM0LCJpYXQiOjE3MDAxMzc5MzR9.49rizwDc8xUg5k6-auur9tdCvokp-8FWSEW3l2aRqxc",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiOTAwMzBhMjMtOWQ5Ny00NmEyLWI4NGMtZmY5N2FiN2JjNmJjIiwicm9sZSI6InRlYWNoZXIiLCJpc3MiOiJjb2RlbGFicyIsImV4cCI6MTcwMDE2MzQ2MywibmJmIjoxNzAwMTQxODYzLCJpYXQiOjE3MDAxNDE4NjN9.L2xZeYK0SBIxwforWZN6cHWtWjVDgGWKOg1C8v-iObs",
           "maxAge": 21600,
           "domain": "localhost",
           "path": "/",
           "httpOnly": true,
           "hostOnly": true,
           "creation": "2023-11-08T19:42:29.254Z",
-          "lastAccessed": "2023-11-16T12:32:14.108Z",
-          "id": "ac7429d7-8082-4484-a6b1-6b2bcb838153"
+          "lastAccessed": "2023-11-16T13:37:43.706Z",
+          "id": "a3ed4868-582e-4382-b63c-b50e747a3feb"
         }
       ],
       "_type": "cookie_jar"

@@ -1416,6 +1416,40 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+    delete: 
+      tags:
+        - Rubrics
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: objective_uuid
+          schema:
+            type: string
+            example: "ba982a19-5f9a-4ebd-8b3c-66a6129d0327"
+          required: true
+      description: Deletes an objective.
+      responses:
+        "204":
+          description: The objective was deleted.
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
 
   /rubrics/criteria/{criteria_uuid}:
     put:
@@ -1439,6 +1473,40 @@ paths:
       responses:
         "204":
           description: The criteria was updated.
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+    delete: 
+      tags:
+        - Rubrics
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: criteria_uuid
+          schema:
+            type: string
+            example: "ba982a19-5f9a-4ebd-8b3c-66a6129d0327"
+          required: true
+      description: Deletes a criteria.
+      responses:
+        "204":
+          description: The criteria was deleted.
         "400":
           description: Required fields were missed or doesn't fulfill the required format.
           content:

@@ -363,6 +363,69 @@ func TestUpdateObjective(t *testing.T) {
 	c.NotEmpty(objective["uuid"])
 }
 
+func TestDeleteObjective(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(cookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	rubricUUID := response["uuid"].(string)
+
+	// Get the rubric
+	response, status = GetRubricByUUID(cookie, rubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(1, len(rubric["objectives"].([]interface{})))
+
+	objective := rubric["objectives"].([]interface{})[0].(map[string]interface{})
+	objectiveUUID := objective["uuid"].(string)
+
+	// Test cases
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": "not-valid-uuid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": "8bf7e0a1-6475-41b6-81f6-e804484a9d67",
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"objectiveUUID": objectiveUUID,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := DeleteObjective(cookie, testCase.Payload["objectiveUUID"].(string))
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+
+	// Get rubric
+	response, status = GetRubricByUUID(cookie, rubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric = response["rubric"].(map[string]interface{})
+	c.Equal(0, len(rubric["objectives"].([]interface{})))
+}
+
 func TestAddCriteriaToObjective(t *testing.T) {
 	c := require.New(t)
 

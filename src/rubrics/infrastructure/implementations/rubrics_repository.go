@@ -330,6 +330,24 @@ func (repository *RubricsPostgresRepository) UpdateObjective(dto *dtos.UpdateObj
 	return nil
 }
 
+func (repository *RubricsPostgresRepository) DeleteObjective(objectiveUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Delete the objective
+	query := `
+		DELETE FROM objectives
+		WHERE id = $1
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, objectiveUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repository *RubricsPostgresRepository) AddCriteriaToObjective(dto *dtos.AddCriteriaToObjectiveDTO) (criteriaUUID string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
