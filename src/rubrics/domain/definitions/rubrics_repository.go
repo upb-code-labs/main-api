@@ -15,5 +15,6 @@ type RubricsRepository interface {
 	DoesTeacherOwnCriteria(teacherUUID string, criteriaUUID string) (bool, error)
 
 	AddObjectiveToRubric(rubricUUID string, objectiveDescription string) (objectiveUUID string, err error)
+	UpdateObjective(dto *dtos.UpdateObjectiveDTO) (err error)
 	AddCriteriaToObjective(dto *dtos.AddCriteriaToObjectiveDTO) (criteriaUUID string, err error)
 }

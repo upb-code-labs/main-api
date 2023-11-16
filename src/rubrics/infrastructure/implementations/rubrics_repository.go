@@ -292,6 +292,25 @@ func (repository *RubricsPostgresRepository) AddObjectiveToRubric(rubricUUID str
 	return objectiveUUID, nil
 }
 
+func (repository *RubricsPostgresRepository) UpdateObjective(dto *dtos.UpdateObjectiveDTO) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Update the objective
+	query := `
+		UPDATE objectives
+		SET description = $1
+		WHERE id = $2
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, dto.UpdatedDescription, dto.ObjectiveUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repository *RubricsPostgresRepository) AddCriteriaToObjective(dto *dtos.AddCriteriaToObjectiveDTO) (criteriaUUID string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()

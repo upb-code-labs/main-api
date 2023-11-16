@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRegisterStudent(t *testing.T) {
+func TestRegisterStudentAccount(t *testing.T) {
 	c := require.New(t)
 
 	testCases := []GenericTestCase{
@@ -57,18 +57,6 @@ func TestRegisterStudent(t *testing.T) {
 		router.ServeHTTP(w, r)
 		c.Equal(testCase.ExpectedStatusCode, w.Code)
 	}
-}
-
-func RegisterStudent(req requests.RegisterUserRequest) int {
-	w, r := PrepareRequest("POST", "/api/v1/accounts/students", map[string]interface{}{
-		"full_name":        req.FullName,
-		"email":            req.Email,
-		"institutional_id": req.InstitutionalId,
-		"password":         req.Password,
-	})
-
-	router.ServeHTTP(w, r)
-	return w.Code
 }
 
 func TestRegisterAdmin(t *testing.T) {
@@ -139,27 +127,6 @@ func TestRegisterAdmin(t *testing.T) {
 		router.ServeHTTP(w, r)
 		c.Equal(http.StatusForbidden, w.Code)
 	}
-}
-
-func RegisterAdminAccount(req requests.RegisterAdminRequest) int {
-	// Login as an admin
-	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
-		"email":    registeredAdminEmail,
-		"password": registeredAdminPass,
-	})
-	router.ServeHTTP(w, r)
-	cookie := w.Result().Cookies()[0]
-
-	// Register the new admin
-	w, r = PrepareRequest("POST", "/api/v1/accounts/admins", map[string]interface{}{
-		"full_name": req.FullName,
-		"email":     req.Email,
-		"password":  req.Password,
-	})
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-
-	return w.Code
 }
 
 func TestRegisterTeacher(t *testing.T) {
@@ -234,26 +201,6 @@ func TestRegisterTeacher(t *testing.T) {
 	}
 }
 
-func RegisterTeacherAccount(req requests.RegisterTeacherRequest) int {
-	// Login as an admin
-	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
-		"email":    registeredAdminEmail,
-		"password": registeredAdminPass,
-	})
-	router.ServeHTTP(w, r)
-	cookie := w.Result().Cookies()[0]
-
-	// Register the new teacher
-	w, r = PrepareRequest("POST", "/api/v1/accounts/teachers", map[string]interface{}{
-		"full_name": req.FullName,
-		"email":     req.Email,
-		"password":  req.Password,
-	})
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-	return w.Code
-}
-
 func TestListAdmins(t *testing.T) {
 	c := require.New(t)
 
@@ -299,7 +246,7 @@ func TestSearchStudentsByFullName(t *testing.T) {
 
 	// --- 1. Login as a teacher ---
 	// Register two students to search
-	code := RegisterStudent(requests.RegisterUserRequest{
+	code := RegisterStudentAccount(requests.RegisterUserRequest{
 		FullName:        "Sydnie Dipali",
 		Email:           "sydnie.dipali.2020@upb.edu.co",
 		Password:        "sydnie/password/2023",
@@ -307,7 +254,7 @@ func TestSearchStudentsByFullName(t *testing.T) {
 	})
 	c.Equal(http.StatusCreated, code)
 
-	code = RegisterStudent(requests.RegisterUserRequest{
+	code = RegisterStudentAccount(requests.RegisterUserRequest{
 		FullName:        "Sydnie Dipalu",
 		Email:           "sydnie.dipalu.2020@upb.edu.co",
 		Password:        "sydnie/password/2023",
@@ -349,11 +296,4 @@ func TestSearchStudentsByFullName(t *testing.T) {
 	// No full name
 	_, code = SearchStudentsByFullName(cookie, "")
 	c.Equal(http.StatusBadRequest, code)
-}
-
-func SearchStudentsByFullName(cookie *http.Cookie, fullName string) (response map[string]interface{}, statusCode int) {
-	w, r := PrepareRequest("GET", "/api/v1/accounts/students?fullName="+fullName, nil)
-	r.AddCookie(cookie)
-	router.ServeHTTP(w, r)
-	return ParseJsonResponse(w.Body), w.Code
 }
