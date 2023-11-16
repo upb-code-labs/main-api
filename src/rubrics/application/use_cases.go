@@ -44,6 +44,25 @@ func (useCases *RubricsUseCases) GetRubricByUUID(dto *dtos.GetRubricDto) (rubric
 	return rubric, nil
 }
 
+func (useCases *RubricsUseCases) UpdateRubricName(dto *dtos.UpdateRubricNameDTO) (err error) {
+	// Check if the rubric belongs to the teacher
+	teacherOwnsRubric, err := useCases.RubricsRepository.DoesTeacherOwnRubric(dto.TeacherUUID, dto.RubricUUID)
+	if err != nil {
+		return err
+	}
+	if !teacherOwnsRubric {
+		return &errors.TeacherDoesNotOwnsRubric{}
+	}
+
+	// Update the name
+	err = useCases.RubricsRepository.UpdateName(dto)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (useCases *RubricsUseCases) AddObjectiveToRubric(dto *dtos.AddObjectiveToRubricDTO) (objectiveUUID string, err error) {
 	// Check if the rubric belongs to the teacher
 	teacherOwnsRubric, err := useCases.RubricsRepository.DoesTeacherOwnRubric(dto.TeacherUUID, dto.RubricUUID)

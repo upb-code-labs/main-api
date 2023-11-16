@@ -26,6 +26,15 @@ func GetRubricByUUID(cookie *http.Cookie, uuid string) (response map[string]inte
 	return ParseJsonResponse(w.Body), w.Code
 }
 
+func UpdateRubricName(cookie *http.Cookie, uuid string, payload map[string]interface{}) (response map[string]interface{}, status int) {
+	w, r := PrepareRequest("PATCH", "/api/v1/rubrics/"+uuid+"/name", payload)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return ParseJsonResponse(w.Body), w.Code
+
+}
+
 func AddObjectiveToRubric(cookie *http.Cookie, rubricUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
 	w, r := PrepareRequest("POST", "/api/v1/rubrics/"+rubricUUID+"/objectives", payload)
 	r.AddCookie(cookie)

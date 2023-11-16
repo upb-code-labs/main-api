@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2023-11-16T12:35:55.652Z",
+  "__export_date": "2023-11-16T13:08:55.553Z",
   "__export_source": "insomnia.desktop.app:v8.4.2",
   "resources": [
     {
@@ -583,6 +583,29 @@
       "_type": "request_group"
     },
     {
+      "_id": "req_6ad4a6d3e957482da8011a4e1b94c106",
+      "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
+      "modified": 1700139817111,
+      "created": 1699473300974,
+      "url": "{{ _.BASE_URL }}/rubrics",
+      "name": "get-rubrics-created-by-user",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [{ "name": "User-Agent", "value": "insomnia/8.3.0" }],
+      "authentication": {},
+      "metaSortKey": -1699473252118.5,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
       "_id": "req_ea83c56618a04e4c82721c339ffb070f",
       "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
       "modified": 1700090461747,
@@ -606,19 +629,25 @@
       "_type": "request"
     },
     {
-      "_id": "req_6ad4a6d3e957482da8011a4e1b94c106",
+      "_id": "req_9deee768e4bf4093bab34b9adfdae2d7",
       "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
-      "modified": 1699473312542,
-      "created": 1699473300974,
-      "url": "{{ _.BASE_URL }}/rubrics",
-      "name": "get-rubrics-created-by-user",
+      "modified": 1700140117628,
+      "created": 1700139803414,
+      "url": "{{ _.BASE_URL }}/rubrics/41c2cbc8-d86d-42fc-a0e7-dadf5fcf5b6d/name",
+      "name": "update-rubric-name",
       "description": "",
-      "method": "GET",
-      "body": {},
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n\t\"name\": \"New name\"\n}"
+      },
       "parameters": [],
-      "headers": [{ "name": "User-Agent", "value": "insomnia/8.3.0" }],
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "User-Agent", "value": "insomnia/8.4.2" }
+      ],
       "authentication": {},
-      "metaSortKey": -1699473237567.5,
+      "metaSortKey": -1699473241205.25,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,

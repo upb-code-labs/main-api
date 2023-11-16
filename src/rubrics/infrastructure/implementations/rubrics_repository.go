@@ -172,6 +172,25 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 	return rubric, nil
 }
 
+func (repository *RubricsPostgresRepository) UpdateName(dto *dtos.UpdateRubricNameDTO) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Update the rubric
+	query := `
+		UPDATE rubrics
+		SET name = $1
+		WHERE id = $2
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, dto.Name, dto.RubricUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repository *RubricsPostgresRepository) DoesTeacherOwnRubric(teacherUUID string, rubricUUID string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
