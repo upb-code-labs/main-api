@@ -49,3 +49,11 @@ func AddCriteriaToObjective(cookie *http.Cookie, objectiveUUID string, payload m
 
 	return ParseJsonResponse(w.Body), w.Code
 }
+
+func UpdateCriteria(cookie *http.Cookie, criteriaUUID string, payload map[string]interface{}) (response map[string]interface{}, status int) {
+	w, r := PrepareRequest("PUT", "/api/v1/rubrics/criteria/"+criteriaUUID, payload)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return ParseJsonResponse(w.Body), w.Code
+}

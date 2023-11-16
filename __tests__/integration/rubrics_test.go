@@ -430,3 +430,61 @@ func TestAddCriteriaToObjective(t *testing.T) {
 	c.NotEmpty(criteria["uuid"])
 	c.NotEmpty(criteria["weight"])
 }
+
+func TestUpdateCriteria(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	firstTeacherCookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(firstTeacherCookie, map[string]interface{}{
+		"name": "Rubric 1",
+	})
+	c.Equal(http.StatusCreated, status)
+	firstTeacherRubricUUID := response["uuid"].(string)
+
+	// Get the criteria UUID
+	response, status = GetRubricByUUID(firstTeacherCookie, firstTeacherRubricUUID)
+	c.Equal(http.StatusOK, status)
+
+	rubric := response["rubric"].(map[string]interface{})
+	c.Equal(1, len(rubric["objectives"].([]interface{})))
+
+	objective := rubric["objectives"].([]interface{})[0].(map[string]interface{})
+	c.Equal(1, len(objective["criteria"].([]interface{})))
+
+	criteria := objective["criteria"].([]interface{})[0].(map[string]interface{})
+	criteriaUUID := criteria["uuid"].(string)
+
+	// Test cases
+	newDescription := "New description"
+	newWeight := 0.125
+
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"description": "short",
+				"weight":      0.125,
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"description": newDescription,
+				"weight":      newWeight,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := UpdateCriteria(firstTeacherCookie, criteriaUUID, testCase.Payload)
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+}

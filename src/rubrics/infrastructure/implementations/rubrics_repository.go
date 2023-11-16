@@ -330,3 +330,22 @@ func (repository *RubricsPostgresRepository) AddCriteriaToObjective(dto *dtos.Ad
 
 	return criteriaUUID, nil
 }
+
+func (repository *RubricsPostgresRepository) UpdateCriteria(dto *dtos.UpdateCriteriaDTO) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Update the criteria
+	query := `
+		UPDATE criteria
+		SET description = $1, weight = $2
+		WHERE id = $3
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, dto.CriteriaDescription, dto.CriteriaWeight, dto.CriteriaUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

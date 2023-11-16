@@ -100,3 +100,22 @@ func (useCases *RubricsUseCases) AddCriteriaToObjective(dto *dtos.AddCriteriaToO
 
 	return criteriaUUID, nil
 }
+
+func (useCases *RubricsUseCases) UpdateCriteria(dto *dtos.UpdateCriteriaDTO) (err error) {
+	// Check if the criteria belongs to a rubric that belongs to the teacher
+	teacherOwnsCriteria, err := useCases.RubricsRepository.DoesTeacherOwnCriteria(dto.TeacherUUID, dto.CriteriaUUID)
+	if err != nil {
+		return err
+	}
+	if !teacherOwnsCriteria {
+		return &errors.TeacherDoesNotOwnsRubric{}
+	}
+
+	// Update the criteria
+	err = useCases.RubricsRepository.UpdateCriteria(dto)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
