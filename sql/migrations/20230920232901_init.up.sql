@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS criteria (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "objective_id" UUID NOT NULL REFERENCES objectives(id) ON DELETE CASCADE,
   "description" VARCHAR(510) NOT NULL,
-  "weight" DECIMAL(5, 2) NOT NULL,
+  "weight" DECIMAL(9, 6) NOT NULL,
   "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS grades (
 
 CREATE TABLE IF NOT EXISTS grade_has_criteria (
   "grade_id" UUID NOT NULL REFERENCES grades(id),
-  "criteria_id" UUID NOT NULL REFERENCES criteria(id),
+  "criteria_id" UUID NOT NULL REFERENCES criteria(id) ON DELETE CASCADE,
   "objective_id" UUID NOT NULL REFERENCES objectives(id) ON DELETE CASCADE
 );
 

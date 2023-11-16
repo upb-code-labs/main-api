@@ -386,3 +386,21 @@ func (repository *RubricsPostgresRepository) UpdateCriteria(dto *dtos.UpdateCrit
 
 	return nil
 }
+
+func (repository *RubricsPostgresRepository) DeleteCriteria(criteriaUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Delete the criteria
+	query := `
+		DELETE FROM criteria
+		WHERE id = $1
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, criteriaUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

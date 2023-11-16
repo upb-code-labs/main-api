@@ -74,3 +74,11 @@ func UpdateCriteria(cookie *http.Cookie, criteriaUUID string, payload map[string
 
 	return ParseJsonResponse(w.Body), w.Code
 }
+
+func DeleteCriteria(cookie *http.Cookie, criteriaUUID string) (response map[string]interface{}, status int) {
+	w, r := PrepareRequest("DELETE", "/api/v1/rubrics/criteria/"+criteriaUUID, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return ParseJsonResponse(w.Body), w.Code
+}

@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2023-11-16T13:41:31.656Z",
+  "__export_date": "2023-11-16T15:35:58.995Z",
   "__export_source": "insomnia.desktop.app:v8.4.2",
   "resources": [
     {
@@ -741,15 +741,15 @@
     {
       "_id": "req_dc979436daa84e19bfc983515f7f0f9b",
       "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
-      "modified": 1700141978054,
+      "modified": 1700148635004,
       "created": 1699473189242,
-      "url": "{{ _.BASE_URL }}/rubrics/objectives/a5326f2c-1b35-405b-a1be-8b235faf8eba/criteria",
+      "url": "{{ _.BASE_URL }}/rubrics/objectives/c51c5656-2800-4e90-b2d8-5bcbd77bd4a4/criteria",
       "name": "add-criteria-to-objective",
       "description": "",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n\t\"description\": \"Second criteria\",\n\t\"weight\": 0.125\n}"
+        "text": "{\n\t\"description\": \"Sin evicencia\",\n\t\"weight\": 0\n}"
       },
       "parameters": [],
       "headers": [
@@ -787,6 +787,29 @@
       ],
       "authentication": {},
       "metaSortKey": -1699473189142,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "_type": "request"
+    },
+    {
+      "_id": "req_8ecea5bd9da84a79977bd9c70c056a46",
+      "parentId": "fld_4915fda7f3a64b3ba16e401d430745a1",
+      "modified": 1700148409961,
+      "created": 1700148283338,
+      "url": "{{ _.BASE_URL }}/rubrics/criteria/2912cc5a-f04e-4b0e-abc3-9973254975c6",
+      "name": "delete-criteria",
+      "description": "",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [{ "name": "User-Agent", "value": "insomnia/8.4.2" }],
+      "authentication": {},
+      "metaSortKey": -1699473189042,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,

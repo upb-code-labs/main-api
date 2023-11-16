@@ -371,3 +371,31 @@ func (controller *RubricsController) HandleUpdateCriteria(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+func (controller *RubricsController) HandleDeleteCriteria(c *gin.Context) {
+	teacher_uuid := c.GetString("session_uuid")
+
+	// Validate criteria UUID
+	criteria_uuid := c.Param("criteriaUUID")
+	if err := shared_infrastructure.GetValidator().Var(criteria_uuid, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid criteria uuid",
+		})
+		return
+	}
+
+	// Create DTO
+	dto := dtos.DeleteCriteriaDTO{
+		TeacherUUID:  teacher_uuid,
+		CriteriaUUID: criteria_uuid,
+	}
+
+	// Delete the criteria
+	err := controller.UseCases.DeleteCriteria(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
