@@ -413,3 +413,12 @@ func (repository *CoursesPostgresRepository) GetEnrolledStudents(courseUUID stri
 
 	return enrolledStudents, nil
 }
+
+func (repository *CoursesPostgresRepository) DoesTeacherOwnsCourse(teacherUUID, courseUUID string) (bool, error) {
+	course, err := repository.GetCourseByUUID(courseUUID)
+	if err != nil {
+		return false, err
+	}
+
+	return course.TeacherUUID == teacherUUID, nil
+}
