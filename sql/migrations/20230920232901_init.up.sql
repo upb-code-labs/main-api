@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS markdown_blocks (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "laboratory_id" UUID NOT NULL REFERENCES laboratories(id),
   "content" TEXT NOT NULL DEFAULT '',
-  "order" SMALLINT NOT NULL
+  "block_index" SMALLINT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS languages (
@@ -92,9 +92,9 @@ CREATE TABLE IF NOT EXISTS test_blocks (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "laboratory_id" UUID NOT NULL REFERENCES laboratories(id),
   "language_id" UUID NOT NULL REFERENCES languages(id),
+  "tests_archive_id" BYTEA NOT NULL,
   "name" VARCHAR(255) NOT NULL,
-  "tests_archive" BYTEA NOT NULL,
-  "order" SMALLINT NOT NULL
+  "block_index" SMALLINT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS submissions (
