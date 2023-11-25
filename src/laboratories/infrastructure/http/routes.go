@@ -1,6 +1,7 @@
 package http
 
 import (
+	courses_implementation "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/implementations"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/application"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/infrastructure/implementations"
 	"github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
@@ -11,7 +12,8 @@ func StartLaboratoriesRoutes(g *gin.RouterGroup) {
 	laboratoriesGroup := g.Group("/laboratories")
 
 	useCases := application.LaboratoriesUseCases{
-		Repository: implementations.GetLaboratoriesPostgresRepositoryInstance(),
+		LaboratoriesRepository: implementations.GetLaboratoriesPostgresRepositoryInstance(),
+		CoursesRepository:      courses_implementation.GetCoursesPgRepository(),
 	}
 
 	controller := LaboratoriesController{
