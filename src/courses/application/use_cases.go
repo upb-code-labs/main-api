@@ -20,12 +20,10 @@ func (useCases *CoursesUseCases) GetRandomColor() (*entities.Color, error) {
 
 func (useCases *CoursesUseCases) GetInvitationCode(dto dtos.GetInvitationCodeDTO) (string, error) {
 	// Check the teacher owns the course
-	course, err := useCases.Repository.GetCourseByUUID(dto.CourseUUID)
+	teacherOwnsCourse, err := useCases.Repository.DoesTeacherOwnsCourse(dto.TeacherUUID, dto.CourseUUID)
 	if err != nil {
 		return "", err
 	}
-
-	teacherOwnsCourse := course.TeacherUUID == dto.TeacherUUID
 	if !teacherOwnsCourse {
 		return "", errors.TeacherDoesNotOwnsCourseError{}
 	}
@@ -200,13 +198,11 @@ func (useCases *CoursesUseCases) AddStudentToCourse(dto *dtos.AddStudentToCourse
 }
 
 func (useCases *CoursesUseCases) GetEnrolledStudents(teacherUUID, courseUUID string) ([]*dtos.EnrolledStudentDTO, error) {
-	// Check the user is the teacher of the course
-	course, err := useCases.Repository.GetCourseByUUID(courseUUID)
+	// Check the teacher owns the course
+	teacherOwnsCourse, err := useCases.Repository.DoesTeacherOwnsCourse(teacherUUID, courseUUID)
 	if err != nil {
 		return nil, err
 	}
-
-	teacherOwnsCourse := course.TeacherUUID == teacherUUID
 	if !teacherOwnsCourse {
 		return nil, errors.TeacherDoesNotOwnsCourseError{}
 	}

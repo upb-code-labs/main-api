@@ -25,6 +25,11 @@ func GetValidator() *validator.Validate {
 			hasSpecialCharacter := regexp.MustCompile(`[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]`).MatchString(password)
 			return hasLetter && hasNumber && hasSpecialCharacter
 		})
+
+		validate.RegisterValidation("ISO_date", func(fl validator.FieldLevel) bool {
+			date := fl.Field().String()
+			return regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$`).MatchString(date)
+		})
 	}
 
 	return validate

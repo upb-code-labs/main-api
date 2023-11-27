@@ -794,6 +794,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+  
+  /laboratories: 
+    post:
+      tags:
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Update laboratory information.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_laboratory_req"
+      responses:
+        "201":
+          description: The laboratory was created
+          content: 
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  uuid: 
+                    type: string
+                    example: "f1b3f54f-1455-451c-8983-a2e002f90876"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
 
   /laboratories/{laboratory_uuid}:
     put:
@@ -813,7 +855,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/create_laboratory_req"
+              $ref: "#/components/schemas/update_laboratory_req"
       responses:
         "204":
           description: The laboratory information was updated
@@ -1559,19 +1601,35 @@ components:
         new_password:
           type: string
           example: "password2024*/"
+    
+    create_laboratory_req: 
+      type: object
+      properties:
+        course_uuid:
+          type: string
+          example: "229e3b99-93b4-47e7-83d2-0d0471fc2261"
+        name:
+          type: string
+          example: "Lab 1. Lista simplemente enlazada"
+        opening_date:
+          type: string 
+          example: "2023-12-01T12:00"
+        closing_date:
+          type: string
+          example: "2023-12-02T00:00"
 
-    create_laboratory_req:
+    update_laboratory_req:
       type: object
       properties:
         name:
           type: string
           example: "Lab 1. Lista simplemente enlazada"
         opening_date:
-          type: string # To be defined
-          example: "04/09/2023 08:00"
+          type: string 
+          example: "2023-12-01T12:00"
         closing_date:
-          type: string # To be defined
-          example: "10/09/2023 23:59"
+          type: string
+          example: "2023-12-02T00:00"
 
     create_test_block_req:
       type: object
