@@ -80,10 +80,11 @@ func (repository *LaboratoriesPostgresRepository) getMarkdownBlocks(laboratoryUU
 	defer cancel()
 
 	query := `
-		SELECT id, content, block_index
-		FROM markdown_blocks
-		WHERE laboratory_id = $1
-		ORDER BY block_index ASC
+		SELECT mb.id, mb.content, bi.block_index
+		FROM markdown_blocks mb
+		RIGHT JOIN blocks_index bi ON mb.block_index_id = bi.id
+		WHERE mb.laboratory_id = $1
+		ORDER BY bi.block_index ASC
 	`
 
 	rows, err := repository.Connection.QueryContext(ctx, query, laboratoryUUID)
@@ -94,7 +95,7 @@ func (repository *LaboratoriesPostgresRepository) getMarkdownBlocks(laboratoryUU
 	markdownBlocks := []entities.MarkdownBlock{}
 	for rows.Next() {
 		markdownBlock := entities.MarkdownBlock{}
-		if err := rows.Scan(&markdownBlock.UUID, &markdownBlock.Content, &markdownBlock.Order); err != nil {
+		if err := rows.Scan(&markdownBlock.UUID, &markdownBlock.Content, &markdownBlock.Index); err != nil {
 			return nil, err
 		}
 
@@ -109,10 +110,11 @@ func (repository *LaboratoriesPostgresRepository) getTestBlocks(laboratoryUUID s
 	defer cancel()
 
 	query := `
-		SELECT id, language_id, tests_archive_id, name, block_index
-		FROM test_blocks
-		WHERE laboratory_id = $1
-		ORDER BY block_index ASC
+		SELECT tb.id, tb.language_id, tb.tests_archive_id, tb.name, bi.block_index
+		FROM test_blocks tb
+		RIGHT JOIN blocks_index bi ON tb.block_index_id = bi.id
+		WHERE tb.laboratory_id = $1
+		ORDER BY bi.block_index ASC
 	`
 
 	rows, err := repository.Connection.QueryContext(ctx, query, laboratoryUUID)
@@ -123,7 +125,7 @@ func (repository *LaboratoriesPostgresRepository) getTestBlocks(laboratoryUUID s
 	testBlocks := []entities.TestBlock{}
 	for rows.Next() {
 		testBlock := entities.TestBlock{}
-		if err := rows.Scan(&testBlock.UUID, &testBlock.LanguageUUID, &testBlock.TestArchiveUUID, &testBlock.Name, &testBlock.Order); err != nil {
+		if err := rows.Scan(&testBlock.UUID, &testBlock.LanguageUUID, &testBlock.TestArchiveUUID, &testBlock.Name, &testBlock.Index); err != nil {
 			return nil, err
 		}
 

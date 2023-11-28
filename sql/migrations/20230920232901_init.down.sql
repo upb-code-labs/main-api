@@ -11,6 +11,8 @@ DROP INDEX IF EXISTS idx_grades;
 
 DROP INDEX IF EXISTS idx_grade_criteria;
 
+DROP INDEX IF EXISTS idx_blocks_index;
+
 DROP INDEX IF EXISTS idx_users_lower_fullName;
 
 DROP INDEX IF EXISTS idx_users_role;
@@ -32,6 +34,8 @@ DROP TABLE IF EXISTS grade_has_criteria;
 DROP TABLE IF EXISTS grades;
 
 DROP TABLE IF EXISTS submissions;
+
+DROP TABLE IF EXISTS blocks_index;
 
 DROP TABLE IF EXISTS test_blocks;
 
