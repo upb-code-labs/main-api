@@ -210,3 +210,72 @@ func TestUpdateLaboratory(t *testing.T) {
 	c.Equal(0, len(getLaboratoryResponse["markdown_blocks"].([]interface{})))
 	c.Equal(0, len(getLaboratoryResponse["test_blocks"].([]interface{})))
 }
+
+func TestCreateMarkdownBlock(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a course
+	courseUUID, status := CreateCourse("Create markdown block test - course")
+	c.Equal(http.StatusCreated, status)
+
+	// Create a laboratory
+	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
+		"name":         "Create markdown block test - laboratory",
+		"course_uuid":  courseUUID,
+		"opening_date": "2023-12-01T08:00",
+		"due_date":     "2023-12-01T12:00",
+	})
+	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
+	c.Equal(http.StatusCreated, status)
+
+	// Define tests cases
+	testCases := []GenericTestCase{
+		{
+			Payload: map[string]interface{}{
+				"laboratory_uuid": "0e5890ce-bd0d-422b-bc1e-a1cfc7f152e9",
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		{
+			Payload: map[string]interface{}{
+				"laboratory_uuid": "not a uuid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			Payload: map[string]interface{}{
+				"laboratory_uuid": laboratoryUUID,
+			},
+			ExpectedStatusCode: http.StatusCreated,
+		},
+	}
+
+	// Run tests
+	var createdBlockUUID string
+	for _, tc := range testCases {
+		response, status := CreateMarkdownBlock(cookie, tc.Payload["laboratory_uuid"].(string))
+		c.Equal(tc.ExpectedStatusCode, status)
+
+		if tc.ExpectedStatusCode == http.StatusCreated {
+			createdBlockUUID = response["uuid"].(string)
+		}
+	}
+
+	// Validate the block was created
+	getLaboratoryResponse, status := GetLaboratoryByUUID(cookie, laboratoryUUID)
+	c.Equal(http.StatusOK, status)
+	c.Equal(1, len(getLaboratoryResponse["markdown_blocks"].([]interface{})))
+
+	block := getLaboratoryResponse["markdown_blocks"].([]interface{})[0].(map[string]interface{})
+	c.Equal(createdBlockUUID, block["uuid"])
+	c.Equal("", block["content"])
+	c.EqualValues(1, block["index"])
+}

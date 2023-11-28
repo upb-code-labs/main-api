@@ -5,5 +5,5 @@ type TestBlock struct {
 	LanguageUUID    string `json:"language_uuid"`
 	TestArchiveUUID string `json:"test_archive_uuid"`
 	Name            string `json:"name"`
-	Order           int    `json:"order"`
+	Index           int    `json:"index"`
 }

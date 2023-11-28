@@ -80,10 +80,11 @@ func (repository *LaboratoriesPostgresRepository) getMarkdownBlocks(laboratoryUU
 	defer cancel()
 
 	query := `
-		SELECT id, content, block_index
-		FROM markdown_blocks
-		WHERE laboratory_id = $1
-		ORDER BY block_index ASC
+		SELECT mb.id, mb.content, bi.block_position
+		FROM markdown_blocks mb
+		RIGHT JOIN blocks_index bi ON mb.block_index_id = bi.id
+		WHERE mb.laboratory_id = $1
+		ORDER BY bi.block_position ASC
 	`
 
 	rows, err := repository.Connection.QueryContext(ctx, query, laboratoryUUID)
@@ -94,7 +95,7 @@ func (repository *LaboratoriesPostgresRepository) getMarkdownBlocks(laboratoryUU
 	markdownBlocks := []entities.MarkdownBlock{}
 	for rows.Next() {
 		markdownBlock := entities.MarkdownBlock{}
-		if err := rows.Scan(&markdownBlock.UUID, &markdownBlock.Content, &markdownBlock.Order); err != nil {
+		if err := rows.Scan(&markdownBlock.UUID, &markdownBlock.Content, &markdownBlock.Index); err != nil {
 			return nil, err
 		}
 
@@ -109,10 +110,11 @@ func (repository *LaboratoriesPostgresRepository) getTestBlocks(laboratoryUUID s
 	defer cancel()
 
 	query := `
-		SELECT id, language_id, tests_archive_id, name, block_index
-		FROM test_blocks
-		WHERE laboratory_id = $1
-		ORDER BY block_index ASC
+		SELECT tb.id, tb.language_id, tb.tests_archive_id, tb.name, bi.block_position
+		FROM test_blocks tb
+		RIGHT JOIN blocks_index bi ON tb.block_index_id = bi.id
+		WHERE tb.laboratory_id = $1
+		ORDER BY bi.block_position ASC
 	`
 
 	rows, err := repository.Connection.QueryContext(ctx, query, laboratoryUUID)
@@ -123,7 +125,7 @@ func (repository *LaboratoriesPostgresRepository) getTestBlocks(laboratoryUUID s
 	testBlocks := []entities.TestBlock{}
 	for rows.Next() {
 		testBlock := entities.TestBlock{}
-		if err := rows.Scan(&testBlock.UUID, &testBlock.LanguageUUID, &testBlock.TestArchiveUUID, &testBlock.Name, &testBlock.Order); err != nil {
+		if err := rows.Scan(&testBlock.UUID, &testBlock.LanguageUUID, &testBlock.TestArchiveUUID, &testBlock.Name, &testBlock.Index); err != nil {
 			return nil, err
 		}
 
@@ -164,4 +166,52 @@ func (repository *LaboratoriesPostgresRepository) UpdateLaboratory(dto *dtos.Upd
 
 	_, err := repository.Connection.ExecContext(ctx, query, dto.Name, dto.OpeningDate, dto.DueDate, dto.RubricUUID, dto.LaboratoryUUID)
 	return err
+}
+
+func (repository *LaboratoriesPostgresRepository) CreateMarkdownBlock(laboratoryUUID string) (blockUUID string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Start transaction
+	tx, err := repository.Connection.BeginTx(ctx, nil)
+	if err != nil {
+		return "", err
+	}
+	defer tx.Rollback()
+
+	// Create block index
+	query := `
+		INSERT INTO blocks_index (laboratory_id, block_position)
+		VALUES (
+			$1, 
+			( SELECT COALESCE(MAX(block_position), 0) + 1 FROM blocks_index WHERE laboratory_id = $1 )
+		)
+		RETURNING id
+	`
+
+	row := tx.QueryRowContext(ctx, query, laboratoryUUID)
+	var blockIndexUUID string
+	if err := row.Scan(&blockIndexUUID); err != nil {
+		return "", err
+	}
+
+	// Create markdown block
+	query = `
+		INSERT INTO markdown_blocks (laboratory_id, block_index_id)
+		VALUES ($1, $2)
+		RETURNING id
+	`
+
+	row = tx.QueryRowContext(ctx, query, laboratoryUUID, blockIndexUUID)
+	if err := row.Scan(&blockUUID); err != nil {
+		return "", err
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		return "", err
+	}
+
+	// Return the new block UUID
+	return blockUUID, nil
 }

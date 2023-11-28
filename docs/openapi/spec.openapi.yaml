@@ -889,18 +889,6 @@ paths:
             type: string
             example: "e6341b0d-e959-4081-b30a-38b5beb31096"
           required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                order:
-                  type: number
-                  example: 1
-                markdown:
-                  type: string
-                  example: "# Markdown title"
       responses:
         "201":
           description: The markdown block was created.
