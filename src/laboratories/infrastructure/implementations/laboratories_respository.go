@@ -143,3 +143,17 @@ func (repository *LaboratoriesPostgresRepository) SaveLaboratory(dto *dtos.Creat
 
 	return repository.GetLaboratoryByUUID(laboratoryUUID)
 }
+
+func (repository *LaboratoriesPostgresRepository) UpdateLaboratory(dto *dtos.UpdateLaboratoryDTO) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		UPDATE laboratories
+		SET name = $1, opening_date = $2, due_date = $3, rubric_id = $4
+		WHERE id = $5
+	`
+
+	_, err := repository.Connection.ExecContext(ctx, query, dto.Name, dto.OpeningDate, dto.DueDate, dto.RubricUUID, dto.LaboratoryUUID)
+	return err
+}
