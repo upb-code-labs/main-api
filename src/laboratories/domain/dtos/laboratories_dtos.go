@@ -8,6 +8,11 @@ type CreateLaboratoryDTO struct {
 	DueDate     string
 }
 
+type GetLaboratoryDTO struct {
+	LaboratoryUUID string
+	UserUUID       string
+}
+
 type UpdateLaboratoryDTO struct {
 	LaboratoryUUID string
 	TeacherUUID    string
