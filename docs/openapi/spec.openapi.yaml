@@ -838,6 +838,50 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
 
   /laboratories/{laboratory_uuid}:
+    get: 
+      tags: 
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Get laboratory. 
+      parameters:
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "1f071796-c01b-458b-8949-665592d90986"
+          required: true
+      responses: 
+        "200": 
+          description: The laboratory information was retreived successfully. 
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/laboratory"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "404":
+          description: No laboratory found with the given UUId. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
     put:
       tags:
         - Laboratories
@@ -1784,3 +1828,67 @@ components:
         value:
           type: number
           example: 0.25
+    
+    # Entities
+    markdown_block: 
+      type: object
+      properties: 
+        uuid: 
+          type: string
+          example: "31dc456e-431b-4eac-a749-ae40ed1b6297"
+        content: 
+          type: string
+          example: "# Main title"
+        order: 
+          type: number
+          example: 0
+    
+    test_block: 
+      type: object
+      properties: 
+        uuid: 
+          type: string
+          example: "60b88902-0aa5-4189-b339-6c546d938c02"
+        language_uuid: 
+          type: string
+          example: "c3049450-d1cc-424f-a06b-9b3e5c916319"
+        test_archive_uuid:
+          type: string
+          example: "7f5e5fd3-ad44-4441-8201-cfab68ed1e00"
+        name: 
+          type: string
+          example: "Duubly Linked List Methods"
+        order: 
+          type: number
+          example: 1
+    
+    laboratory: 
+      type: object
+      properties: 
+        uuid: 
+          type: string
+          example: "a9be2f1e-e0e9-4b8d-9f72-6ed55ea5b1b8"
+        rubric_uuid: 
+          type: string
+          example: "3fc29baf-9517-430c-9048-0f85599b61b7"
+        name: 
+          type: string
+          example: "Doubly Linked List"
+        opening_date: 
+          type: string
+          example: "2023-12-01T12:00"
+        due_date: 
+          type: string
+          example: "2023-12-02T00:00"
+        markdown_blocks: 
+          type: array
+          items:
+            type: object
+            allOf:
+              - $ref: "#/components/schemas/markdown_block"
+        test_blocks: 
+          type: array
+          items:
+            type: object
+            allOf:
+              - $ref: "#/components/schemas/test_block"
