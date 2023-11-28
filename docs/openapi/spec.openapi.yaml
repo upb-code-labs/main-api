@@ -977,42 +977,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
 
-  /laboratories/{laboratory_uuid}/rubric:
-    patch:
-      tags:
-        - Laboratories
-      security:
-        - cookieAuth: []
-      description: Add a rubric to the given laboratory.
-      parameters:
-        - in: path
-          name: laboratory_uuid
-          schema:
-            type: string
-            example: "e6341b0d-e959-4081-b30a-38b5beb31096"
-          required: true
-      responses:
-        "204":
-          description: The rubric was added to the given laboratory
-        "400":
-          description: Required fields were missed or doesn't fulfill the required format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/default_error_response"
-        "403":
-          description: The session token isn't valid or the user doesn't have enough permissions.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/default_error_response"
-        "500":
-          description: There was an unexpected error in the server side.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/default_error_response"
-
   # Blocks
   /markdown_blocks/{block_uuid}:
     delete:
@@ -1630,6 +1594,9 @@ components:
         closing_date:
           type: string
           example: "2023-12-02T00:00"
+        rubric_uuid: 
+          type: string
+          example: "3fc29baf-9517-430c-9048-0f85599b61b7"
 
     create_test_block_req:
       type: object
