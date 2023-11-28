@@ -8,4 +8,5 @@ import (
 type LaboratoriesRepository interface {
 	GetLaboratoryByUUID(uuid string) (laboratory *entities.Laboratory, err error)
 	SaveLaboratory(dto *dtos.CreateLaboratoryDTO) (laboratory *entities.Laboratory, err error)
+	UpdateLaboratory(dto *dtos.UpdateLaboratoryDTO) error
 }
