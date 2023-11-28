@@ -28,3 +28,12 @@ func UpdateLaboratory(cookie *http.Cookie, uuid string, payload map[string]inter
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+func CreateMarkdownBlock(cookie *http.Cookie, laboratoryUUID string) (response map[string]interface{}, statusCode int) {
+	w, r := PrepareRequest("POST", "/api/v1/laboratories/markdown_blocks/"+laboratoryUUID, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}
