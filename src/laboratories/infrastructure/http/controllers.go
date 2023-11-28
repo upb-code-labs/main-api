@@ -3,6 +3,8 @@ package http
 import (
 	"net/http"
 
+	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/dtos"
+
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/application"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/infrastructure/requests"
 	"github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
@@ -13,7 +15,7 @@ type LaboratoriesController struct {
 	UseCases *application.LaboratoriesUseCases
 }
 
-func (controller *LaboratoriesController) CreateLaboratory(c *gin.Context) {
+func (controller *LaboratoriesController) HandleCreateLaboratory(c *gin.Context) {
 	teacherUUID := c.GetString("session_uuid")
 
 	// Parse request body
@@ -64,7 +66,35 @@ func (controller *LaboratoriesController) CreateLaboratory(c *gin.Context) {
 	})
 }
 
-func (controller *LaboratoriesController) UpdateLaboratory(c *gin.Context) {
+func (controller *LaboratoriesController) HandleGetLaboratory(c *gin.Context) {
+	userUUID := c.GetString("session_uuid")
+	laboratoryUUID := c.Param("laboratory_uuid")
+
+	// Validate the laboratory UUID
+	if err := infrastructure.GetValidator().Var(laboratoryUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Laboratory UUID is not valid",
+		})
+		return
+	}
+
+	// Get laboratory
+	dto := dtos.GetLaboratoryDTO{
+		LaboratoryUUID: laboratoryUUID,
+		UserUUID:       userUUID,
+	}
+
+	laboratory, err := controller.UseCases.GetLaboratory(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	// Return laboratory
+	c.JSON(http.StatusOK, laboratory)
+}
+
+func (controller *LaboratoriesController) HandleUpdateLaboratory(c *gin.Context) {
 	teacherUUID := c.GetString("session_uuid")
 	laboratoryUUID := c.Param("laboratory_uuid")
 

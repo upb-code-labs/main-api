@@ -7,6 +7,7 @@ import (
 
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/entities"
+	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/errors"
 	"github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 )
 
@@ -42,10 +43,17 @@ func (repository *LaboratoriesPostgresRepository) GetLaboratoryByUUID(uuid strin
 	laboratory = &entities.Laboratory{}
 	rubricUUID := sql.NullString{}
 	if err := row.Scan(&laboratory.UUID, &laboratory.CourseUUID, &rubricUUID, &laboratory.Name, &laboratory.OpeningDate, &laboratory.DueDate); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.LaboratoryNotFoundError{}
+		}
+
 		return nil, err
 	}
+
 	if rubricUUID.Valid {
-		laboratory.RubricUUID = rubricUUID.String
+		laboratory.RubricUUID = &rubricUUID.String
+	} else {
+		laboratory.RubricUUID = nil
 	}
 
 	// Get markdown blocks
