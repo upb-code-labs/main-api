@@ -1,3 +1,13 @@
+# [0.31.0](https://github.com/upb-code-labs/main-api/compare/v0.30.0...v0.31.0) (2023-11-28)
+
+
+### Features
+
+* Get course laboratories ([#111](https://github.com/upb-code-labs/main-api/issues/111)) ([653473e](https://github.com/upb-code-labs/main-api/commit/653473e1d2a960267c1a960dd5fc616868383cd9))
+* Get laboratory by UUID ([#110](https://github.com/upb-code-labs/main-api/issues/110)) ([44a870d](https://github.com/upb-code-labs/main-api/commit/44a870ddc5b9da417cc5bb8ccd660f7d6df8681f))
+
+
+
 # [0.30.0](https://github.com/upb-code-labs/main-api/compare/v0.29.0...v0.30.0) (2023-11-28)
 
 
@@ -31,15 +41,6 @@
 ### Features
 
 * Remove objective ([#98](https://github.com/upb-code-labs/main-api/issues/98)) ([a3d9eda](https://github.com/upb-code-labs/main-api/commit/a3d9eda6f7f7b7e5440668f0e149d90addd52ceb))
-
-
-
-# [0.26.0](https://github.com/upb-code-labs/main-api/compare/v0.25.0...v0.26.0) (2023-11-16)
-
-
-### Features
-
-* Update rubric name ([#95](https://github.com/upb-code-labs/main-api/issues/95)) ([2f32e64](https://github.com/upb-code-labs/main-api/commit/2f32e6479e09804248bcd98f652ba251fc0993a1))
 
 
 
