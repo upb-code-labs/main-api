@@ -50,3 +50,74 @@ func TestCreateLaboratory(t *testing.T) {
 		c.Equal(tc.ExpectedStatusCode, status)
 	}
 }
+
+func TestGetLaboratoryByUUID(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a course
+	courseUUID, status := CreateCourse("Get laboratory by uuid test - course")
+	c.Equal(http.StatusCreated, status)
+
+	// Create a laboratory
+	laboratoryName := "Get laboratory by uuid test - laboratory"
+	laboratoryOpeningDate := "2023-12-01T08:00"
+	laboratoryDueDate := "2023-12-01T12:00"
+
+	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
+		"name":         laboratoryName,
+		"course_uuid":  courseUUID,
+		"opening_date": laboratoryOpeningDate,
+		"due_date":     laboratoryDueDate,
+	})
+	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
+	c.Equal(http.StatusCreated, status)
+
+	// Define tests cases
+	testCases := []GenericTestCase{
+		{
+			Payload: map[string]interface{}{
+				"laboratory_uuid": "4e2ba78e-a8f0-4312-b4a7-e8c6933029b8",
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		{
+			Payload: map[string]interface{}{
+				"laboratory_uuid": "not a uuid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			Payload: map[string]interface{}{
+				"laboratory_uuid": laboratoryUUID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+		},
+	}
+
+	// Run tests
+	for _, tc := range testCases {
+		getLaboratoryResponse, status := GetLaboratoryByUUID(cookie, tc.Payload["laboratory_uuid"].(string))
+		c.Equal(tc.ExpectedStatusCode, status)
+
+		if tc.ExpectedStatusCode == http.StatusOK {
+			// Validate string fields
+			c.Equal(courseUUID, getLaboratoryResponse["course_uuid"])
+			c.Nil(getLaboratoryResponse["rubric_uuid"])
+			c.Equal(laboratoryName, getLaboratoryResponse["name"])
+			c.Contains(getLaboratoryResponse["opening_date"], laboratoryOpeningDate)
+			c.Contains(getLaboratoryResponse["due_date"], laboratoryDueDate)
+
+			// Validate blocks fields
+			c.Equal(0, len(getLaboratoryResponse["markdown_blocks"].([]interface{})))
+			c.Equal(0, len(getLaboratoryResponse["test_blocks"].([]interface{})))
+		}
+	}
+}
