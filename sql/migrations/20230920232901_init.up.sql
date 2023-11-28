@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS laboratories (
 CREATE TABLE IF NOT EXISTS blocks_index (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "laboratory_id" UUID NOT NULL REFERENCES laboratories(id),
-  "block_index" SMALLINT NOT NULL
+  "block_position" SMALLINT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS markdown_blocks (
@@ -137,7 +137,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_grades ON grades(laboratory_id, student_id
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_grade_criteria ON grade_has_criteria(grade_id, objective_id);
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_blocks_index ON blocks_index(laboratory_id, block_index);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_blocks_index ON blocks_index(laboratory_id, block_position);
 
 -- ### Search indexes
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);

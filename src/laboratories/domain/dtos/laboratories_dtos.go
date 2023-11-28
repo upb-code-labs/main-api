@@ -21,3 +21,8 @@ type UpdateLaboratoryDTO struct {
 	OpeningDate    string
 	DueDate        string
 }
+
+type CreateMarkdownBlockDTO struct {
+	TeacherUUID    string
+	LaboratoryUUID string
+}

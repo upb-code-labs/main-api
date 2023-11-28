@@ -53,17 +53,13 @@ func (useCases *LaboratoriesUseCases) GetLaboratory(dto *dtos.GetLaboratoryDTO) 
 
 func (useCases *LaboratoriesUseCases) UpdateLaboratory(dto *dtos.UpdateLaboratoryDTO) error {
 	// Check that the teacher owns the laboratory / course
-	laboratory, err := useCases.LaboratoriesRepository.GetLaboratoryByUUID(dto.LaboratoryUUID)
+	teacherOwnsLaboratory, err := useCases.doesTeacherOwnsLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)
 	if err != nil {
 		return err
 	}
 
-	teacherOwnsCourse, err := useCases.CoursesRepository.DoesTeacherOwnsCourse(dto.TeacherUUID, laboratory.CourseUUID)
-	if err != nil {
-		return err
-	}
-	if !teacherOwnsCourse {
-		return courses_errors.TeacherDoesNotOwnsCourseError{}
+	if !teacherOwnsLaboratory {
+		return &courses_errors.TeacherDoesNotOwnsCourseError{}
 	}
 
 	// Check that the teacher owns the rubric
@@ -79,4 +75,28 @@ func (useCases *LaboratoriesUseCases) UpdateLaboratory(dto *dtos.UpdateLaborator
 
 	// Update the laboratory
 	return useCases.LaboratoriesRepository.UpdateLaboratory(dto)
+}
+
+func (useCases *LaboratoriesUseCases) CreateMarkdownBlock(dto *dtos.CreateMarkdownBlockDTO) (blockUUID string, err error) {
+	// Check that the teacher owns the laboratory
+	teacherOwnsLaboratory, err := useCases.doesTeacherOwnsLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)
+	if err != nil {
+		return "", err
+	}
+
+	if !teacherOwnsLaboratory {
+		return "", &courses_errors.TeacherDoesNotOwnsCourseError{}
+	}
+
+	// Create the block
+	return useCases.LaboratoriesRepository.CreateMarkdownBlock(dto.LaboratoryUUID)
+}
+
+func (useCases *LaboratoriesUseCases) doesTeacherOwnsLaboratory(teacherUUID, laboratoryUUID string) (bool, error) {
+	laboratory, err := useCases.LaboratoriesRepository.GetLaboratoryByUUID(laboratoryUUID)
+	if err != nil {
+		return false, err
+	}
+
+	return useCases.CoursesRepository.DoesTeacherOwnsCourse(teacherUUID, laboratory.CourseUUID)
 }
