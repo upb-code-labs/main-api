@@ -210,3 +210,21 @@ func (useCases *CoursesUseCases) GetEnrolledStudents(teacherUUID, courseUUID str
 	// Get the enrolled students
 	return useCases.Repository.GetEnrolledStudents(courseUUID)
 }
+
+func (useCases *CoursesUseCases) GetCourseLaboratories(dto dtos.GetCourseLaboratoriesDTO) ([]*dtos.BaseLaboratoryDTO, error) {
+	// Check the user is enrolled in the course
+	isUserInCourse, err := useCases.Repository.IsUserInCourse(dto.UserUUID, dto.CourseUUID)
+	if err != nil {
+		return nil, err
+	}
+	if !isUserInCourse {
+		return nil, errors.UserNotInCourseError{}
+	}
+
+	// Get the course laboratories according to the user role
+	if dto.UserRole == "teacher" {
+		return useCases.Repository.GetCourseLaboratories(dto.CourseUUID)
+	} else {
+		return useCases.Repository.GetCourseActiveLaboratories(dto.CourseUUID)
+	}
+}
