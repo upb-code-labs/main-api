@@ -109,9 +109,9 @@ func TestGetLaboratoryByUUID(t *testing.T) {
 
 		if tc.ExpectedStatusCode == http.StatusOK {
 			// Validate string fields
-			c.Equal(courseUUID, getLaboratoryResponse["course_uuid"])
-			c.Nil(getLaboratoryResponse["rubric_uuid"])
+			c.Equal(laboratoryUUID, getLaboratoryResponse["uuid"])
 			c.Equal(laboratoryName, getLaboratoryResponse["name"])
+			c.Nil(getLaboratoryResponse["rubric_uuid"])
 			c.Contains(getLaboratoryResponse["opening_date"], laboratoryOpeningDate)
 			c.Contains(getLaboratoryResponse["due_date"], laboratoryDueDate)
 
