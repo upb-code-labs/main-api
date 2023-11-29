@@ -69,17 +69,23 @@ CREATE TABLE IF NOT EXISTS criteria (
 CREATE TABLE IF NOT EXISTS laboratories (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "course_id" UUID NOT NULL REFERENCES courses(id),
-  "rubric_id" UUID NOT NULL REFERENCES rubrics(id),
+  "rubric_id" UUID DEFAULT NULL REFERENCES rubrics(id) ON DELETE SET DEFAULT,
   "name" VARCHAR(255) NOT NULL,
   "opening_date" TIMESTAMP NOT NULL,
   "due_date" TIMESTAMP NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS blocks_index (
+  "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  "laboratory_id" UUID NOT NULL REFERENCES laboratories(id),
+  "block_position" SMALLINT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS markdown_blocks (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "laboratory_id" UUID NOT NULL REFERENCES laboratories(id),
-  "content" TEXT NOT NULL DEFAULT '',
-  "order" SMALLINT NOT NULL
+  "block_index_id" UUID NOT NULL REFERENCES blocks_index(id) ON DELETE CASCADE,
+  "content" TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS languages (
@@ -92,9 +98,9 @@ CREATE TABLE IF NOT EXISTS test_blocks (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "laboratory_id" UUID NOT NULL REFERENCES laboratories(id),
   "language_id" UUID NOT NULL REFERENCES languages(id),
-  "name" VARCHAR(255) NOT NULL,
-  "tests_archive" BYTEA NOT NULL,
-  "order" SMALLINT NOT NULL
+  "tests_archive_id" BYTEA NOT NULL,
+  "block_index_id" UUID NOT NULL REFERENCES blocks_index(id) ON DELETE CASCADE,
+  "name" VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS submissions (
@@ -130,6 +136,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_submissions ON submissions(test_id, studen
 CREATE UNIQUE INDEX IF NOT EXISTS idx_grades ON grades(laboratory_id, student_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_grade_criteria ON grade_has_criteria(grade_id, objective_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_blocks_index ON blocks_index(laboratory_id, block_position);
 
 -- ### Search indexes
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);

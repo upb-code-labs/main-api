@@ -564,3 +564,118 @@ func TestEnrollStudentToCourse(t *testing.T) {
 		}
 	}
 }
+
+func TestGetCourseLaboratories(t *testing.T) {
+	c := require.New(t)
+
+	// Create a course
+	courseUUID, code := CreateCourse("Get course laboratories test - course")
+	c.Equal(http.StatusCreated, code)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create two laboratories
+	openLaboratoryName := "Get course laboratories test - open laboratory"
+	openLaboratoryOpeningDate := "2023-11-01T08:00"
+	openLaboratoryDueDate := "2023-11-07T00:00"
+	openLaboratoryCreationResponse, code := CreateLaboratory(cookie, map[string]interface{}{
+		"name":         openLaboratoryName,
+		"course_uuid":  courseUUID,
+		"opening_date": openLaboratoryOpeningDate,
+		"due_date":     openLaboratoryDueDate,
+	})
+	c.Equal(http.StatusCreated, code)
+	openLaboratoryUUID := openLaboratoryCreationResponse["uuid"].(string)
+
+	futureLaboratoryName := "Get course laboratories test - future laboratory"
+	_, code = CreateLaboratory(cookie, map[string]interface{}{
+		"name":         futureLaboratoryName,
+		"course_uuid":  courseUUID,
+		"opening_date": "3023-11-01T08:00",
+		"due_date":     "3023-11-07T00:00",
+	})
+	c.Equal(http.StatusCreated, code)
+
+	// ## Teacher test cases
+	teacherTestCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				courseUUID: "not a uuid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				courseUUID: courseUUID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+		},
+	}
+
+	for _, tx := range teacherTestCases {
+		response, code := GetCourseLaboratories(cookie, tx.Payload[courseUUID].(string))
+		c.Equal(tx.ExpectedStatusCode, code)
+
+		if code == http.StatusOK {
+			laboratories := response["laboratories"].([]interface{})
+			c.Equal(2, len(laboratories))
+
+			// Assert the laboratories fields
+			for _, laboratory := range laboratories {
+				laboratory := laboratory.(map[string]interface{})
+				c.NotEmpty(laboratory["uuid"])
+				c.NotEmpty(laboratory["name"])
+				c.NotEmpty(laboratory["opening_date"])
+				c.NotEmpty(laboratory["due_date"])
+			}
+		}
+	}
+
+	// ## Student test cases
+	// Enroll the student in the course
+	invitationCode, code := GetInvitationCode(courseUUID)
+	c.Equal(http.StatusOK, code)
+
+	_, code = AddStudentToCourse(invitationCode)
+	c.Equal(http.StatusOK, code)
+
+	// Login as a student
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredStudentEmail,
+		"password": registeredStudentPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie = w.Result().Cookies()[0]
+
+	studentTestCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				courseUUID: courseUUID,
+			},
+			ExpectedStatusCode: http.StatusOK,
+		},
+	}
+
+	for _, tx := range studentTestCases {
+		response, code := GetCourseLaboratories(cookie, tx.Payload[courseUUID].(string))
+		c.Equal(tx.ExpectedStatusCode, code)
+
+		if code == http.StatusOK {
+			laboratories := response["laboratories"].([]interface{})
+			c.Equal(1, len(laboratories))
+
+			// Assert the laboratories fields
+			laboratory := laboratories[0].(map[string]interface{})
+			c.Equal(openLaboratoryUUID, laboratory["uuid"])
+			c.Equal(openLaboratoryName, laboratory["name"])
+			c.Contains(laboratory["opening_date"], openLaboratoryOpeningDate)
+			c.Contains(laboratory["due_date"], openLaboratoryDueDate)
+		}
+	}
+}

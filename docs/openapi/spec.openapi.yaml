@@ -710,53 +710,6 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
 
   /courses/{course_uuid}/laboratories:
-    post:
-      tags:
-        - Courses
-      security:
-        - cookieAuth: []
-      description: Creates a new laboratory for the given course.
-      parameters:
-        - in: path
-          name: course_uuid
-          schema:
-            type: string
-            example: "cf1d83df-ff67-4b59-8a5e-d04c53709268"
-          required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/create_laboratory_req"
-      responses:
-        "201":
-          description: The laboratory was created.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  laboratory_uuid:
-                    type: string
-                    example: "1f071796-c01b-458b-8949-665592d90986"
-        "400":
-          description: Required fields were missed or doesn't fulfill the required format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/default_error_response"
-        "403":
-          description: The session token isn't valid or the user doesn't have enough permissions.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/default_error_response"
-        "500":
-          description: There was an unexpected error in the server side.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/default_error_response"
     get:
       tags:
         - Courses
@@ -794,8 +747,94 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+  
+  /laboratories: 
+    post:
+      tags:
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Update laboratory information.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/create_laboratory_req"
+      responses:
+        "201":
+          description: The laboratory was created
+          content: 
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  uuid: 
+                    type: string
+                    example: "f1b3f54f-1455-451c-8983-a2e002f90876"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
 
   /laboratories/{laboratory_uuid}:
+    get: 
+      tags: 
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Get laboratory. 
+      parameters:
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "1f071796-c01b-458b-8949-665592d90986"
+          required: true
+      responses: 
+        "200": 
+          description: The laboratory information was retreived successfully. 
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/laboratory"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "404":
+          description: No laboratory found with the given UUId. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
     put:
       tags:
         - Laboratories
@@ -813,7 +852,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/create_laboratory_req"
+              $ref: "#/components/schemas/update_laboratory_req"
       responses:
         "204":
           description: The laboratory information was updated
@@ -850,18 +889,6 @@ paths:
             type: string
             example: "e6341b0d-e959-4081-b30a-38b5beb31096"
           required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                order:
-                  type: number
-                  example: 1
-                markdown:
-                  type: string
-                  example: "# Markdown title"
       responses:
         "201":
           description: The markdown block was created.
@@ -916,42 +943,6 @@ paths:
                   uuid:
                     type: string
                     example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
-        "400":
-          description: Required fields were missed or doesn't fulfill the required format.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/default_error_response"
-        "403":
-          description: The session token isn't valid or the user doesn't have enough permissions.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/default_error_response"
-        "500":
-          description: There was an unexpected error in the server side.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/default_error_response"
-
-  /laboratories/{laboratory_uuid}/rubric:
-    patch:
-      tags:
-        - Laboratories
-      security:
-        - cookieAuth: []
-      description: Add a rubric to the given laboratory.
-      parameters:
-        - in: path
-          name: laboratory_uuid
-          schema:
-            type: string
-            example: "e6341b0d-e959-4081-b30a-38b5beb31096"
-          required: true
-      responses:
-        "204":
-          description: The rubric was added to the given laboratory
         "400":
           description: Required fields were missed or doesn't fulfill the required format.
           content:
@@ -1559,19 +1550,38 @@ components:
         new_password:
           type: string
           example: "password2024*/"
+    
+    create_laboratory_req: 
+      type: object
+      properties:
+        course_uuid:
+          type: string
+          example: "229e3b99-93b4-47e7-83d2-0d0471fc2261"
+        name:
+          type: string
+          example: "Lab 1. Lista simplemente enlazada"
+        opening_date:
+          type: string 
+          example: "2023-12-01T12:00"
+        due_date:
+          type: string
+          example: "2023-12-02T00:00"
 
-    create_laboratory_req:
+    update_laboratory_req:
       type: object
       properties:
         name:
           type: string
           example: "Lab 1. Lista simplemente enlazada"
         opening_date:
-          type: string # To be defined
-          example: "04/09/2023 08:00"
-        closing_date:
-          type: string # To be defined
-          example: "10/09/2023 23:59"
+          type: string 
+          example: "2023-12-01T12:00"
+        due_date:
+          type: string
+          example: "2023-12-02T00:00"
+        rubric_uuid: 
+          type: string
+          example: "3fc29baf-9517-430c-9048-0f85599b61b7"
 
     create_test_block_req:
       type: object
@@ -1708,7 +1718,7 @@ components:
         opening_date:
           type: string # To be defined
           example: "04/09/2023 08:00"
-        closing_date:
+        due_date:
           type: string # To be defined
           example: "10/09/2023 23:59"
 
@@ -1759,3 +1769,67 @@ components:
         value:
           type: number
           example: 0.25
+    
+    # Entities
+    markdown_block: 
+      type: object
+      properties: 
+        uuid: 
+          type: string
+          example: "31dc456e-431b-4eac-a749-ae40ed1b6297"
+        content: 
+          type: string
+          example: "# Main title"
+        order: 
+          type: number
+          example: 0
+    
+    test_block: 
+      type: object
+      properties: 
+        uuid: 
+          type: string
+          example: "60b88902-0aa5-4189-b339-6c546d938c02"
+        language_uuid: 
+          type: string
+          example: "c3049450-d1cc-424f-a06b-9b3e5c916319"
+        test_archive_uuid:
+          type: string
+          example: "7f5e5fd3-ad44-4441-8201-cfab68ed1e00"
+        name: 
+          type: string
+          example: "Duubly Linked List Methods"
+        order: 
+          type: number
+          example: 1
+    
+    laboratory: 
+      type: object
+      properties: 
+        uuid: 
+          type: string
+          example: "a9be2f1e-e0e9-4b8d-9f72-6ed55ea5b1b8"
+        rubric_uuid: 
+          type: string
+          example: "3fc29baf-9517-430c-9048-0f85599b61b7"
+        name: 
+          type: string
+          example: "Doubly Linked List"
+        opening_date: 
+          type: string
+          example: "2023-12-01T12:00"
+        due_date: 
+          type: string
+          example: "2023-12-02T00:00"
+        markdown_blocks: 
+          type: array
+          items:
+            type: object
+            allOf:
+              - $ref: "#/components/schemas/markdown_block"
+        test_blocks: 
+          type: array
+          items:
+            type: object
+            allOf:
+              - $ref: "#/components/schemas/test_block"

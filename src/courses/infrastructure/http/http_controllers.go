@@ -307,3 +307,32 @@ func (controller *CoursesController) HandleGetStudentsEnrolledInCourse(c *gin.Co
 		"students": enrolledStudentsResponse,
 	})
 }
+
+func (controller *CoursesController) HandleGetCourseLaboratories(c *gin.Context) {
+	userUUID := c.GetString("session_uuid")
+	userRole := c.GetString("session_role")
+
+	// Validate course uuid
+	courseUUID := c.Param("course_uuid")
+	if err := infrastructure.GetValidator().Var(courseUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Not valid course uuid",
+		})
+		return
+	}
+
+	// Get course laboratories
+	laboratories, err := controller.UseCases.GetCourseLaboratories(dtos.GetCourseLaboratoriesDTO{
+		CourseUUID: courseUUID,
+		UserUUID:   userUUID,
+		UserRole:   userRole,
+	})
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"laboratories": laboratories,
+	})
+}

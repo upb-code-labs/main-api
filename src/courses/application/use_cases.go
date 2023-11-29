@@ -20,12 +20,10 @@ func (useCases *CoursesUseCases) GetRandomColor() (*entities.Color, error) {
 
 func (useCases *CoursesUseCases) GetInvitationCode(dto dtos.GetInvitationCodeDTO) (string, error) {
 	// Check the teacher owns the course
-	course, err := useCases.Repository.GetCourseByUUID(dto.CourseUUID)
+	teacherOwnsCourse, err := useCases.Repository.DoesTeacherOwnsCourse(dto.TeacherUUID, dto.CourseUUID)
 	if err != nil {
 		return "", err
 	}
-
-	teacherOwnsCourse := course.TeacherUUID == dto.TeacherUUID
 	if !teacherOwnsCourse {
 		return "", errors.TeacherDoesNotOwnsCourseError{}
 	}
@@ -200,17 +198,33 @@ func (useCases *CoursesUseCases) AddStudentToCourse(dto *dtos.AddStudentToCourse
 }
 
 func (useCases *CoursesUseCases) GetEnrolledStudents(teacherUUID, courseUUID string) ([]*dtos.EnrolledStudentDTO, error) {
-	// Check the user is the teacher of the course
-	course, err := useCases.Repository.GetCourseByUUID(courseUUID)
+	// Check the teacher owns the course
+	teacherOwnsCourse, err := useCases.Repository.DoesTeacherOwnsCourse(teacherUUID, courseUUID)
 	if err != nil {
 		return nil, err
 	}
-
-	teacherOwnsCourse := course.TeacherUUID == teacherUUID
 	if !teacherOwnsCourse {
 		return nil, errors.TeacherDoesNotOwnsCourseError{}
 	}
 
 	// Get the enrolled students
 	return useCases.Repository.GetEnrolledStudents(courseUUID)
+}
+
+func (useCases *CoursesUseCases) GetCourseLaboratories(dto dtos.GetCourseLaboratoriesDTO) ([]*dtos.BaseLaboratoryDTO, error) {
+	// Check the user is enrolled in the course
+	isUserInCourse, err := useCases.Repository.IsUserInCourse(dto.UserUUID, dto.CourseUUID)
+	if err != nil {
+		return nil, err
+	}
+	if !isUserInCourse {
+		return nil, errors.UserNotInCourseError{}
+	}
+
+	// Get the course laboratories according to the user role
+	if dto.UserRole == "teacher" {
+		return useCases.Repository.GetCourseLaboratories(dto.CourseUUID)
+	} else {
+		return useCases.Repository.GetCourseActiveLaboratories(dto.CourseUUID)
+	}
 }

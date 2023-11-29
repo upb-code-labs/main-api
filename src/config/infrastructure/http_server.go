@@ -2,7 +2,9 @@ package infrastructure
 
 import (
 	accounts_http "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/http"
+	blocks_http "github.com/UPB-Code-Labs/main-api/src/blocks/infrastructure/http"
 	courses_http "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/http"
+	laboratories_http "github.com/UPB-Code-Labs/main-api/src/laboratories/infrastructure/http"
 	rubrics_http "github.com/UPB-Code-Labs/main-api/src/rubrics/infrastructure/http"
 	session_http "github.com/UPB-Code-Labs/main-api/src/session/infrastructure/http"
 	shared_infra "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
@@ -12,9 +14,11 @@ import (
 
 var routesGroups = []func(*gin.RouterGroup){
 	accounts_http.StartAccountsRoutes,
+	blocks_http.StartBlocksRoutes,
 	session_http.StartSessionRoutes,
 	courses_http.StartCoursesRoutes,
 	rubrics_http.StartRubricsRoutes,
+	laboratories_http.StartLaboratoriesRoutes,
 }
 
 func InstanceHttpServer() (r *gin.Engine) {

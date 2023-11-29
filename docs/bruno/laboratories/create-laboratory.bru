@@ -1,0 +1,24 @@
+meta {
+  name: create-laboratory
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{BASE_URL}}/laboratories
+  body: json
+  auth: none
+}
+
+query {
+  : 
+}
+
+body:json {
+  {
+    "course_uuid": "229e3b99-93b4-47e7-83d2-0d0471fc2261", 
+    "name": "Binary Tree", 
+    "opening_date": "2023-12-01T12:00", 
+    "due_date": "2023-12-02T00:00"
+  }
+}

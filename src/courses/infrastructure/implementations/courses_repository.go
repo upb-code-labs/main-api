@@ -413,3 +413,73 @@ func (repository *CoursesPostgresRepository) GetEnrolledStudents(courseUUID stri
 
 	return enrolledStudents, nil
 }
+
+func (repository *CoursesPostgresRepository) GetCourseLaboratories(courseUUID string) ([]*dtos.BaseLaboratoryDTO, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT id, name, opening_date, due_date
+		FROM laboratories
+		WHERE course_id = $1
+		ORDER BY opening_date ASC
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, courseUUID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return repository.parseLaboratoriesRows(rows)
+}
+
+func (repository *CoursesPostgresRepository) GetCourseActiveLaboratories(courseUUID string) ([]*dtos.BaseLaboratoryDTO, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT id, name, opening_date, due_date
+		FROM laboratories
+		WHERE course_id = $1 AND opening_date <= NOW()
+		ORDER BY opening_date ASC
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, courseUUID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return repository.parseLaboratoriesRows(rows)
+}
+
+func (repository *CoursesPostgresRepository) parseLaboratoriesRows(rows *sql.Rows) ([]*dtos.BaseLaboratoryDTO, error) {
+	laboratories := []*dtos.BaseLaboratoryDTO{}
+	for rows.Next() {
+		var laboratory dtos.BaseLaboratoryDTO
+
+		err := rows.Scan(
+			&laboratory.UUID,
+			&laboratory.Name,
+			&laboratory.OpeningDate,
+			&laboratory.DueDate,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		laboratories = append(laboratories, &laboratory)
+	}
+
+	return laboratories, nil
+}
+
+func (repository *CoursesPostgresRepository) DoesTeacherOwnsCourse(teacherUUID, courseUUID string) (bool, error) {
+	course, err := repository.GetCourseByUUID(courseUUID)
+	if err != nil {
+		return false, err
+	}
+
+	return course.TeacherUUID == teacherUUID, nil
+}

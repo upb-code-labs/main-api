@@ -21,4 +21,9 @@ type CoursesRepository interface {
 	GetRandomColor() (*entities.Color, error)
 	ToggleCourseVisibility(courseUUID, studentUUID string) (isHiddenAfterUpdate bool, err error)
 	UpdateCourseName(dtos.RenameCourseDTO) error
+
+	GetCourseLaboratories(courseUUID string) ([]*dtos.BaseLaboratoryDTO, error)
+	GetCourseActiveLaboratories(courseUUID string) ([]*dtos.BaseLaboratoryDTO, error)
+
+	DoesTeacherOwnsCourse(teacherUUID, courseUUID string) (bool, error)
 }
