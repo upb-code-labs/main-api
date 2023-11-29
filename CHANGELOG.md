@@ -1,3 +1,12 @@
+# [0.33.0](https://github.com/upb-code-labs/main-api/compare/v0.32.0...v0.33.0) (2023-11-29)
+
+
+### Features
+
+* Update markdown block content ([#113](https://github.com/upb-code-labs/main-api/issues/113)) ([3a6f762](https://github.com/upb-code-labs/main-api/commit/3a6f762a1c5e1e3915bee380438803b0ce981aac))
+
+
+
 # [0.32.0](https://github.com/upb-code-labs/main-api/compare/v0.31.0...v0.32.0) (2023-11-28)
 
 
@@ -32,15 +41,6 @@
 ### Features
 
 * Create laboratory ([#103](https://github.com/upb-code-labs/main-api/issues/103)) ([c577ea2](https://github.com/upb-code-labs/main-api/commit/c577ea29c9904da5943a96a2e421f6d5301d6866))
-
-
-
-# [0.28.0](https://github.com/upb-code-labs/main-api/compare/v0.27.0...v0.28.0) (2023-11-16)
-
-
-### Features
-
-* Delete objective criteria ([#99](https://github.com/upb-code-labs/main-api/issues/99)) ([b7fe282](https://github.com/upb-code-labs/main-api/commit/b7fe28294d05a10c2eb1d4811e1877b795f6b1b8))
 
 
 
