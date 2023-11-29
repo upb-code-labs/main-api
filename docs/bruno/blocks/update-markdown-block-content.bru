@@ -1,0 +1,17 @@
+meta {
+  name: update-markdown-block-content
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{BASE_URL}}/blocks/markdown_blocks/eb4ef0ee-3865-44c3-8d52-2620fb2653e5/content
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "# Updated main title"
+  }
+}
