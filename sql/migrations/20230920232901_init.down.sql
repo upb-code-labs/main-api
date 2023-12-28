@@ -29,6 +29,8 @@ DROP VIEW IF EXISTS objectives_owners;
 DROP VIEW IF EXISTS criteria_owners;
 
 -- ## Tables
+DROP TABLE IF EXISTS archives;
+
 DROP TABLE IF EXISTS grade_has_criteria;
 
 DROP TABLE IF EXISTS grades;

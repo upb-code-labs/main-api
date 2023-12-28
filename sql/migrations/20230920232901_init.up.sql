@@ -97,8 +97,8 @@ CREATE TABLE IF NOT EXISTS archives (
 
 CREATE TABLE IF NOT EXISTS languages (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "template_archive_uuid" UUID NOT NULL UNIQUE REFERENCES archives(id),
-  "name" VARCHAR(32) NOT NULL UNIQUE,
+  "template_archive_id" UUID NOT NULL UNIQUE REFERENCES archives(id),
+  "name" VARCHAR(32) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS test_blocks (
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS submissions (
   "passing" BOOLEAN NOT NULL DEFAULT FALSE,
   "status" SUBMISSION_STATUS NOT NULL DEFAULT 'pending',
   "stdout" TEXT NOT NULL DEFAULT '',
-  "submitted_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "submitted_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS grades (
@@ -224,13 +224,18 @@ FROM
 -- ## Triggers
 --- ### Update created_by on users
 CREATE
-OR REPLACE FUNCTION update_created_by() RETURNS TRIGGER LANGUAGE PLPGSQL AS $ $ BEGIN IF NEW.created_by IS NULL THEN NEW.created_by := NEW.id;
+OR REPLACE FUNCTION update_created_by()
+RETURNS TRIGGER 
+LANGUAGE PLPGSQL
+AS $$
+BEGIN
+  IF NEW.created_by IS NULL THEN
+    NEW.created_by := NEW.id;
+  END IF;
 
-END IF;
-
-RETURN NEW;
-
-END $ $;
+  RETURN NEW;
+END $$
+;
 
 CREATE
 OR REPLACE TRIGGER set_created_by BEFORE
@@ -250,10 +255,33 @@ VALUES
   ('#f472b6');
 
 -- ### Languages
-INSERT INTO
-  languages (name, template_archive_uuid)
-VALUES
-  ('Java', '487034c9-441c-4fb9-b0f3-8f4dd6176532');
+DO $$
+
+DECLARE 
+  JAVA_FILESYSTEM_ARCHIVE_UUID UUID;
+  JAVA_DB_ARCHIVE_UUID UUID;
+
+BEGIN 
+  JAVA_FILESYSTEM_ARCHIVE_UUID := '487034c9-441c-4fb9-b0f3-8f4dd6176532';
+
+  INSERT INTO
+    archives (file_id)
+  VALUES
+    (JAVA_FILESYSTEM_ARCHIVE_UUID)
+  RETURNING
+    id
+  INTO
+    JAVA_DB_ARCHIVE_UUID;
+
+  INSERT INTO
+    languages (name, template_archive_id)
+  VALUES
+    (
+      'Java',
+      JAVA_DB_ARCHIVE_UUID
+    );
+
+END $$;
 
 -- ### Admin user (To be used in development)
 INSERT INTO
