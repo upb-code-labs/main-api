@@ -12,7 +12,15 @@ type LanguagesController struct {
 }
 
 func (controller *LanguagesController) HandleGetLanguages(c *gin.Context) {
-	c.Status(http.StatusNotImplemented)
+	languages, err := controller.UseCases.GetLanguages()
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"languages": languages,
+	})
 }
 
 func (controller *LanguagesController) HandleDownloadLanguageTemplate(c *gin.Context) {
