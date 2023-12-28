@@ -19,7 +19,7 @@ func StartLanguagesRoutes(g *gin.RouterGroup) {
 	}
 
 	langGroup.GET(
-		"/",
+		"",
 		shared_infrastructure.WithAuthenticationMiddleware(),
 		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher", "student"}),
 		controllers.HandleGetLanguages,
