@@ -1711,7 +1711,7 @@ paths:
       description: Get the details / metadata of the student's submission for the given test block
       responses: 
         "200": 
-          description: The laboratory information was retreived successfully. 
+          description: The laboratory information was retrieved successfully. 
           content: 
             application/json: 
               schema: 
@@ -1748,7 +1748,7 @@ paths:
             type: string
             example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
           required: true
-      description: Submin a `.zip` archive to a test block. 
+      description: Submit a `.zip` archive to a test block. 
       responses: 
         "201": 
           description: The `.zip` archive was submitted. 
@@ -1965,7 +1965,7 @@ components:
           example: "Estructuras de datos NRC 47158"
         color:
           type: string
-          description: "A randomly choosed hexadecimal color"
+          description: "A randomly chosen hexadecimal color"
           example: "#34d399"
 
     public_laboratory_fields:
@@ -2174,7 +2174,7 @@ components:
           example: "3ddd8d16-157d-409a-b65a-390f7ac5550c"
         test_block_name:
           type: string
-          example: "Duubly Linked List Methods"
+          example: "Doubly Linked List Methods"
         passing: 
           type: boolean
           example: True
