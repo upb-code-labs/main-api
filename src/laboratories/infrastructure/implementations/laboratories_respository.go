@@ -110,7 +110,7 @@ func (repository *LaboratoriesPostgresRepository) getTestBlocks(laboratoryUUID s
 	defer cancel()
 
 	query := `
-		SELECT tb.id, tb.language_id, tb.tests_archive_id, tb.name, bi.block_position
+		SELECT tb.id, tb.language_id, tb.test_archive_id, tb.name, bi.block_position
 		FROM test_blocks tb
 		RIGHT JOIN blocks_index bi ON tb.block_index_id = bi.id
 		WHERE tb.laboratory_id = $1
