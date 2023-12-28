@@ -1,3 +1,12 @@
+# [0.35.0](https://github.com/upb-code-labs/main-api/compare/v0.34.0...v0.35.0) (2023-12-28)
+
+
+### Features
+
+* Download languages template ([#123](https://github.com/upb-code-labs/main-api/issues/123)) ([4f460f4](https://github.com/upb-code-labs/main-api/commit/4f460f41a90f38516b6dad38f40a97f5245efb99))
+
+
+
 # [0.34.0](https://github.com/upb-code-labs/main-api/compare/v0.33.0...v0.34.0) (2023-12-28)
 
 
@@ -32,15 +41,6 @@
 
 * Get course laboratories ([#111](https://github.com/upb-code-labs/main-api/issues/111)) ([653473e](https://github.com/upb-code-labs/main-api/commit/653473e1d2a960267c1a960dd5fc616868383cd9))
 * Get laboratory by UUID ([#110](https://github.com/upb-code-labs/main-api/issues/110)) ([44a870d](https://github.com/upb-code-labs/main-api/commit/44a870ddc5b9da417cc5bb8ccd660f7d6df8681f))
-
-
-
-# [0.30.0](https://github.com/upb-code-labs/main-api/compare/v0.29.0...v0.30.0) (2023-11-28)
-
-
-### Features
-
-* Update laboratory by UUID ([#109](https://github.com/upb-code-labs/main-api/issues/109)) ([e388a54](https://github.com/upb-code-labs/main-api/commit/e388a5439241143c9e93e9f488b7f6bc9b5618cd))
 
 
 
