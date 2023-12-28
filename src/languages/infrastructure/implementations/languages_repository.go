@@ -3,9 +3,13 @@ package implementations
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"io"
+	"net/http"
 	"time"
 
 	"github.com/UPB-Code-Labs/main-api/src/languages/domain/entities"
+	"github.com/UPB-Code-Labs/main-api/src/languages/domain/errors"
 	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 )
 
@@ -63,17 +67,71 @@ func (repository *LanguagesRepository) GetByUUID(uuid string) (language *entitie
 
 	query := `
 		SELECT 
-		id, template_archive_uuid, name 
+		id, template_archive_id, name 
 		FROM languages
-		WHERE uuid = $1
+		WHERE id = $1
 	`
+
 	row := repository.Connection.QueryRowContext(ctx, query, uuid)
 
 	// Parse the row
+	language = &entities.Language{}
 	err = row.Scan(&language.UUID, &language.TemplateArchiveUUID, &language.Name)
 	if err != nil {
 		return nil, err
 	}
 
 	return language, nil
+}
+
+func (repository *LanguagesRepository) GetTemplateUUIDByLanguageUUID(uuid string) (templateUUID string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT 
+		file_id
+		FROM archives
+		WHERE id = (
+			SELECT
+			template_archive_id
+			FROM languages
+			WHERE id = $1
+		)
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, uuid)
+
+	// Parse the row
+	err = row.Scan(&templateUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", &errors.LangNotFoundError{}
+		}
+
+		return "", err
+	}
+
+	return templateUUID, nil
+}
+
+func (repository *LanguagesRepository) GetTemplateBytes(uuid string) (template []byte, err error) {
+	// Send a request to the static files microservice
+	staticFilesMsEndpoint := fmt.Sprintf("%s/templates/%s", shared_infrastructure.GetEnvironment().StaticFilesMicroserviceAddress, uuid)
+	resp, err := http.Get(staticFilesMsEndpoint)
+
+	// If there is an error try to forward the error message
+	microserviceError := shared_infrastructure.ParseMicroserviceError(resp, err)
+	if microserviceError != nil {
+		return nil, microserviceError
+	}
+
+	// Read the body
+	defer resp.Body.Close()
+	template, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return template, nil
 }
