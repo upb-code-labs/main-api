@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS rubrics (
 CREATE TABLE IF NOT EXISTS objectives (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "rubric_id" UUID NOT NULL REFERENCES rubrics(id),
-  "description" VARCHAR(510) NOT NULL, 
+  "description" VARCHAR(510) NOT NULL,
   "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -69,10 +69,12 @@ CREATE TABLE IF NOT EXISTS criteria (
 CREATE TABLE IF NOT EXISTS laboratories (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "course_id" UUID NOT NULL REFERENCES courses(id),
-  "rubric_id" UUID DEFAULT NULL REFERENCES rubrics(id) ON DELETE SET DEFAULT,
-  "name" VARCHAR(255) NOT NULL,
-  "opening_date" TIMESTAMP NOT NULL,
-  "due_date" TIMESTAMP NOT NULL
+  "rubric_id" UUID DEFAULT NULL REFERENCES rubrics(id) ON DELETE
+  SET
+    DEFAULT,
+    "name" VARCHAR(255) NOT NULL,
+    "opening_date" TIMESTAMP NOT NULL,
+    "due_date" TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS blocks_index (
@@ -88,17 +90,22 @@ CREATE TABLE IF NOT EXISTS markdown_blocks (
   "content" TEXT NOT NULL DEFAULT ''
 );
 
+CREATE TABLE IF NOT EXISTS archives (
+  "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  "file_id" UUID NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS languages (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  "template_archive_uuid" UUID NOT NULL UNIQUE REFERENCES archives(id),
   "name" VARCHAR(32) NOT NULL UNIQUE,
-  "base_archive" BYTEA NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS test_blocks (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "laboratory_id" UUID NOT NULL REFERENCES laboratories(id),
   "language_id" UUID NOT NULL REFERENCES languages(id),
-  "tests_archive_id" BYTEA NOT NULL,
+  "test_archive_id" UUID NOT NULL UNIQUE REFERENCES archives(id),
+  "laboratory_id" UUID NOT NULL REFERENCES laboratories(id),
   "block_index_id" UUID NOT NULL REFERENCES blocks_index(id) ON DELETE CASCADE,
   "name" VARCHAR(255) NOT NULL
 );
@@ -107,12 +114,11 @@ CREATE TABLE IF NOT EXISTS submissions (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "test_id" UUID NOT NULL REFERENCES test_blocks(id),
   "student_id" UUID NOT NULL REFERENCES users(id),
-  "archive" BYTEA NOT NULL,
+  "archive_id" UUID NOT NULL UNIQUE REFERENCES archives(id),
   "passing" BOOLEAN NOT NULL DEFAULT FALSE,
   "status" SUBMISSION_STATUS NOT NULL DEFAULT 'pending',
   "stdout" TEXT NOT NULL DEFAULT '',
-  "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  "submitted_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 );
 
 CREATE TABLE IF NOT EXISTS grades (
@@ -141,12 +147,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_blocks_index ON blocks_index(laboratory_id
 
 -- ### Search indexes
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+
 CREATE INDEX IF NOT EXISTS idx_users_lower_fullName ON users(LOWER(full_name));
 
 -- ## Views
 --- ### Users
 CREATE
-OR REPLACE VIEW users_with_creator AS 
+OR REPLACE VIEW users_with_creator AS
 SELECT
   users.id,
   users.role,
@@ -217,23 +224,18 @@ FROM
 -- ## Triggers
 --- ### Update created_by on users
 CREATE
-OR REPLACE FUNCTION update_created_by()
-RETURNS TRIGGER 
-LANGUAGE PLPGSQL
-AS $$
-BEGIN
-  IF NEW.created_by IS NULL THEN
-    NEW.created_by := NEW.id;
-  END IF;
+OR REPLACE FUNCTION update_created_by() RETURNS TRIGGER LANGUAGE PLPGSQL AS $ $ BEGIN IF NEW.created_by IS NULL THEN NEW.created_by := NEW.id;
 
-  RETURN NEW;
-END $$
-;
+END IF;
 
-CREATE OR REPLACE TRIGGER set_created_by
-  BEFORE INSERT ON users
-  FOR EACH ROW
-  EXECUTE PROCEDURE update_created_by();
+RETURN NEW;
+
+END $ $;
+
+CREATE
+OR REPLACE TRIGGER set_created_by BEFORE
+INSERT
+  ON users FOR EACH ROW EXECUTE PROCEDURE update_created_by();
 
 -- ## Data
 -- ### Colors
@@ -246,6 +248,12 @@ VALUES
   ('#22d3ee'),
   ('#fbbf24'),
   ('#f472b6');
+
+-- ### Languages
+INSERT INTO
+  languages (name, template_archive_uuid)
+VALUES
+  ('Java', '487034c9-441c-4fb9-b0f3-8f4dd6176532');
 
 -- ### Admin user (To be used in development)
 INSERT INTO
