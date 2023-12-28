@@ -13,6 +13,13 @@ func (useCases *LanguageUseCases) GetLanguages() ([]*entities.Language, error) {
 	return useCases.LanguageRepository.GetAll()
 }
 
-func (useCases *LanguageUseCases) GetLanguageByUUID(uuid string) (*entities.Language, error) {
-	return useCases.LanguageRepository.GetByUUID(uuid)
+func (useCases *LanguageUseCases) GetLanguageTemplate(uuid string) ([]byte, error) {
+	// Get the information of the language from the database
+	langTemplateUUID, err := useCases.LanguageRepository.GetTemplateUUIDByLanguageUUID(uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return an empty template bytes array
+	return useCases.LanguageRepository.GetTemplateBytes(langTemplateUUID)
 }

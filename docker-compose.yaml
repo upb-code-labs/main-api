@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # Databases
   codelabs_postgres_db: 
     image: docker.io/library/postgres:alpine3.18
     container_name: codelabs_postgres_db
@@ -14,6 +15,17 @@ services:
     volumes:
       - ./volumes/postgres:/var/lib/postgresql/data
   
+  # Microservices
+  codelabs_static_files:
+    image: ghcr.io/upb-code-labs/static-files-microservice:latest
+    container_name: codelabs_static_files
+    restart: on-failure
+    ports:
+      - "127.0.0.1:8081:8080"
+    depends_on:
+      - codelabs_postgres_db
+
+  # Utils
   postgres_db_admin: 
     image: docker.io/dpage/pgadmin4:7.6
     container_name: postgres_db_admin
