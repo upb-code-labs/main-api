@@ -1,3 +1,12 @@
+# [0.34.0](https://github.com/upb-code-labs/main-api/compare/v0.33.0...v0.34.0) (2023-12-28)
+
+
+### Features
+
+* List supported languages ([#122](https://github.com/upb-code-labs/main-api/issues/122)) ([e7d7539](https://github.com/upb-code-labs/main-api/commit/e7d75396b242cdebc046d62ca184522bcfbb2ae2))
+
+
+
 # [0.33.0](https://github.com/upb-code-labs/main-api/compare/v0.32.0...v0.33.0) (2023-11-29)
 
 
@@ -32,15 +41,6 @@
 ### Features
 
 * Update laboratory by UUID ([#109](https://github.com/upb-code-labs/main-api/issues/109)) ([e388a54](https://github.com/upb-code-labs/main-api/commit/e388a5439241143c9e93e9f488b7f6bc9b5618cd))
-
-
-
-# [0.29.0](https://github.com/upb-code-labs/main-api/compare/v0.28.0...v0.29.0) (2023-11-27)
-
-
-### Features
-
-* Create laboratory ([#103](https://github.com/upb-code-labs/main-api/issues/103)) ([c577ea2](https://github.com/upb-code-labs/main-api/commit/c577ea29c9904da5943a96a2e421f6d5301d6866))
 
 
 
