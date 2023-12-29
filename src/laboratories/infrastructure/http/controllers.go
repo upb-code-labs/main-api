@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/dtos"
@@ -209,6 +210,13 @@ func (controller *LaboratoriesController) HandleCreateTestBlock(c *gin.Context) 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Please, make sure to send the test archive",
+		})
+		return
+	}
+
+	if multipartFile.Size > infrastructure.GetEnvironment().ArchiveMaxSizeKb*1024 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("The test archive must be smaller than %d KB", infrastructure.GetEnvironment().ArchiveMaxSizeKb),
 		})
 		return
 	}
