@@ -1,3 +1,12 @@
+# [0.36.0](https://github.com/upb-code-labs/main-api/compare/v0.35.0...v0.36.0) (2023-12-29)
+
+
+### Features
+
+* Create new test block ([#126](https://github.com/upb-code-labs/main-api/issues/126)) ([ae8c2ba](https://github.com/upb-code-labs/main-api/commit/ae8c2ba50914ec235cecb0a41784736f2a4692ac))
+
+
+
 # [0.35.0](https://github.com/upb-code-labs/main-api/compare/v0.34.0...v0.35.0) (2023-12-28)
 
 
@@ -31,16 +40,6 @@
 ### Features
 
 * Create empty markdown block ([#112](https://github.com/upb-code-labs/main-api/issues/112)) ([e3c5ef1](https://github.com/upb-code-labs/main-api/commit/e3c5ef1f54b3e76d36bcb1e6d6f54f3da2da4fa9))
-
-
-
-# [0.31.0](https://github.com/upb-code-labs/main-api/compare/v0.30.0...v0.31.0) (2023-11-28)
-
-
-### Features
-
-* Get course laboratories ([#111](https://github.com/upb-code-labs/main-api/issues/111)) ([653473e](https://github.com/upb-code-labs/main-api/commit/653473e1d2a960267c1a960dd5fc616868383cd9))
-* Get laboratory by UUID ([#110](https://github.com/upb-code-labs/main-api/issues/110)) ([44a870d](https://github.com/upb-code-labs/main-api/commit/44a870ddc5b9da417cc5bb8ccd660f7d6df8681f))
 
 
 
