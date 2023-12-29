@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	languages_domain_errors "github.com/UPB-Code-Labs/main-api/src/languages/domain/errors"
+	sharedDomainErrors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
 )
 
 func ParseISODate(date string) (time.Time, error) {
@@ -32,7 +32,7 @@ func ParseMicroserviceError(resp *http.Response, err error) error {
 		}
 
 		// Return the error
-		return &languages_domain_errors.StaticFilesMicroserviceError{
+		return &sharedDomainErrors.StaticFilesMicroserviceError{
 			Code:    resp.StatusCode,
 			Message: errorMessage,
 		}
