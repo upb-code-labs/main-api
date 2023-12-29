@@ -2,6 +2,7 @@ package integration
 
 import (
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -278,4 +279,58 @@ func TestCreateMarkdownBlock(t *testing.T) {
 	c.Equal(createdBlockUUID, block["uuid"])
 	c.Equal("", block["content"])
 	c.EqualValues(1, block["index"])
+}
+
+func TestCreateTestBlock(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a course
+	courseUUID, status := CreateCourse("Create test block test - course")
+	c.Equal(http.StatusCreated, status)
+
+	// Create a laboratory
+	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
+		"name":         "Create test block test - laboratory",
+		"course_uuid":  courseUUID,
+		"opening_date": "2023-12-01T08:00",
+		"due_date":     "3023-12-01T00:00",
+	})
+	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
+	c.Equal(http.StatusCreated, status)
+
+	// Get the supported languages
+	languagesResponse, status := GetSupportedLanguages(cookie)
+	c.Equal(http.StatusOK, status)
+
+	languages := languagesResponse["languages"].([]interface{})
+	c.Greater(len(languages), 0)
+
+	firstLanguage := languages[0].(map[string]interface{})
+	firstLanguageUUID := firstLanguage["uuid"].(string)
+
+	// Open `.zip` file from the data folder
+	TEST_FILE_PATH := "../data/java_tests_sample.zip"
+	zipFile, err := os.Open(TEST_FILE_PATH)
+	c.Nil(err)
+
+	// Send the request
+	response, _ := CreateTestBlock(&CreateTestBlockUtilsDTO{
+		laboratoryUUID: laboratoryUUID,
+		languageUUID:   firstLanguageUUID,
+		blockName:      "Create test block test - block",
+		cookie:         cookie,
+		testFile:       zipFile,
+	})
+
+	// Validate the response
+	// c.Equal(http.StatusCreated, status)
+	c.Contains(response, "uuid")
 }
