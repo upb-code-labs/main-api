@@ -133,6 +133,16 @@ func PrepareRequest(method, endpoint string, payload interface{}) (*httptest.Res
 	return w, req
 }
 
+func PrepareMultipartRequest(method, endpoint string, body *bytes.Buffer) (*httptest.ResponseRecorder, *http.Request) {
+	var req *http.Request
+
+	req, _ = http.NewRequest(method, endpoint, body)
+	req.Header.Set("Content-Type", "multipart/form-data")
+
+	w := httptest.NewRecorder()
+	return w, req
+}
+
 func ParseJsonResponse(buffer *bytes.Buffer) map[string]interface{} {
 	var response map[string]interface{}
 	json.Unmarshal(buffer.Bytes(), &response)

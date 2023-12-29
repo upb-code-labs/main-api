@@ -1849,13 +1849,13 @@ components:
     create_test_block_req:
       type: object
       properties:
-        name:
+        block_name:
           type: string
           example: "Test métodos de la lista simplemente enlazada"
         language_uuid:
           type: string
           example: "a7c4c843-c3ef-4083-8255-927aea3af77f"
-        file:
+        test_archive:
           type: string
           format: binary # A `.zip` archive
 
