@@ -11,4 +11,5 @@ type LaboratoriesRepository interface {
 	UpdateLaboratory(dto *dtos.UpdateLaboratoryDTO) error
 
 	CreateMarkdownBlock(laboratoryUUID string) (blockUUID string, err error)
+	CreateTestBlock(dto *dtos.CreateTestBlockDTO) (blockUUID string, err error)
 }
