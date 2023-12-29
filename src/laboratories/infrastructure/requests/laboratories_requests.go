@@ -36,3 +36,9 @@ func (request *UpdateLaboratoryRequest) ToDTO(laboratoryUUID string, teacherUUID
 		DueDate:        request.DueDate,
 	}
 }
+
+type CreateTestBlockRequest struct {
+	LaboratoryUUID string `validate:"required,uuid4"`
+	LanguageUUID   string `validate:"required,uuid4"`
+	Name           string `validate:"required,min=4,max=255"`
+}

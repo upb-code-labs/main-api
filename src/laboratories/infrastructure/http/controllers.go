@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/dtos"
+	"github.com/gabriel-vasile/mimetype"
 
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/application"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/infrastructure/requests"
@@ -171,6 +172,82 @@ func (controller *LaboratoriesController) HandleCreateMarkdownBlock(c *gin.Conte
 	}
 
 	blockUUID, err := controller.UseCases.CreateMarkdownBlock(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"uuid": blockUUID,
+	})
+}
+
+func (controller *LaboratoriesController) HandleCreateTestBlock(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+	laboratoryUUID := c.Param("laboratory_uuid")
+
+	// Validate the request struct
+	languageUUID := c.PostForm("language_uuid")
+	name := c.PostForm("block_name")
+
+	req := requests.CreateTestBlockRequest{
+		LaboratoryUUID: laboratoryUUID,
+		LanguageUUID:   languageUUID,
+		Name:           name,
+	}
+
+	if err := infrastructure.GetValidator().Struct(req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Validate the test archive
+	multipartFile, err := c.FormFile("test_archive")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Please, make sure to send the test archive",
+		})
+		return
+	}
+
+	file, err := multipartFile.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "There was an error while reading the test archive",
+		})
+		return
+	}
+	defer file.Close()
+
+	mtype, err := mimetype.DetectReader(file)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "There was an error while reading the MIME type of the test archive",
+		})
+		return
+	}
+
+	if mtype.String() != "application/zip" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Please, make sure to send a ZIP archive",
+		})
+		return
+	}
+
+	// Create the DTO
+	dto := dtos.CreateTestBlockDTO{
+		LaboratoryUUID: laboratoryUUID,
+		TeacherUUID:    teacherUUID,
+		LanguageUUID:   languageUUID,
+		Name:           name,
+		MultipartFile:  &file,
+	}
+
+	// Create the block
+	blockUUID, err := controller.UseCases.CreateTestBlock(&dto)
 	if err != nil {
 		c.Error(err)
 		return
