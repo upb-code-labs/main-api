@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -14,7 +15,10 @@ func ParseISODate(date string) (time.Time, error) {
 }
 
 func ParseMicroserviceError(resp *http.Response, err error) error {
-	if err != nil || resp.StatusCode != http.StatusOK {
+	statusStr := fmt.Sprintf("%d", resp.StatusCode)
+	isInTwoHundredsGroup := statusStr[0] == '2'
+
+	if err != nil || !isInTwoHundredsGroup {
 		defaultErrorMessage := "There was an error while requesting the archives microservice"
 		errorMessage := defaultErrorMessage
 
@@ -22,7 +26,10 @@ func ParseMicroserviceError(resp *http.Response, err error) error {
 		var responseJSON map[string]interface{}
 		err := json.NewDecoder(resp.Body).Decode(&responseJSON)
 		if err != nil {
-			return err
+			return &sharedDomainErrors.StaticFilesMicroserviceError{
+				Code:    http.StatusBadRequest,
+				Message: defaultErrorMessage,
+			}
 		}
 
 		// Get the error message
