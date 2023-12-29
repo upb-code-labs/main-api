@@ -78,6 +78,10 @@ func (repository *LanguagesRepository) GetByUUID(uuid string) (language *entitie
 	language = &entities.Language{}
 	err = row.Scan(&language.UUID, &language.TemplateArchiveUUID, &language.Name)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, &errors.LangNotFoundError{}
+		}
+
 		return nil, err
 	}
 
