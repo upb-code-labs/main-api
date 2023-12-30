@@ -15,7 +15,7 @@ func (useCases *LanguageUseCases) GetLanguages() ([]*entities.Language, error) {
 
 func (useCases *LanguageUseCases) GetLanguageTemplate(uuid string) ([]byte, error) {
 	// Get the information of the language from the database
-	langTemplateUUID, err := useCases.LanguageRepository.GetTemplateUUIDByLanguageUUID(uuid)
+	langTemplateUUID, err := useCases.LanguageRepository.GetTemplateArchiveUUIDByLanguageUUID(uuid)
 	if err != nil {
 		return nil, err
 	}
