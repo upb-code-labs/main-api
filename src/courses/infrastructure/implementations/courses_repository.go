@@ -385,6 +385,7 @@ func (repository *CoursesPostgresRepository) GetEnrolledStudents(courseUUID stri
 		SELECT user_id, user_full_name, user_email, user_institutional_id, is_user_active
 		FROM courses_has_users_view
 		WHERE course_id = $1 AND user_role = 'student'
+		ORDER BY is_user_active DESC, user_full_name ASC
 	`
 
 	rows, err := repository.Connection.QueryContext(ctx, query, courseUUID)
