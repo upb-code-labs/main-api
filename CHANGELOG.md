@@ -1,3 +1,12 @@
+# [0.38.0](https://github.com/upb-code-labs/main-api/compare/v0.37.0...v0.38.0) (2023-12-30)
+
+
+### Features
+
+* Update status of enrolled students ([#129](https://github.com/upb-code-labs/main-api/issues/129)) ([0797e01](https://github.com/upb-code-labs/main-api/commit/0797e01e7795c2c46065c33b3c6549f3136dd95e))
+
+
+
 # [0.37.0](https://github.com/upb-code-labs/main-api/compare/v0.36.0...v0.37.0) (2023-12-30)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * List supported languages ([#122](https://github.com/upb-code-labs/main-api/issues/122)) ([e7d7539](https://github.com/upb-code-labs/main-api/commit/e7d75396b242cdebc046d62ca184522bcfbb2ae2))
-
-
-
-# [0.33.0](https://github.com/upb-code-labs/main-api/compare/v0.32.0...v0.33.0) (2023-11-29)
-
-
-### Features
-
-* Update markdown block content ([#113](https://github.com/upb-code-labs/main-api/issues/113)) ([3a6f762](https://github.com/upb-code-labs/main-api/commit/3a6f762a1c5e1e3915bee380438803b0ce981aac))
 
 
 
