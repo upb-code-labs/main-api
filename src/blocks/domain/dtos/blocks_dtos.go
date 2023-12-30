@@ -15,3 +15,8 @@ type UpdateTestBlockDTO struct {
 	Name           string
 	NewTestArchive *multipart.File
 }
+
+type DeleteBlockDTO struct {
+	TeacherUUID string
+	BlockUUID   string
+}
