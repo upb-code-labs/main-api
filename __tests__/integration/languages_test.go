@@ -37,6 +37,18 @@ func TestListSupportedLanguages(t *testing.T) {
 	c.Contains(languagesNames, "Java")
 }
 
+func GetFirstSupportedLanguage(cookie *http.Cookie) (language map[string]interface{}) {
+	w, r := PrepareRequest("GET", "/api/v1/languages", nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+
+	languages := jsonResponse["languages"].([]interface{})
+	language = languages[0].(map[string]interface{})
+	return language
+}
+
 func TestGetLanguageTemplate(t *testing.T) {
 	c := require.New(t)
 
@@ -48,16 +60,8 @@ func TestGetLanguageTemplate(t *testing.T) {
 	router.ServeHTTP(w, r)
 	cookie := w.Result().Cookies()[0]
 
-	// Get the supported languages
-	response, statusCode := GetSupportedLanguages(cookie)
-	c.Equal(http.StatusOK, statusCode)
-
-	// Check the response
-	languages := response["languages"].([]interface{})
-	c.Greater(len(languages), 0)
-
-	// Get the first language
-	language := languages[0].(map[string]interface{})
+	// Get a supported language from the supported languages list
+	language := GetFirstSupportedLanguage(cookie)
 
 	// Get the language template
 	template, statusCode := GetLanguageTemplate(cookie, language["uuid"].(string))
