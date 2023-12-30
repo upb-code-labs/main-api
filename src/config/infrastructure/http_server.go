@@ -1,33 +1,33 @@
 package infrastructure
 
 import (
-	accounts_http "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/http"
-	blocks_http "github.com/UPB-Code-Labs/main-api/src/blocks/infrastructure/http"
-	courses_http "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/http"
-	laboratories_http "github.com/UPB-Code-Labs/main-api/src/laboratories/infrastructure/http"
-	languages_http "github.com/UPB-Code-Labs/main-api/src/languages/infrastructure/http"
-	rubrics_http "github.com/UPB-Code-Labs/main-api/src/rubrics/infrastructure/http"
-	session_http "github.com/UPB-Code-Labs/main-api/src/session/infrastructure/http"
-	shared_infra "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	accountsHttp "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/http"
+	blocksHttp "github.com/UPB-Code-Labs/main-api/src/blocks/infrastructure/http"
+	coursesHttp "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/http"
+	laboratoriesHttp "github.com/UPB-Code-Labs/main-api/src/laboratories/infrastructure/http"
+	languagesHttp "github.com/UPB-Code-Labs/main-api/src/languages/infrastructure/http"
+	rubricsHttp "github.com/UPB-Code-Labs/main-api/src/rubrics/infrastructure/http"
+	sessionHttp "github.com/UPB-Code-Labs/main-api/src/session/infrastructure/http"
+	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 var routesGroups = []func(*gin.RouterGroup){
-	accounts_http.StartAccountsRoutes,
-	blocks_http.StartBlocksRoutes,
-	session_http.StartSessionRoutes,
-	courses_http.StartCoursesRoutes,
-	rubrics_http.StartRubricsRoutes,
-	laboratories_http.StartLaboratoriesRoutes,
-	languages_http.StartLanguagesRoutes,
+	accountsHttp.StartAccountsRoutes,
+	blocksHttp.StartBlocksRoutes,
+	sessionHttp.StartSessionRoutes,
+	coursesHttp.StartCoursesRoutes,
+	rubricsHttp.StartRubricsRoutes,
+	laboratoriesHttp.StartLaboratoriesRoutes,
+	languagesHttp.StartLanguagesRoutes,
 }
 
 func InstanceHttpServer() (r *gin.Engine) {
 	engine := gin.Default()
-	engine.Use(shared_infra.ErrorHandlerMiddleware())
+	engine.Use(sharedInfrastructure.ErrorHandlerMiddleware())
 
-	isInProductionEnvironment := shared_infra.GetEnvironment().Environment == "production"
+	isInProductionEnvironment := sharedInfrastructure.GetEnvironment().Environment == "production"
 	if isInProductionEnvironment {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -35,7 +35,7 @@ func InstanceHttpServer() (r *gin.Engine) {
 	// Configure CORS rules
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
-	corsConfig.AllowOrigins = []string{shared_infra.GetEnvironment().WebClientUrl}
+	corsConfig.AllowOrigins = []string{sharedInfrastructure.GetEnvironment().WebClientUrl}
 	corsConfig.AllowCredentials = true
 	engine.Use(cors.New(corsConfig))
 

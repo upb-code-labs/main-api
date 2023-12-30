@@ -2,18 +2,18 @@ package application
 
 import (
 	blocksDefinitions "github.com/UPB-Code-Labs/main-api/src/blocks/domain/definitions"
-	courses_definitions "github.com/UPB-Code-Labs/main-api/src/courses/domain/definitions"
-	courses_errors "github.com/UPB-Code-Labs/main-api/src/courses/domain/errors"
+	coursesDefinitions "github.com/UPB-Code-Labs/main-api/src/courses/domain/definitions"
+	coursesErrors "github.com/UPB-Code-Labs/main-api/src/courses/domain/errors"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/entities"
 	languagesDefinitions "github.com/UPB-Code-Labs/main-api/src/languages/domain/definitions"
 	rubricsDefinitions "github.com/UPB-Code-Labs/main-api/src/rubrics/domain/definitions"
-	rubrics_errors "github.com/UPB-Code-Labs/main-api/src/rubrics/domain/errors"
+	rubricsErrors "github.com/UPB-Code-Labs/main-api/src/rubrics/domain/errors"
 )
 
 type LaboratoriesUseCases struct {
-	CoursesRepository      courses_definitions.CoursesRepository
+	CoursesRepository      coursesDefinitions.CoursesRepository
 	LaboratoriesRepository definitions.LaboratoriesRepository
 	RubricsRepository      rubricsDefinitions.RubricsRepository
 	LanguagesRepository    languagesDefinitions.LanguagesRepository
@@ -28,7 +28,7 @@ func (useCases *LaboratoriesUseCases) CreateLaboratory(dto *dtos.CreateLaborator
 	}
 
 	if !ownsCourse {
-		return nil, courses_errors.TeacherDoesNotOwnsCourseError{}
+		return nil, coursesErrors.TeacherDoesNotOwnsCourseError{}
 	}
 
 	// Create the laboratory
@@ -49,7 +49,7 @@ func (useCases *LaboratoriesUseCases) GetLaboratory(dto *dtos.GetLaboratoryDTO) 
 	}
 
 	if !isEnrolled {
-		return nil, courses_errors.UserNotInCourseError{}
+		return nil, coursesErrors.UserNotInCourseError{}
 	}
 
 	return laboratory, nil
@@ -63,7 +63,7 @@ func (useCases *LaboratoriesUseCases) UpdateLaboratory(dto *dtos.UpdateLaborator
 	}
 
 	if !teacherOwnsLaboratory {
-		return &courses_errors.TeacherDoesNotOwnsCourseError{}
+		return &coursesErrors.TeacherDoesNotOwnsCourseError{}
 	}
 
 	// Check that the teacher owns the rubric
@@ -73,7 +73,7 @@ func (useCases *LaboratoriesUseCases) UpdateLaboratory(dto *dtos.UpdateLaborator
 			return err
 		}
 		if !teacherOwnsRubric {
-			return &rubrics_errors.TeacherDoesNotOwnsRubric{}
+			return &rubricsErrors.TeacherDoesNotOwnsRubric{}
 		}
 	}
 
@@ -89,7 +89,7 @@ func (useCases *LaboratoriesUseCases) CreateMarkdownBlock(dto *dtos.CreateMarkdo
 	}
 
 	if !teacherOwnsLaboratory {
-		return "", &courses_errors.TeacherDoesNotOwnsCourseError{}
+		return "", &coursesErrors.TeacherDoesNotOwnsCourseError{}
 	}
 
 	// Create the block
@@ -113,7 +113,7 @@ func (useCases *LaboratoriesUseCases) CreateTestBlock(dto *dtos.CreateTestBlockD
 	}
 
 	if !teacherOwnsLaboratory {
-		return "", &courses_errors.TeacherDoesNotOwnsCourseError{}
+		return "", &coursesErrors.TeacherDoesNotOwnsCourseError{}
 	}
 
 	// Check that the language exists
