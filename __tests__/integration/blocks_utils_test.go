@@ -84,3 +84,13 @@ func UpdateTestBlock(dto *UpdateTestBlockUtilsDTO) (response map[string]interfac
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+func DeleteTestBlock(cookie *http.Cookie, blockUUID string) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/blocks/test_blocks/%s", blockUUID)
+	w, r := PrepareRequest("DELETE", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}
