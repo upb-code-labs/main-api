@@ -10,7 +10,7 @@ type BlockRepository interface {
 	// Update the markdown text of a markdown block
 	UpdateMarkdownBlockContent(blockUUID string, content string) (err error)
 
-	// Functions to check blocks ownership
+	// Check blocks ownership
 	DoesTeacherOwnsMarkdownBlock(teacherUUID string, blockUUID string) (bool, error)
 	DoesTeacherOwnsTestBlock(teacherUUID string, blockUUID string) (bool, error)
 
@@ -25,4 +25,8 @@ type BlockRepository interface {
 
 	// Update the test block information in the database
 	UpdateTestBlock(*dtos.UpdateTestBlockDTO) (err error)
+
+	// Delete blocks
+	DeleteMarkdownBlock(blockUUID string) (err error)
+	DeleteTestBlock(blockUUID string) (err error)
 }

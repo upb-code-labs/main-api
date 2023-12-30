@@ -14,6 +14,7 @@ import (
 
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/errors"
+	laboratoriesDomainErrors "github.com/UPB-Code-Labs/main-api/src/laboratories/domain/errors"
 	sharedDomainErrors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 )
@@ -64,7 +65,7 @@ func (repository *BlocksPostgresRepository) DoesTeacherOwnsMarkdownBlock(teacher
 	var laboratoryUUID string
 	if err := row.Scan(&laboratoryUUID); err != nil {
 		if err == sql.ErrNoRows {
-			return false, nil
+			return false, errors.BlockNotFound{}
 		}
 	}
 
@@ -83,7 +84,7 @@ func (repository *BlocksPostgresRepository) DoesTeacherOwnsMarkdownBlock(teacher
 	var laboratoryTeacherUUID string
 	if err := row.Scan(&laboratoryTeacherUUID); err != nil {
 		if err == sql.ErrNoRows {
-			return false, nil
+			return false, laboratoriesDomainErrors.LaboratoryNotFoundError{}
 		}
 	}
 
@@ -105,7 +106,7 @@ func (repository *BlocksPostgresRepository) DoesTeacherOwnsTestBlock(teacherUUID
 	var laboratoryUUID string
 	if err := row.Scan(&laboratoryUUID); err != nil {
 		if err == sql.ErrNoRows {
-			return false, nil
+			return false, &errors.BlockNotFound{}
 		}
 	}
 
@@ -124,7 +125,7 @@ func (repository *BlocksPostgresRepository) DoesTeacherOwnsTestBlock(teacherUUID
 	var laboratoryTeacherUUID string
 	if err := row.Scan(&laboratoryTeacherUUID); err != nil {
 		if err == sql.ErrNoRows {
-			return false, nil
+			return false, laboratoriesDomainErrors.LaboratoryNotFoundError{}
 		}
 	}
 
@@ -328,6 +329,83 @@ func (repository *BlocksPostgresRepository) UpdateTestBlock(dto *dtos.UpdateTest
 	`
 
 	_, err = repository.Connection.ExecContext(ctx, query, dto.LanguageUUID, dto.Name, dto.BlockUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *BlocksPostgresRepository) DeleteMarkdownBlock(blockUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the UUID of the block index
+	query := `
+		SELECT block_index_id
+		FROM markdown_blocks
+		WHERE id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, blockUUID)
+	var blockIndexUUID string
+	if err := row.Scan(&blockIndexUUID); err != nil {
+		if err == sql.ErrNoRows {
+			return &errors.BlockNotFound{}
+		}
+
+		return err
+	}
+
+	// After deleting the block index, the block will be deleted automatically due to the `ON DELETE CASCADE` constraint
+	err = repository.deleteBlockIndex(blockIndexUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *BlocksPostgresRepository) DeleteTestBlock(blockUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the UUID of the block index
+	query := `
+		SELECT block_index_id
+		FROM test_blocks
+		WHERE id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, blockUUID)
+	var blockIndexUUID string
+	if err := row.Scan(&blockIndexUUID); err != nil {
+		if err == sql.ErrNoRows {
+			return &errors.BlockNotFound{}
+		}
+
+		return err
+	}
+
+	// After deleting the block index, the block will be deleted automatically due to the `ON DELETE CASCADE` constraint
+	err = repository.deleteBlockIndex(blockIndexUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *BlocksPostgresRepository) deleteBlockIndex(blockIndexUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		DELETE FROM blocks_index
+		WHERE id = $1
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, blockIndexUUID)
 	if err != nil {
 		return err
 	}
