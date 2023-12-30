@@ -27,6 +27,13 @@ type EnrolledStudentDTO struct {
 	IsActive        bool
 }
 
+type SetUserStatusDTO struct {
+	TeacherUUID string
+	UserUUID    string
+	CourseUUID  string
+	ToActive    bool
+}
+
 type GetInvitationCodeDTO struct {
 	CourseUUID  string
 	TeacherUUID string

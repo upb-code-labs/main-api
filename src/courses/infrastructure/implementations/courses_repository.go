@@ -414,6 +414,30 @@ func (repository *CoursesPostgresRepository) GetEnrolledStudents(courseUUID stri
 	return enrolledStudents, nil
 }
 
+func (repository *CoursesPostgresRepository) SetStudentStatus(dto *dtos.SetUserStatusDTO) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		UPDATE courses_has_users
+		SET is_user_active = $1
+		WHERE course_id = $2 AND user_id = $3
+	`
+
+	_, err := repository.Connection.ExecContext(
+		ctx,
+		query,
+		dto.ToActive,
+		dto.CourseUUID,
+		dto.UserUUID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repository *CoursesPostgresRepository) GetCourseLaboratories(courseUUID string) ([]*dtos.BaseLaboratoryDTO, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
