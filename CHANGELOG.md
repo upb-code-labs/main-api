@@ -1,3 +1,12 @@
+# [0.39.0](https://github.com/upb-code-labs/main-api/compare/v0.38.0...v0.39.0) (2023-12-30)
+
+
+### Features
+
+* Delete markdown block ([#131](https://github.com/upb-code-labs/main-api/issues/131)) ([1aee6d6](https://github.com/upb-code-labs/main-api/commit/1aee6d6c4509953aa03d1d449cb173a916eedc27))
+
+
+
 # [0.38.0](https://github.com/upb-code-labs/main-api/compare/v0.37.0...v0.38.0) (2023-12-30)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Download languages template ([#123](https://github.com/upb-code-labs/main-api/issues/123)) ([4f460f4](https://github.com/upb-code-labs/main-api/commit/4f460f41a90f38516b6dad38f40a97f5245efb99))
-
-
-
-# [0.34.0](https://github.com/upb-code-labs/main-api/compare/v0.33.0...v0.34.0) (2023-12-28)
-
-
-### Features
-
-* List supported languages ([#122](https://github.com/upb-code-labs/main-api/issues/122)) ([e7d7539](https://github.com/upb-code-labs/main-api/commit/e7d75396b242cdebc046d62ca184522bcfbb2ae2))
 
 
 
