@@ -3,7 +3,8 @@ package http
 import (
 	"github.com/UPB-Code-Labs/main-api/src/blocks/application"
 	"github.com/UPB-Code-Labs/main-api/src/blocks/infrastructure/implementations"
-	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	languagesImplementations "github.com/UPB-Code-Labs/main-api/src/languages/infrastructure/implementations"
+	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,17 +12,25 @@ func StartBlocksRoutes(g *gin.RouterGroup) {
 	blocksGroup := g.Group("/blocks")
 
 	useCases := application.BlocksUseCases{
-		BlocksRepository: implementations.GetBlocksPostgresRepositoryInstance(),
+		BlocksRepository:    implementations.GetBlocksPostgresRepositoryInstance(),
+		LanguagesRepository: languagesImplementations.GetLanguagesRepositoryInstance(),
 	}
 
 	controller := BlocksController{
 		UseCases: &useCases,
 	}
 
-	blocksGroup.PUT(
+	blocksGroup.PATCH(
 		"/markdown_blocks/:block_uuid/content",
-		shared_infrastructure.WithAuthenticationMiddleware(),
-		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleUpdateMarkdownBlockContent,
+	)
+
+	blocksGroup.PUT(
+		"/test_blocks/:block_uuid",
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleUpdateTestBlock,
 	)
 }

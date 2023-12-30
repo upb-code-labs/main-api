@@ -16,6 +16,8 @@ tags:
   - name: Laboratories
   - name: Blocks
   - name: Rubrics
+  - name: Languages
+  - name: Submissions
 
 paths:
   /accounts/admins:
@@ -748,6 +750,83 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
   
+  # Languages
+  /languages: 
+    get: 
+      tags:
+        - Languages
+      security:
+        - cookieAuth: []
+      description: Get the list of supported languages and its UUIDs. 
+      responses:
+        "200":
+          description: The languages are listed
+          content: 
+            application/json: 
+              schema: 
+                type: object
+                properties:
+                  languages: 
+                    type: array
+                    items:
+                      type: object
+                      allOf:
+                        - $ref: "#/components/schemas/language"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+  
+  /languages/{language_uuid}/template: 
+    get: 
+      tags:
+        - Languages
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: language_uuid
+          schema:
+            type: string
+            example: "c3049450-d1cc-424f-a06b-9b3e5c916319"
+          required: true
+      description: Get `.zip` archive with the template for the given language
+      responses:
+        "200":
+          description: The `.zip` archive is retreived / downloaded
+          content: 
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: No template found with the given UUID. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+  
+  # Laboratories
   /laboratories: 
     post:
       tags:
@@ -929,7 +1008,7 @@ paths:
           required: true
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/create_test_block_req"
       responses:
@@ -961,9 +1040,107 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+  
+  /laboratories/{laboratory_uuid}/progress:
+    get: 
+      tags: 
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Get information about the students' progress in the laboratory. 
+      parameters:
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "1f071796-c01b-458b-8949-665592d90986"
+          required: true
+      responses: 
+        "200": 
+          description: The information about the progress was retreived successfully. 
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/laboratory_progress_metadata"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "404":
+          description: No laboratory found with the given UUId. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+  
+  /laboratories/{laboratory_uuid}/progress/{student_uuid}:
+    get: 
+      tags: 
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Get information about the progress of an specific student.  
+      parameters:
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "1f071796-c01b-458b-8949-665592d90986"
+          required: true
+        - in: path
+          name: student_uuid
+          schema:
+            type: string
+            example: "e66d2cff-9a50-47cd-8301-bdf479e6d80e"
+          required: true
+      responses: 
+        "200": 
+          description: The information about the progress of the student was retreived successfully. 
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/student_progress_metadata"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "404":
+          description: No laboratory found with the given UUId. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
 
   # Blocks
-  /markdown_blocks/{block_uuid}:
+  /blocks/markdown_blocks/{block_uuid}:
     delete:
       tags:
         - Blocks
@@ -993,7 +1170,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
 
-  /markdown_blocks/{block_uuid}/content:
+  /blocks/markdown_blocks/{block_uuid}/content:
     patch:
       tags:
         - Blocks
@@ -1032,7 +1209,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
 
-  /test_blocks/{block_uuid}:
+  /blocks/test_blocks/{block_uuid}:
     put:
       tags:
         - Blocks
@@ -1048,7 +1225,7 @@ paths:
           required: true
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: "#/components/schemas/create_test_block_req"
       responses:
@@ -1516,6 +1693,92 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+                
+  # Submissions
+  /submissions/test_block/{block_uuid}/mine:
+    get:
+      tags:
+        - Submissions
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: block_uuid
+          schema:
+            type: string
+            example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
+          required: true
+      description: Get the details / metadata of the student's submission for the given test block
+      responses: 
+        "200": 
+          description: The laboratory information was retrieved successfully. 
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/submission_metadata"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "404":
+          description: The student doesn't have any submission for the given test block.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+  
+  /submissions/test_block/{block_uuid}:
+    post:
+      tags: 
+        - Submissions
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: block_uuid
+          schema:
+            type: string
+            example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
+          required: true
+      description: Submit a `.zip` archive to a test block. 
+      responses: 
+        "201": 
+          description: The `.zip` archive was submitted. 
+          content: 
+            application/json: 
+              schema:
+                type: object
+                properties:
+                  uuid: 
+                    type: string
+                    example: "325fbfa1-bd9b-4846-8fdd-8383b0e1f857"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+    
 components:
   securitySchemes:
     cookieAuth:
@@ -1586,16 +1849,15 @@ components:
     create_test_block_req:
       type: object
       properties:
-        title:
+        block_name:
           type: string
           example: "Test métodos de la lista simplemente enlazada"
-        language:
+        language_uuid:
           type: string
-          example: "Java"
-        file:
+          example: "a7c4c843-c3ef-4083-8255-927aea3af77f"
+        test_archive:
           type: string
-          format: byte
-          example: "file.java" # T be defined
+          format: binary # A `.zip` archive
 
     create_rubric_req:
       type: object
@@ -1703,7 +1965,7 @@ components:
           example: "Estructuras de datos NRC 47158"
         color:
           type: string
-          description: "A randomly choosed hexadecimal color"
+          description: "A randomly chosen hexadecimal color"
           example: "#34d399"
 
     public_laboratory_fields:
@@ -1771,6 +2033,16 @@ components:
           example: 0.25
     
     # Entities
+    language: 
+      type: object
+      properties: 
+        uuid: 
+          type: string
+          example: "c3049450-d1cc-424f-a06b-9b3e5c916319"
+        name: 
+          type: string
+          example: "Java"
+    
     markdown_block: 
       type: object
       properties: 
@@ -1786,6 +2058,7 @@ components:
     
     test_block: 
       type: object
+      required: ["uuid", "language_uuid", "test_archive_uuid", "name", "order"]
       properties: 
         uuid: 
           type: string
@@ -1796,6 +2069,10 @@ components:
         test_archive_uuid:
           type: string
           example: "7f5e5fd3-ad44-4441-8201-cfab68ed1e00"
+        # (Optional) The UUID of the student' submission
+        submission_uuid:
+          type: string
+          example: "962022d9-8a0a-4686-b10e-fca700601772"
         name: 
           type: string
           example: "Duubly Linked List Methods"
@@ -1833,3 +2110,71 @@ components:
             type: object
             allOf:
               - $ref: "#/components/schemas/test_block"
+    
+    laboratory_progress_metadata:
+      type: object
+      properties:
+        total_test_blocks: 
+          type: number
+          example: 8
+        progress: 
+          type: array
+          items: 
+            type: object
+            properties: 
+              student:
+                type: string
+                example: "Chanel Durk"
+              completed: 
+                type: number
+                example: 2
+    
+    submission_metadata:
+      type: object
+      properties: 
+        uuid: 
+          type: string
+          example: "2c8d6612-09f5-47d5-b55d-b2f3c26c4ba9"
+        archive_uuid: 
+          type: string
+          example: "3ddd8d16-157d-409a-b65a-390f7ac5550c"
+        passing:
+          type: boolean
+          example: true
+        status: 
+          type: string
+          enum: ["pending", "running", "ready"]
+          example: "running"
+        stdout: 
+          type: string
+          example: "[ERROR] SinglyLinkedList.addTest(): Expected 1 received 0"
+    
+    student_progress_metadata:
+      type: object
+      properties: 
+        total_test_blocks: 
+          type: number
+          example: 8
+        passing_submissions:
+          type: number
+          example: 4
+        submissions: 
+          type: array
+          items: 
+            $ref: "#/components/schemas/student_submission_metadata"
+    
+    student_submission_metadata: 
+      type: object
+      properties: 
+        uuid: 
+          type: string
+          example: "2c8d6612-09f5-47d5-b55d-b2f3c26c4ba9"
+        archive_uuid: 
+          type: string
+          example: "3ddd8d16-157d-409a-b65a-390f7ac5550c"
+        test_block_name:
+          type: string
+          example: "Doubly Linked List Methods"
+        passing: 
+          type: boolean
+          example: True

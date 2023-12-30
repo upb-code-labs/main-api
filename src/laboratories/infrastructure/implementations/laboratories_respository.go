@@ -110,7 +110,7 @@ func (repository *LaboratoriesPostgresRepository) getTestBlocks(laboratoryUUID s
 	defer cancel()
 
 	query := `
-		SELECT tb.id, tb.language_id, tb.tests_archive_id, tb.name, bi.block_position
+		SELECT tb.id, tb.language_id, tb.test_archive_id, tb.name, bi.block_position
 		FROM test_blocks tb
 		RIGHT JOIN blocks_index bi ON tb.block_index_id = bi.id
 		WHERE tb.laboratory_id = $1
@@ -203,6 +203,76 @@ func (repository *LaboratoriesPostgresRepository) CreateMarkdownBlock(laboratory
 	`
 
 	row = tx.QueryRowContext(ctx, query, laboratoryUUID, blockIndexUUID)
+	if err := row.Scan(&blockUUID); err != nil {
+		return "", err
+	}
+
+	// Commit transaction
+	if err := tx.Commit(); err != nil {
+		return "", err
+	}
+
+	// Return the new block UUID
+	return blockUUID, nil
+}
+
+func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.CreateTestBlockDTO) (blockUUID string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Start transaction
+	tx, err := repository.Connection.BeginTx(ctx, nil)
+	if err != nil {
+		return "", err
+	}
+	defer tx.Rollback()
+
+	// Create block index
+	query := `
+		INSERT INTO blocks_index (laboratory_id, block_position)
+		VALUES (
+			$1, 
+			( SELECT COALESCE(MAX(block_position), 0) + 1 FROM blocks_index WHERE laboratory_id = $1 )
+		)
+		RETURNING id
+	`
+
+	row := tx.QueryRowContext(ctx, query, dto.LaboratoryUUID)
+	var dbBlockIndexUUID string
+	if err := row.Scan(&dbBlockIndexUUID); err != nil {
+		return "", err
+	}
+
+	// Save the archive metadata
+	query = `
+		INSERT INTO archives (file_id)
+		VALUES ($1)
+		RETURNING id
+	`
+
+	row = tx.QueryRowContext(ctx, query, dto.TestArchiveUUID)
+	var dbArchiveUUID string
+	if err := row.Scan(&dbArchiveUUID); err != nil {
+		return "", err
+	}
+
+	// Create test block
+	query = `
+		INSERT INTO test_blocks (language_id, test_archive_id, laboratory_id, block_index_id, name)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id
+	`
+
+	row = tx.QueryRowContext(
+		ctx,
+		query,
+		dto.LanguageUUID,
+		dbArchiveUUID,
+		dto.LaboratoryUUID,
+		dbBlockIndexUUID,
+		dto.Name,
+	)
+
 	if err := row.Scan(&blockUUID); err != nil {
 		return "", err
 	}

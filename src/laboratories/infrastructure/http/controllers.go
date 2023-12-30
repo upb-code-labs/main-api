@@ -180,3 +180,69 @@ func (controller *LaboratoriesController) HandleCreateMarkdownBlock(c *gin.Conte
 		"uuid": blockUUID,
 	})
 }
+
+func (controller *LaboratoriesController) HandleCreateTestBlock(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+	laboratoryUUID := c.Param("laboratory_uuid")
+
+	// Validate the request struct
+	languageUUID := c.PostForm("language_uuid")
+	name := c.PostForm("block_name")
+
+	req := requests.CreateTestBlockRequest{
+		LaboratoryUUID: laboratoryUUID,
+		LanguageUUID:   languageUUID,
+		Name:           name,
+	}
+
+	if err := infrastructure.GetValidator().Struct(req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Validate the test archive
+	multipartHeader, err := c.FormFile("test_archive")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Please, make sure to send the test archive",
+		})
+		return
+	}
+
+	err = infrastructure.ValidateMultipartFileHeader(multipartHeader)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	// Create the DTO
+	multipartFile, err := multipartHeader.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "There was an error while reading the test archive",
+		})
+		return
+	}
+
+	dto := dtos.CreateTestBlockDTO{
+		LaboratoryUUID: laboratoryUUID,
+		TeacherUUID:    teacherUUID,
+		LanguageUUID:   languageUUID,
+		Name:           name,
+		MultipartFile:  &multipartFile,
+	}
+
+	// Create the block
+	blockUUID, err := controller.UseCases.CreateTestBlock(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"uuid": blockUUID,
+	})
+}

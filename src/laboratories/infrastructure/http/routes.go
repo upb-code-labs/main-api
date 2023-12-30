@@ -1,10 +1,12 @@
 package http
 
 import (
-	courses_implementation "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/implementations"
+	blocksImplementation "github.com/UPB-Code-Labs/main-api/src/blocks/infrastructure/implementations"
+	coursesImplementation "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/implementations"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/application"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/infrastructure/implementations"
-	rubrics_implementation "github.com/UPB-Code-Labs/main-api/src/rubrics/infrastructure/implementations"
+	languagesImplementation "github.com/UPB-Code-Labs/main-api/src/languages/infrastructure/implementations"
+	rubricImplementation "github.com/UPB-Code-Labs/main-api/src/rubrics/infrastructure/implementations"
 	"github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
@@ -14,8 +16,10 @@ func StartLaboratoriesRoutes(g *gin.RouterGroup) {
 
 	useCases := application.LaboratoriesUseCases{
 		LaboratoriesRepository: implementations.GetLaboratoriesPostgresRepositoryInstance(),
-		CoursesRepository:      courses_implementation.GetCoursesPgRepository(),
-		RubricsRepository:      rubrics_implementation.GetRubricsPgRepository(),
+		CoursesRepository:      coursesImplementation.GetCoursesPgRepository(),
+		RubricsRepository:      rubricImplementation.GetRubricsPgRepository(),
+		LanguagesRepository:    languagesImplementation.GetLanguagesRepositoryInstance(),
+		BlocksRepository:       blocksImplementation.GetBlocksPostgresRepositoryInstance(),
 	}
 
 	controller := LaboratoriesController{
@@ -45,5 +49,11 @@ func StartLaboratoriesRoutes(g *gin.RouterGroup) {
 		infrastructure.WithAuthenticationMiddleware(),
 		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleCreateMarkdownBlock,
+	)
+	laboratoriesGroup.POST(
+		"/test_blocks/:laboratory_uuid",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleCreateTestBlock,
 	)
 }

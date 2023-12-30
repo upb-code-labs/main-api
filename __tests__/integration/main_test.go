@@ -118,6 +118,17 @@ func registerBaseTeachers() {
 }
 
 // --- Helpers ---
+func GetSampleTestsArchive() (*os.File, error) {
+	TEST_FILE_PATH := "../data/java_tests_sample.zip"
+
+	zipFile, err := os.Open(TEST_FILE_PATH)
+	if err != nil {
+		return nil, err
+	}
+
+	return zipFile, nil
+}
+
 func PrepareRequest(method, endpoint string, payload interface{}) (*httptest.ResponseRecorder, *http.Request) {
 	var req *http.Request
 
@@ -128,6 +139,16 @@ func PrepareRequest(method, endpoint string, payload interface{}) (*httptest.Res
 	} else {
 		req, _ = http.NewRequest(method, endpoint, nil)
 	}
+
+	w := httptest.NewRecorder()
+	return w, req
+}
+
+func PrepareMultipartRequest(method, endpoint string, body *bytes.Buffer) (*httptest.ResponseRecorder, *http.Request) {
+	var req *http.Request
+
+	req, _ = http.NewRequest(method, endpoint, body)
+	req.Header.Set("Content-Type", "multipart/form-data")
 
 	w := httptest.NewRecorder()
 	return w, req
