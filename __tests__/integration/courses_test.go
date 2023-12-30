@@ -679,3 +679,49 @@ func TestGetCourseLaboratories(t *testing.T) {
 		}
 	}
 }
+
+func TestSetStudentStatus(t *testing.T) {
+	c := require.New(t)
+
+	// 1. Create a course
+	courseUUID, code := CreateCourse("Set student status test - course")
+	c.Equal(http.StatusCreated, code)
+
+	// 2. Get the course invitation code
+	invitationCode, code := GetInvitationCode(courseUUID)
+	c.Equal(http.StatusOK, code)
+
+	// 3. Add a student to the course
+	_, code = AddStudentToCourse(invitationCode)
+	c.Equal(http.StatusOK, code)
+
+	// 4. Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// 5. Get the student uuid
+	students, code := GetStudentsEnrolledInCourse(cookie, courseUUID)
+	c.Equal(http.StatusOK, code)
+	c.Equal(1, len(students["students"].([]interface{})))
+	studentUUID := students["students"].([]interface{})[0].(map[string]interface{})["uuid"].(string)
+
+	// 6. Set the student status
+	code = SetStudentStatus(&SetStudentStatusUtilsDTO{
+		CourseUUID:  courseUUID,
+		StudentUUID: studentUUID,
+		IsActive:    false,
+		Cookie:      cookie,
+	})
+	c.Equal(http.StatusNoContent, code)
+
+	// 7. Get the student status
+	students, code = GetStudentsEnrolledInCourse(cookie, courseUUID)
+	c.Equal(http.StatusOK, code)
+	c.Equal(1, len(students["students"].([]interface{})))
+	student := students["students"].([]interface{})[0].(map[string]interface{})
+	c.Equal(false, student["is_active"])
+}

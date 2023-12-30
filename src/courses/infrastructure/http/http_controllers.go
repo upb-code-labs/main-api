@@ -336,3 +336,43 @@ func (controller *CoursesController) HandleGetCourseLaboratories(c *gin.Context)
 		"laboratories": laboratories,
 	})
 }
+
+func (controller *CoursesController) HandleSetStudentStatus(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+	courseUUID := c.Param("course_uuid")
+	studentUUID := c.Param("student_uuid")
+
+	// Parse request body
+	var request requests.SetUserStatusRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Set student status
+	dto := &dtos.SetUserStatusDTO{
+		TeacherUUID: teacherUUID,
+		UserUUID:    studentUUID,
+		CourseUUID:  courseUUID,
+		ToActive:    request.ToActive,
+	}
+
+	err := controller.UseCases.SetStudentStatus(dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}

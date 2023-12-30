@@ -17,6 +17,7 @@ type CoursesRepository interface {
 	IsUserInCourse(userUUID, courseUUID string) (bool, error)
 	GetEnrolledCourses(studentUUID string) (*dtos.EnrolledCoursesDto, error)
 	GetEnrolledStudents(courseUUID string) ([]*dtos.EnrolledStudentDTO, error)
+	SetStudentStatus(dto *dtos.SetUserStatusDTO) error
 
 	GetRandomColor() (*entities.Color, error)
 	ToggleCourseVisibility(courseUUID, studentUUID string) (isHiddenAfterUpdate bool, err error)

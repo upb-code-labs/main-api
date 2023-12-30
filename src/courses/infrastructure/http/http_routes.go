@@ -88,4 +88,11 @@ func StartCoursesRoutes(g *gin.RouterGroup) {
 		infrastructure.WithAuthorizationMiddleware([]string{"teacher", "student"}),
 		controller.HandleGetCourseLaboratories,
 	)
+
+	coursesGroup.PATCH(
+		":course_uuid/students/:student_uuid/status",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleSetStudentStatus,
+	)
 }
