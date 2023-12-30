@@ -10,7 +10,7 @@ import (
 
 	"github.com/UPB-Code-Labs/main-api/src/languages/domain/entities"
 	"github.com/UPB-Code-Labs/main-api/src/languages/domain/errors"
-	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 )
 
 type LanguagesRepository struct {
@@ -23,7 +23,7 @@ var langRepositoryInstance *LanguagesRepository
 func GetLanguagesRepositoryInstance() *LanguagesRepository {
 	if langRepositoryInstance == nil {
 		langRepositoryInstance = &LanguagesRepository{
-			Connection: shared_infrastructure.GetPostgresConnection(),
+			Connection: sharedInfrastructure.GetPostgresConnection(),
 		}
 	}
 
@@ -120,11 +120,11 @@ func (repository *LanguagesRepository) GetTemplateArchiveUUIDByLanguageUUID(uuid
 
 func (repository *LanguagesRepository) GetTemplateBytes(uuid string) (template []byte, err error) {
 	// Send a request to the static files microservice
-	staticFilesMsEndpoint := fmt.Sprintf("%s/templates/%s", shared_infrastructure.GetEnvironment().StaticFilesMicroserviceAddress, uuid)
+	staticFilesMsEndpoint := fmt.Sprintf("%s/templates/%s", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress, uuid)
 	resp, err := http.Get(staticFilesMsEndpoint)
 
 	// If there is an error try to forward the error message
-	microserviceError := shared_infrastructure.ParseMicroserviceError(resp, err)
+	microserviceError := sharedInfrastructure.ParseMicroserviceError(resp, err)
 	if microserviceError != nil {
 		return nil, microserviceError
 	}

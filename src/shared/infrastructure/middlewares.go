@@ -1,7 +1,7 @@
 package infrastructure
 
 import (
-	shared_errors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
+	sharedErrors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,7 +13,7 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 			err := c.Errors[0]
 
 			switch e := err.Err.(type) {
-			case shared_errors.DomainError:
+			case sharedErrors.DomainError:
 				c.JSON(e.StatusCode(), gin.H{
 					"message": e.Error(),
 				})
@@ -30,7 +30,7 @@ func WithAuthenticationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cookie, err := c.Cookie("session")
 		if err != nil {
-			c.Error(shared_errors.UnauthorizedError{
+			c.Error(sharedErrors.UnauthorizedError{
 				Message: "You must be logged in",
 			})
 			c.Abort()
@@ -39,7 +39,7 @@ func WithAuthenticationMiddleware() gin.HandlerFunc {
 
 		claims, err := GetJwtTokenHandler().ValidateToken(cookie)
 		if err != nil {
-			c.Error(shared_errors.UnauthorizedError{
+			c.Error(sharedErrors.UnauthorizedError{
 				Message: "Your session has expired or is not valid",
 			})
 			c.Abort()
@@ -66,7 +66,7 @@ func WithAuthorizationMiddleware(role []string) gin.HandlerFunc {
 		}
 
 		if !isRoleAuthorized {
-			c.Error(shared_errors.NotEnoughPermissionsError{})
+			c.Error(sharedErrors.NotEnoughPermissionsError{})
 			c.Abort()
 		}
 
