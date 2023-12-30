@@ -669,7 +669,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
 
-  /courses/{course_uuid}/students/{student_uuid}/deactivate:
+  /courses/{course_uuid}/students/{student_uuid}/status:
     patch:
       tags:
         - Courses
@@ -689,9 +689,18 @@ paths:
             type: string
             example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
           required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_active:
+                  type: boolean
+                  example: False
       responses:
         "204":
-          description: The student was unrolled from the course.
+          description: The student status was updated to active / inactive.
         "400":
           description: Required fields were missed or doesn't fulfill the required format.
           content:
