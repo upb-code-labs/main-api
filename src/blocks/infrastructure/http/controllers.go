@@ -6,7 +6,7 @@ import (
 	"github.com/UPB-Code-Labs/main-api/src/blocks/application"
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/blocks/infrastructure/requests"
-	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,7 +19,7 @@ func (controller *BlocksController) HandleUpdateMarkdownBlockContent(c *gin.Cont
 	blockUUID := c.Param("block_uuid")
 
 	// Validate the block UUID
-	if err := shared_infrastructure.GetValidator().Var(blockUUID, "uuid4"); err != nil {
+	if err := sharedInfrastructure.GetValidator().Var(blockUUID, "uuid4"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Block UUID is not valid",
 		})
@@ -36,7 +36,7 @@ func (controller *BlocksController) HandleUpdateMarkdownBlockContent(c *gin.Cont
 	}
 
 	// Validate request body
-	if err := shared_infrastructure.GetValidator().Struct(request); err != nil {
+	if err := sharedInfrastructure.GetValidator().Struct(request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Validation error",
 			"errors":  err.Error(),
@@ -51,6 +51,73 @@ func (controller *BlocksController) HandleUpdateMarkdownBlockContent(c *gin.Cont
 	}
 
 	err := controller.UseCases.UpdateMarkdownBlockContent(dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+func (controller *BlocksController) HandleUpdateTestBlock(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+	blockUUID := c.Param("block_uuid")
+
+	// Validate the request struct
+	languageUUID := c.PostForm("language_uuid")
+	blockName := c.PostForm("block_name")
+
+	req := requests.UpdateTestBlockRequest{
+		LanguageUUID: languageUUID,
+		Name:         blockName,
+	}
+
+	if err := sharedInfrastructure.GetValidator().Struct(req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Create the DTO
+	dto := dtos.UpdateTestBlockDTO{
+		TeacherUUID:  teacherUUID,
+		BlockUUID:    blockUUID,
+		LanguageUUID: languageUUID,
+		Name:         blockName,
+	}
+
+	// Validate the test archive (if any)
+	multipartHeader, err := c.FormFile("test_archive")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Please, make sure to send the test archive",
+		})
+		return
+	}
+
+	if multipartHeader != nil {
+		err = sharedInfrastructure.ValidateMultipartFileHeader(multipartHeader)
+		if err != nil {
+			c.Error(err)
+			return
+		}
+
+		// Add the test archive to the DTO
+		multipartFile, err := multipartHeader.Open()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "There was an error while reading the test archive",
+			})
+			return
+		}
+
+		dto.NewTestArchive = &multipartFile
+	}
+
+	// Update the test block
+	err = controller.UseCases.UpdateTestBlock(dto)
 	if err != nil {
 		c.Error(err)
 		return

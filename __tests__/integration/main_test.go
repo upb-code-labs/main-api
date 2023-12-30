@@ -118,6 +118,17 @@ func registerBaseTeachers() {
 }
 
 // --- Helpers ---
+func GetSampleTestsArchive() (*os.File, error) {
+	TEST_FILE_PATH := "../data/java_tests_sample.zip"
+
+	zipFile, err := os.Open(TEST_FILE_PATH)
+	if err != nil {
+		return nil, err
+	}
+
+	return zipFile, nil
+}
+
 func PrepareRequest(method, endpoint string, payload interface{}) (*httptest.ResponseRecorder, *http.Request) {
 	var req *http.Request
 

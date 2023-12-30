@@ -11,3 +11,13 @@ func (err TeacherDoesNotOwnBlock) Error() string {
 func (err TeacherDoesNotOwnBlock) StatusCode() int {
 	return http.StatusForbidden
 }
+
+type BlockNotFound struct{}
+
+func (err BlockNotFound) Error() string {
+	return "No block was found with the given UUID"
+}
+
+func (err BlockNotFound) StatusCode() int {
+	return http.StatusNotFound
+}

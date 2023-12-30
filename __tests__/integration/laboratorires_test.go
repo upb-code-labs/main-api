@@ -2,7 +2,6 @@ package integration
 
 import (
 	"net/http"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -306,25 +305,18 @@ func TestCreateTestBlock(t *testing.T) {
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
 	c.Equal(http.StatusCreated, status)
 
-	// Get the supported languages
-	languagesResponse, status := GetSupportedLanguages(cookie)
-	c.Equal(http.StatusOK, status)
-
-	languages := languagesResponse["languages"].([]interface{})
-	c.Greater(len(languages), 0)
-
-	firstLanguage := languages[0].(map[string]interface{})
-	firstLanguageUUID := firstLanguage["uuid"].(string)
+	// Get a supported language from the supported languages list
+	language := GetFirstSupportedLanguage(cookie)
+	languageUUID := language["uuid"].(string)
 
 	// Open `.zip` file from the data folder
-	TEST_FILE_PATH := "../data/java_tests_sample.zip"
-	zipFile, err := os.Open(TEST_FILE_PATH)
+	zipFile, err := GetSampleTestsArchive()
 	c.Nil(err)
 
 	// Send the request
 	response, _ := CreateTestBlock(&CreateTestBlockUtilsDTO{
 		laboratoryUUID: laboratoryUUID,
-		languageUUID:   firstLanguageUUID,
+		languageUUID:   languageUUID,
 		blockName:      "Create test block test - block",
 		cookie:         cookie,
 		testFile:       zipFile,

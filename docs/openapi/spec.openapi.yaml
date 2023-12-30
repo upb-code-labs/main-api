@@ -1140,7 +1140,7 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
 
   # Blocks
-  /markdown_blocks/{block_uuid}:
+  /blocks/markdown_blocks/{block_uuid}:
     delete:
       tags:
         - Blocks
@@ -1170,7 +1170,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
 
-  /markdown_blocks/{block_uuid}/content:
+  /blocks/markdown_blocks/{block_uuid}/content:
     patch:
       tags:
         - Blocks
@@ -1209,7 +1209,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
 
-  /test_blocks/{block_uuid}:
+  /blocks/test_blocks/{block_uuid}:
     put:
       tags:
         - Blocks

@@ -5,15 +5,15 @@ type DomainError interface {
 	StatusCode() int
 }
 
-type StaticFilesMicroserviceError struct {
+type GenericDomainError struct {
 	Code    int
 	Message string
 }
 
-func (err *StaticFilesMicroserviceError) Error() string {
+func (err *GenericDomainError) Error() string {
 	return err.Message
 }
 
-func (err *StaticFilesMicroserviceError) StatusCode() int {
+func (err *GenericDomainError) StatusCode() int {
 	return err.Code
 }

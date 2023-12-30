@@ -6,6 +6,6 @@ type LanguagesRepository interface {
 	GetAll() (languages []*entities.Language, err error)
 	GetByUUID(uuid string) (language *entities.Language, err error)
 
-	GetTemplateUUIDByLanguageUUID(uuid string) (templateUUID string, err error)
+	GetTemplateArchiveUUIDByLanguageUUID(uuid string) (templateUUID string, err error)
 	GetTemplateBytes(uuid string) (template []byte, err error)
 }
