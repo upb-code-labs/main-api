@@ -40,4 +40,11 @@ func StartBlocksRoutes(g *gin.RouterGroup) {
 		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleDeleteMarkdownBlock,
 	)
+
+	blocksGroup.DELETE(
+		"/test_blocks/:block_uuid",
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleDeleteTestBlock,
+	)
 }

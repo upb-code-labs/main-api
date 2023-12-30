@@ -95,6 +95,14 @@ CREATE TABLE IF NOT EXISTS archives (
   "file_id" UUID NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS files_deletion_error_logs (
+  "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  "file_id" UUID NOT NULL REFERENCES archives(id),
+  "file_type" VARCHAR(16) NOT NULL,
+  "requested_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "error_message" TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS languages (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "template_archive_id" UUID NOT NULL UNIQUE REFERENCES archives(id),
@@ -112,7 +120,7 @@ CREATE TABLE IF NOT EXISTS test_blocks (
 
 CREATE TABLE IF NOT EXISTS submissions (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "test_id" UUID NOT NULL REFERENCES test_blocks(id),
+  "test_block_id" UUID NOT NULL REFERENCES test_blocks(id) ON DELETE CASCADE,
   "student_id" UUID NOT NULL REFERENCES users(id),
   "archive_id" UUID NOT NULL UNIQUE REFERENCES archives(id),
   "passing" BOOLEAN NOT NULL DEFAULT FALSE,
@@ -137,7 +145,7 @@ CREATE TABLE IF NOT EXISTS grade_has_criteria (
 -- ### Unique indexes
 CREATE UNIQUE INDEX IF NOT EXISTS idx_class_users ON courses_has_users(course_id, user_id);
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_submissions ON submissions(test_id, student_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_submissions ON submissions(test_block_id, student_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_grades ON grades(laboratory_id, student_id);
 

@@ -187,3 +187,71 @@ func TestUpdateTestBlock(t *testing.T) {
 	c.Equal(newName, block["name"].(string))
 	c.Equal(firstLanguageUUID, block["language_uuid"].(string))
 }
+
+func TestDeleteTestBlock(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a course
+	courseUUID, status := CreateCourse("Delete test block test - course")
+	c.Equal(http.StatusCreated, status)
+
+	// Create a laboratory
+	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
+		"name":         "Delete test block test - laboratory",
+		"course_uuid":  courseUUID,
+		"opening_date": "2023-12-01T08:00",
+		"due_date":     "3023-12-01T00:00",
+	})
+	c.Equal(http.StatusCreated, status)
+	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
+
+	// Get the supported languages
+	languagesResponse, status := GetSupportedLanguages(cookie)
+	c.Equal(http.StatusOK, status)
+
+	languages := languagesResponse["languages"].([]interface{})
+	c.Greater(len(languages), 0)
+
+	firstLanguage := languages[0].(map[string]interface{})
+	firstLanguageUUID := firstLanguage["uuid"].(string)
+
+	// Create a test block
+	zipFile, err := GetSampleTestsArchive()
+	c.Nil(err)
+
+	blockCreationResponse, status := CreateTestBlock(&CreateTestBlockUtilsDTO{
+		laboratoryUUID: laboratoryUUID,
+		languageUUID:   firstLanguageUUID,
+		blockName:      "Delete test block test - block",
+		cookie:         cookie,
+		testFile:       zipFile,
+	})
+	c.Equal(http.StatusCreated, status)
+	testBlockUUID := blockCreationResponse["uuid"].(string)
+
+	// Check that the test block was created
+	laboratoryResponse, status := GetLaboratoryByUUID(cookie, laboratoryUUID)
+	c.Equal(http.StatusOK, status)
+
+	blocks := laboratoryResponse["test_blocks"].([]interface{})
+	c.Equal(1, len(blocks))
+
+	// Delete the test block
+	_, status = DeleteTestBlock(cookie, testBlockUUID)
+	c.Equal(http.StatusNoContent, status)
+
+	// Check that the test block was deleted
+	laboratoryResponse, status = GetLaboratoryByUUID(cookie, laboratoryUUID)
+	c.Equal(http.StatusOK, status)
+
+	blocks = laboratoryResponse["test_blocks"].([]interface{})
+	c.Equal(0, len(blocks))
+}
