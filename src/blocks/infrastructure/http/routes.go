@@ -18,10 +18,19 @@ func StartBlocksRoutes(g *gin.RouterGroup) {
 		UseCases: &useCases,
 	}
 
-	blocksGroup.PUT(
+	blocksGroup.PATCH(
 		"/markdown_blocks/:block_uuid/content",
 		shared_infrastructure.WithAuthenticationMiddleware(),
 		shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleUpdateMarkdownBlockContent,
 	)
+
+	/*
+		blocksGroup.PUT(
+			"/test_blocks/:block_uuid",
+			shared_infrastructure.WithAuthenticationMiddleware(),
+			shared_infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+			controller.HandleUpdateTestBlock,
+		)
+	*/
 }
