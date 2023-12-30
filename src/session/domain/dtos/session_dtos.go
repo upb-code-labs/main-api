@@ -11,3 +11,8 @@ type SessionDTO struct {
 	User  entities.User
 	Token string
 }
+
+type LoginDTO struct {
+	Email    string
+	Password string
+}

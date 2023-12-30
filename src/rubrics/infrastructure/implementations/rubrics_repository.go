@@ -8,7 +8,7 @@ import (
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/domain/entities"
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/domain/errors"
-	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/lib/pq"
 )
 
@@ -22,7 +22,7 @@ var rubricsPgRepositoryInstance *RubricsPostgresRepository
 func GetRubricsPgRepository() *RubricsPostgresRepository {
 	if rubricsPgRepositoryInstance == nil {
 		rubricsPgRepositoryInstance = &RubricsPostgresRepository{
-			Connection: shared_infrastructure.GetPostgresConnection(),
+			Connection: sharedInfrastructure.GetPostgresConnection(),
 		}
 	}
 

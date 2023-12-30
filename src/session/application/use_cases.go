@@ -3,17 +3,17 @@ package application
 import (
 	"database/sql"
 
-	accounts_definitions "github.com/UPB-Code-Labs/main-api/src/accounts/domain/definitions"
+	accountsDefinitions "github.com/UPB-Code-Labs/main-api/src/accounts/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/entities"
-	accounts_errors "github.com/UPB-Code-Labs/main-api/src/accounts/domain/errors"
+	accountsErrors "github.com/UPB-Code-Labs/main-api/src/accounts/domain/errors"
 	"github.com/UPB-Code-Labs/main-api/src/session/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/session/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/session/domain/errors"
 )
 
 type SessionUseCases struct {
-	AccountsRepository accounts_definitions.AccountsRepository
-	PasswordHasher     accounts_definitions.PasswordsHasher
+	AccountsRepository accountsDefinitions.AccountsRepository
+	PasswordHasher     accountsDefinitions.PasswordsHasher
 	TokenHandler       definitions.TokenHandler
 }
 
@@ -55,7 +55,7 @@ func (useCases *SessionUseCases) WhoAmI(uuid string) (entities.User, error) {
 	user, err := useCases.AccountsRepository.GetUserByUUID(uuid)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return entities.User{}, accounts_errors.UserNotFoundError{
+			return entities.User{}, accountsErrors.UserNotFoundError{
 				Uuuid: uuid,
 			}
 		}

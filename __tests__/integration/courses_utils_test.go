@@ -133,3 +133,21 @@ func GetCourseLaboratories(cookie *http.Cookie, courseUUID string) (response map
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+type SetStudentStatusUtilsDTO struct {
+	CourseUUID  string
+	StudentUUID string
+	IsActive    bool
+	Cookie      *http.Cookie
+}
+
+func SetStudentStatus(dto *SetStudentStatusUtilsDTO) (statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/students/%s/status", dto.CourseUUID, dto.StudentUUID)
+	w, r := PrepareRequest("PATCH", endpoint, map[string]interface{}{
+		"is_active": dto.IsActive,
+	})
+	r.AddCookie(dto.Cookie)
+	router.ServeHTTP(w, r)
+
+	return w.Code
+}

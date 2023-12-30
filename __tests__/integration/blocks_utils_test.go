@@ -20,6 +20,16 @@ func UpdateMarkdownBlockContent(cookie *http.Cookie, blockUUID string, payload m
 	return jsonResponse, w.Code
 }
 
+func DeleteMarkdownBlock(cookie *http.Cookie, blockUUID string) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/blocks/markdown_blocks/%s", blockUUID)
+	w, r := PrepareRequest("DELETE", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}
+
 type UpdateTestBlockUtilsDTO struct {
 	blockUUID    string
 	languageUUID string
@@ -71,6 +81,16 @@ func UpdateTestBlock(dto *UpdateTestBlockUtilsDTO) (response map[string]interfac
 	router.ServeHTTP(w, r)
 
 	// Parse the response
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}
+
+func DeleteTestBlock(cookie *http.Cookie, blockUUID string) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/blocks/test_blocks/%s", blockUUID)
+	w, r := PrepareRequest("DELETE", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }

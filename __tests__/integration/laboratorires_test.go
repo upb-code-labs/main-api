@@ -38,7 +38,7 @@ func TestCreateLaboratory(t *testing.T) {
 				"name":         "Create laboratory test - laboratory",
 				"course_uuid":  courseUUID,
 				"opening_date": "2023-12-01T08:00",
-				"due_date":     "2023-12-01T12:00",
+				"due_date":     "3023-12-01T12:00",
 			},
 			ExpectedStatusCode: http.StatusCreated,
 		},
@@ -231,7 +231,7 @@ func TestCreateMarkdownBlock(t *testing.T) {
 		"name":         "Create markdown block test - laboratory",
 		"course_uuid":  courseUUID,
 		"opening_date": "2023-12-01T08:00",
-		"due_date":     "2023-12-01T12:00",
+		"due_date":     "3023-12-01T12:00",
 	})
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
 	c.Equal(http.StatusCreated, status)

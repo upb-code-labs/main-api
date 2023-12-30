@@ -11,3 +11,13 @@ func (err *TeacherDoesNotOwnsRubric) Error() string {
 func (err *TeacherDoesNotOwnsRubric) StatusCode() int {
 	return http.StatusForbidden
 }
+
+type RubricNotFoundError struct{}
+
+func (err *RubricNotFoundError) Error() string {
+	return "Rubric not found"
+}
+
+func (err *RubricNotFoundError) StatusCode() int {
+	return http.StatusNotFound
+}

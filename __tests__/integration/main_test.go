@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/requests"
-	config_infrastructure "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
-	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	configInfrastructure "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
+	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
 
@@ -40,7 +40,7 @@ type GenericTestCase struct {
 func TestMain(m *testing.M) {
 	// Setup database
 	setupDatabase()
-	defer shared_infrastructure.ClosePostgresConnection()
+	defer sharedInfrastructure.ClosePostgresConnection()
 
 	// Setup http router
 	setupRouter()
@@ -52,12 +52,12 @@ func TestMain(m *testing.M) {
 }
 
 func setupDatabase() {
-	shared_infrastructure.GetPostgresConnection()
-	config_infrastructure.RunMigrations()
+	sharedInfrastructure.GetPostgresConnection()
+	configInfrastructure.RunMigrations()
 }
 
 func setupRouter() {
-	router = config_infrastructure.InstanceHttpServer()
+	router = configInfrastructure.InstanceHttpServer()
 }
 
 func registerBaseAccounts() {

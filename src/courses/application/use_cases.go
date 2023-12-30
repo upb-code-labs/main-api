@@ -211,6 +211,28 @@ func (useCases *CoursesUseCases) GetEnrolledStudents(teacherUUID, courseUUID str
 	return useCases.Repository.GetEnrolledStudents(courseUUID)
 }
 
+func (useCases *CoursesUseCases) SetStudentStatus(dto *dtos.SetUserStatusDTO) error {
+	// Get the course
+	course, err := useCases.Repository.GetCourseByUUID(dto.CourseUUID)
+	if err != nil {
+		return err
+	}
+
+	// Check the user is the teacher of the course
+	wantsToUpdateCourseTeacher := dto.UserUUID == course.TeacherUUID
+	if wantsToUpdateCourseTeacher {
+		return errors.CannotUpdateCourseTeacherStatus{}
+	}
+
+	teacherOwnsCourse := course.TeacherUUID == dto.TeacherUUID
+	if !teacherOwnsCourse {
+		return errors.TeacherDoesNotOwnsCourseError{}
+	}
+
+	// Update the student status
+	return useCases.Repository.SetStudentStatus(dto)
+}
+
 func (useCases *CoursesUseCases) GetCourseLaboratories(dto dtos.GetCourseLaboratoriesDTO) ([]*dtos.BaseLaboratoryDTO, error) {
 	// Check the user is enrolled in the course
 	isUserInCourse, err := useCases.Repository.IsUserInCourse(dto.UserUUID, dto.CourseUUID)

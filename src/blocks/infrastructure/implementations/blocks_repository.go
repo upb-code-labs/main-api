@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -14,6 +15,8 @@ import (
 
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/errors"
+	laboratoriesDomainErrors "github.com/UPB-Code-Labs/main-api/src/laboratories/domain/errors"
+	sharedEntities "github.com/UPB-Code-Labs/main-api/src/shared/domain/entities"
 	sharedDomainErrors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 )
@@ -64,7 +67,7 @@ func (repository *BlocksPostgresRepository) DoesTeacherOwnsMarkdownBlock(teacher
 	var laboratoryUUID string
 	if err := row.Scan(&laboratoryUUID); err != nil {
 		if err == sql.ErrNoRows {
-			return false, nil
+			return false, errors.BlockNotFound{}
 		}
 	}
 
@@ -83,7 +86,7 @@ func (repository *BlocksPostgresRepository) DoesTeacherOwnsMarkdownBlock(teacher
 	var laboratoryTeacherUUID string
 	if err := row.Scan(&laboratoryTeacherUUID); err != nil {
 		if err == sql.ErrNoRows {
-			return false, nil
+			return false, laboratoriesDomainErrors.LaboratoryNotFoundError{}
 		}
 	}
 
@@ -105,7 +108,7 @@ func (repository *BlocksPostgresRepository) DoesTeacherOwnsTestBlock(teacherUUID
 	var laboratoryUUID string
 	if err := row.Scan(&laboratoryUUID); err != nil {
 		if err == sql.ErrNoRows {
-			return false, nil
+			return false, &errors.BlockNotFound{}
 		}
 	}
 
@@ -124,7 +127,7 @@ func (repository *BlocksPostgresRepository) DoesTeacherOwnsTestBlock(teacherUUID
 	var laboratoryTeacherUUID string
 	if err := row.Scan(&laboratoryTeacherUUID); err != nil {
 		if err == sql.ErrNoRows {
-			return false, nil
+			return false, laboratoriesDomainErrors.LaboratoryNotFoundError{}
 		}
 	}
 
@@ -333,4 +336,203 @@ func (repository *BlocksPostgresRepository) UpdateTestBlock(dto *dtos.UpdateTest
 	}
 
 	return nil
+}
+
+func (repository *BlocksPostgresRepository) DeleteMarkdownBlock(blockUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the UUID of the block index
+	query := `
+		SELECT block_index_id
+		FROM markdown_blocks
+		WHERE id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, blockUUID)
+	var blockIndexUUID string
+	if err := row.Scan(&blockIndexUUID); err != nil {
+		if err == sql.ErrNoRows {
+			return &errors.BlockNotFound{}
+		}
+
+		return err
+	}
+
+	// After deleting the block index, the block will be deleted automatically due to the `ON DELETE CASCADE` constraint
+	err = repository.deleteBlockIndex(blockIndexUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *BlocksPostgresRepository) DeleteTestBlock(blockUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the UUIDs of the dependent archives before deleting the block
+	dependentArchivesUUIDs, err := repository.getDependentArchivesByTestBlockUUID(blockUUID)
+	if err != nil {
+		return err
+	}
+
+	// Delete the dependent archives in a separate goroutine
+	go repository.deleteDependentArchives(dependentArchivesUUIDs)
+
+	// Get the UUID of the block index
+	query := `
+		SELECT block_index_id
+		FROM test_blocks
+		WHERE id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, blockUUID)
+	var blockIndexUUID string
+	if err := row.Scan(&blockIndexUUID); err != nil {
+		if err == sql.ErrNoRows {
+			return &errors.BlockNotFound{}
+		}
+
+		return err
+	}
+
+	// After deleting the block index, the block will be deleted automatically due to the `ON DELETE CASCADE` constraint
+	err = repository.deleteBlockIndex(blockIndexUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *BlocksPostgresRepository) deleteBlockIndex(blockIndexUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		DELETE FROM blocks_index
+		WHERE id = $1
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, blockIndexUUID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *BlocksPostgresRepository) getDependentArchivesByTestBlockUUID(blockUUID string) (archives []*sharedEntities.StaticFileArchive, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the UUID of the test block's tests archive
+	query := `
+		SELECT file_id
+		FROM archives
+		WHERE id = (
+			SELECT test_archive_id
+			FROM test_blocks
+			WHERE id = $1
+		)
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, blockUUID)
+	var testsArchiveUUID string
+	if err := row.Scan(&testsArchiveUUID); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, &errors.BlockNotFound{}
+		}
+
+		return nil, err
+	}
+
+	archives = append(archives, &sharedEntities.StaticFileArchive{
+		ArchiveUUID: testsArchiveUUID,
+		ArchiveType: "test",
+	})
+
+	// Get the UUID of the test block's submissions archives
+	query = `
+		SELECT file_id
+		FROM archives
+		WHERE id IN (
+			SELECT archive_id
+			FROM submissions
+			WHERE test_block_id = $1
+		)
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, blockUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var submissionArchiveUUID string
+		if err := rows.Scan(&submissionArchiveUUID); err != nil {
+			return nil, err
+		}
+
+		archives = append(archives, &sharedEntities.StaticFileArchive{
+			ArchiveUUID: submissionArchiveUUID,
+			ArchiveType: "submission",
+		})
+	}
+
+	return archives, nil
+}
+
+func (repository *BlocksPostgresRepository) deleteDependentArchives(archives []*sharedEntities.StaticFileArchive) {
+	log.Printf("[INFO] - [BlocksPostgresRepository] - [deleteDependentArchives]: Deleting %d archives \n", len(archives))
+	staticFilesEndpoint := fmt.Sprintf("%s/archives/delete", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
+
+	for _, archive := range archives {
+		// Create the request body
+		var body bytes.Buffer
+		err := json.NewEncoder(&body).Encode(archive)
+		if err != nil {
+			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Unable to encode the request: %s", err.Error())
+			repository.saveDeletionErrorLog(archive, errMessage)
+		}
+
+		// Create the request
+		req, err := http.NewRequest("POST", staticFilesEndpoint, &body)
+		if err != nil {
+			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Unable to create the request: %s", err.Error())
+			repository.saveDeletionErrorLog(archive, errMessage)
+		}
+
+		// Send the request
+		client := &http.Client{}
+		res, err := client.Do(req)
+
+		// Forward error message if any
+		microserviceError := sharedInfrastructure.ParseMicroserviceError(res, err)
+		if microserviceError != nil {
+			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Microservice returned an error: %s", microserviceError.Error())
+			repository.saveDeletionErrorLog(archive, errMessage)
+		}
+	}
+}
+
+func (repository *BlocksPostgresRepository) saveDeletionErrorLog(archive *sharedEntities.StaticFileArchive, errorMessage string) {
+	// Log the error to the console
+	log.Println(errorMessage)
+
+	// Save the error log to the database
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		INSERT INTO files_deletion_error_logs (file_id, file_type, error_message)
+		VALUES ($1, $2, $3)
+	`
+
+	_, err := repository.Connection.ExecContext(ctx, query, archive.ArchiveUUID, archive.ArchiveType, errorMessage)
+	if err != nil {
+		log.Println("[ERR] - [BlocksPostgresRepository] - [saveDeletionErrorLog]: Unable to save the error log", err)
+	}
 }

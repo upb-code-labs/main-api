@@ -6,7 +6,7 @@ import (
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/application"
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/infrastructure/requests"
-	shared_infrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +27,7 @@ func (controller *RubricsController) HandleCreateRubric(c *gin.Context) {
 	}
 
 	// Validate request body
-	if err := shared_infrastructure.GetValidator().Struct(request); err != nil {
+	if err := sharedInfrastructure.GetValidator().Struct(request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Validation error",
 			"errors":  err.Error(),
@@ -75,7 +75,7 @@ func (controller *RubricsController) HandleGetRubricByUUID(c *gin.Context) {
 
 	// Validate rubric UUID
 	rubric_uuid := c.Param("rubricUUID")
-	if err := shared_infrastructure.GetValidator().Var(rubric_uuid, "uuid4"); err != nil {
+	if err := sharedInfrastructure.GetValidator().Var(rubric_uuid, "uuid4"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid rubric uuid",
 		})
@@ -106,7 +106,7 @@ func (controller *RubricsController) HandleUpdateRubricName(c *gin.Context) {
 
 	// Validate rubric UUID
 	rubric_uuid := c.Param("rubricUUID")
-	if err := shared_infrastructure.GetValidator().Var(rubric_uuid, "uuid4"); err != nil {
+	if err := sharedInfrastructure.GetValidator().Var(rubric_uuid, "uuid4"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid rubric uuid",
 		})
@@ -123,7 +123,7 @@ func (controller *RubricsController) HandleUpdateRubricName(c *gin.Context) {
 	}
 
 	// Validate request body
-	if err := shared_infrastructure.GetValidator().Struct(request); err != nil {
+	if err := sharedInfrastructure.GetValidator().Struct(request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Validation error",
 			"errors":  err.Error(),
@@ -153,7 +153,7 @@ func (controller *RubricsController) HandleAddObjectiveToRubric(c *gin.Context) 
 
 	// Validate rubric UUID
 	rubric_uuid := c.Param("rubricUUID")
-	if err := shared_infrastructure.GetValidator().Var(rubric_uuid, "uuid4"); err != nil {
+	if err := sharedInfrastructure.GetValidator().Var(rubric_uuid, "uuid4"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid rubric uuid",
 		})
@@ -170,7 +170,7 @@ func (controller *RubricsController) HandleAddObjectiveToRubric(c *gin.Context) 
 	}
 
 	// Validate request body
-	if err := shared_infrastructure.GetValidator().Struct(request); err != nil {
+	if err := sharedInfrastructure.GetValidator().Struct(request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Validation error",
 			"errors":  err.Error(),
@@ -203,7 +203,7 @@ func (controller *RubricsController) HandleAddCriteriaToObjective(c *gin.Context
 
 	// Validate objective UUID
 	objective_uuid := c.Param("objectiveUUID")
-	if err := shared_infrastructure.GetValidator().Var(objective_uuid, "uuid4"); err != nil {
+	if err := sharedInfrastructure.GetValidator().Var(objective_uuid, "uuid4"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid objective uuid",
 		})
@@ -220,7 +220,7 @@ func (controller *RubricsController) HandleAddCriteriaToObjective(c *gin.Context
 	}
 
 	// Validate request body
-	if err := shared_infrastructure.GetValidator().Struct(request); err != nil {
+	if err := sharedInfrastructure.GetValidator().Struct(request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Validation error",
 			"errors":  err.Error(),
@@ -254,7 +254,7 @@ func (controller *RubricsController) HandleUpdateObjective(c *gin.Context) {
 
 	// Validate objective UUID
 	objective_uuid := c.Param("objectiveUUID")
-	if err := shared_infrastructure.GetValidator().Var(objective_uuid, "uuid4"); err != nil {
+	if err := sharedInfrastructure.GetValidator().Var(objective_uuid, "uuid4"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid objective uuid",
 		})
@@ -271,7 +271,7 @@ func (controller *RubricsController) HandleUpdateObjective(c *gin.Context) {
 	}
 
 	// Validate request body
-	if err := shared_infrastructure.GetValidator().Struct(request); err != nil {
+	if err := sharedInfrastructure.GetValidator().Struct(request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Validation error",
 			"errors":  err.Error(),
@@ -301,7 +301,7 @@ func (controller *RubricsController) HandleDeleteObjective(c *gin.Context) {
 
 	// Validate objective UUID
 	objective_uuid := c.Param("objectiveUUID")
-	if err := shared_infrastructure.GetValidator().Var(objective_uuid, "uuid4"); err != nil {
+	if err := sharedInfrastructure.GetValidator().Var(objective_uuid, "uuid4"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid objective uuid",
 		})
@@ -329,7 +329,7 @@ func (controller *RubricsController) HandleUpdateCriteria(c *gin.Context) {
 
 	// Validate criteria UUID
 	criteria_uuid := c.Param("criteriaUUID")
-	if err := shared_infrastructure.GetValidator().Var(criteria_uuid, "uuid4"); err != nil {
+	if err := sharedInfrastructure.GetValidator().Var(criteria_uuid, "uuid4"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid criteria uuid",
 		})
@@ -346,7 +346,7 @@ func (controller *RubricsController) HandleUpdateCriteria(c *gin.Context) {
 	}
 
 	// Validate request body
-	if err := shared_infrastructure.GetValidator().Struct(request); err != nil {
+	if err := sharedInfrastructure.GetValidator().Struct(request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Validation error",
 			"errors":  err.Error(),
@@ -377,7 +377,7 @@ func (controller *RubricsController) HandleDeleteCriteria(c *gin.Context) {
 
 	// Validate criteria UUID
 	criteria_uuid := c.Param("criteriaUUID")
-	if err := shared_infrastructure.GetValidator().Var(criteria_uuid, "uuid4"); err != nil {
+	if err := sharedInfrastructure.GetValidator().Var(criteria_uuid, "uuid4"); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid criteria uuid",
 		})
