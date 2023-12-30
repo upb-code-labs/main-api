@@ -88,13 +88,12 @@ func (repository *LanguagesRepository) GetByUUID(uuid string) (language *entitie
 	return language, nil
 }
 
-func (repository *LanguagesRepository) GetTemplateUUIDByLanguageUUID(uuid string) (templateUUID string, err error) {
+func (repository *LanguagesRepository) GetTemplateArchiveUUIDByLanguageUUID(uuid string) (templateUUID string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	query := `
-		SELECT 
-		file_id
+		SELECT file_id
 		FROM archives
 		WHERE id = (
 			SELECT
