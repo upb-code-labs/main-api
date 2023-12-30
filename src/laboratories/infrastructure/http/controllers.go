@@ -1,11 +1,9 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/dtos"
-	"github.com/gabriel-vasile/mimetype"
 
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/application"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/infrastructure/requests"
@@ -206,7 +204,7 @@ func (controller *LaboratoriesController) HandleCreateTestBlock(c *gin.Context) 
 	}
 
 	// Validate the test archive
-	multipartFile, err := c.FormFile("test_archive")
+	multipartHeader, err := c.FormFile("test_archive")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Please, make sure to send the test archive",
@@ -214,44 +212,27 @@ func (controller *LaboratoriesController) HandleCreateTestBlock(c *gin.Context) 
 		return
 	}
 
-	if multipartFile.Size > infrastructure.GetEnvironment().ArchiveMaxSizeKb*1024 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Sprintf("The test archive must be smaller than %d KB", infrastructure.GetEnvironment().ArchiveMaxSizeKb),
-		})
+	err = infrastructure.ValidateMultipartFileHeader(multipartHeader)
+	if err != nil {
+		c.Error(err)
 		return
 	}
 
-	file, err := multipartFile.Open()
+	// Create the DTO
+	multipartFile, err := multipartHeader.Open()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "There was an error while reading the test archive",
 		})
 		return
 	}
-	defer file.Close()
 
-	mtype, err := mimetype.DetectReader(file)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "There was an error while reading the MIME type of the test archive",
-		})
-		return
-	}
-
-	if mtype.String() != "application/zip" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Please, make sure to send a ZIP archive",
-		})
-		return
-	}
-
-	// Create the DTO
 	dto := dtos.CreateTestBlockDTO{
 		LaboratoryUUID: laboratoryUUID,
 		TeacherUUID:    teacherUUID,
 		LanguageUUID:   languageUUID,
 		Name:           name,
-		MultipartFile:  &file,
+		MultipartFile:  &multipartFile,
 	}
 
 	// Create the block
