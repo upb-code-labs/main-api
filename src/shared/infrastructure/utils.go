@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"time"
@@ -63,9 +64,19 @@ func ParseMicroserviceError(resp *http.Response, err error) error {
 		defaultErrorMessage := "There was an error while requesting the archives microservice"
 		errorMessage := defaultErrorMessage
 
-		// Decode the JSON from the body
+		// Decode the body
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return &sharedDomainErrors.GenericDomainError{
+				Code:    http.StatusBadRequest,
+				Message: defaultErrorMessage,
+			}
+		}
+
+		// Parse the JSON
 		var responseJSON map[string]interface{}
-		err := json.NewDecoder(resp.Body).Decode(&responseJSON)
+		err = json.Unmarshal(body, &responseJSON)
 		if err != nil {
 			return &sharedDomainErrors.GenericDomainError{
 				Code:    http.StatusBadRequest,
