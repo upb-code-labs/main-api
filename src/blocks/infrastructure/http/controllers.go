@@ -150,3 +150,28 @@ func (controller *BlocksController) HandleDeleteMarkdownBlock(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+func (controller *BlocksController) HandleDeleteTestBlock(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+	blockUUID := c.Param("block_uuid")
+
+	// Validate the block UUID
+	if err := sharedInfrastructure.GetValidator().Var(blockUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Block UUID is not valid",
+		})
+		return
+	}
+
+	// Delete the block
+	err := controller.UseCases.DeleteTestBlock(dtos.DeleteBlockDTO{
+		TeacherUUID: teacherUUID,
+		BlockUUID:   blockUUID,
+	})
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}

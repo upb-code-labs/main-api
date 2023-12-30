@@ -77,3 +77,18 @@ func (useCases *BlocksUseCases) DeleteMarkdownBlock(dto dtos.DeleteBlockDTO) (er
 	// Delete the block
 	return useCases.BlocksRepository.DeleteMarkdownBlock(dto.BlockUUID)
 }
+
+func (useCases *BlocksUseCases) DeleteTestBlock(dto dtos.DeleteBlockDTO) (err error) {
+	// Validate the teacher is the owner of the block
+	ownsBlock, err := useCases.BlocksRepository.DoesTeacherOwnsTestBlock(dto.TeacherUUID, dto.BlockUUID)
+	if err != nil {
+		return err
+	}
+
+	if !ownsBlock {
+		return errors.TeacherDoesNotOwnBlock{}
+	}
+
+	// Delete the block
+	return useCases.BlocksRepository.DeleteTestBlock(dto.BlockUUID)
+}
