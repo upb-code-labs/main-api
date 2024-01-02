@@ -1,3 +1,12 @@
+## [0.40.1](https://github.com/upb-code-labs/main-api/compare/v0.40.0...v0.40.1) (2024-01-02)
+
+
+### Bug Fixes
+
+* Update test block without sending a new test archive ([#135](https://github.com/upb-code-labs/main-api/issues/135)) ([63266f0](https://github.com/upb-code-labs/main-api/commit/63266f07a667844eb0ba7f3263c1bb84678c9ce4))
+
+
+
 # [0.40.0](https://github.com/upb-code-labs/main-api/compare/v0.39.0...v0.40.0) (2023-12-30)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Update test block ([#127](https://github.com/upb-code-labs/main-api/issues/127)) ([fa8c816](https://github.com/upb-code-labs/main-api/commit/fa8c816083650039ae831daeff69c8e65689796a))
-
-
-
-# [0.36.0](https://github.com/upb-code-labs/main-api/compare/v0.35.0...v0.36.0) (2023-12-29)
-
-
-### Features
-
-* Create new test block ([#126](https://github.com/upb-code-labs/main-api/issues/126)) ([ae8c2ba](https://github.com/upb-code-labs/main-api/commit/ae8c2ba50914ec235cecb0a41784736f2a4692ac))
 
 
 
