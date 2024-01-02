@@ -61,12 +61,12 @@ func UpdateTestBlock(dto *UpdateTestBlockUtilsDTO) (response map[string]interfac
 		if err != nil {
 			panic(err)
 		}
+	}
 
-		// Close the multipart form
-		err = writer.Close()
-		if err != nil {
-			panic(err)
-		}
+	// Close the multipart form
+	err := writer.Close()
+	if err != nil {
+		panic(err)
 	}
 
 	// Create the request
