@@ -52,17 +52,19 @@ func UpdateTestBlock(dto *UpdateTestBlockUtilsDTO) (response map[string]interfac
 	_ = writer.WriteField("language_uuid", dto.languageUUID)
 
 	// Add the test file
-	part, err := writer.CreateFormFile("test_archive", dto.testFile.Name())
-	if err != nil {
-		panic(err)
-	}
-	_, err = io.Copy(part, dto.testFile)
-	if err != nil {
-		panic(err)
+	if dto.testFile != nil {
+		part, err := writer.CreateFormFile("test_archive", dto.testFile.Name())
+		if err != nil {
+			panic(err)
+		}
+		_, err = io.Copy(part, dto.testFile)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// Close the multipart form
-	err = writer.Close()
+	err := writer.Close()
 	if err != nil {
 		panic(err)
 	}
