@@ -186,6 +186,28 @@ func TestUpdateTestBlock(t *testing.T) {
 	block := blocks[0].(map[string]interface{})
 	c.Equal(newName, block["name"].(string))
 	c.Equal(firstLanguageUUID, block["language_uuid"].(string))
+
+	// Update the test block without sending a new test archive
+	newName = "Update test block test - block - updated - 2"
+	_, status = UpdateTestBlock(&UpdateTestBlockUtilsDTO{
+		blockUUID:    testBlockUUID,
+		languageUUID: firstLanguageUUID,
+		blockName:    newName,
+		cookie:       cookie,
+		testFile:     nil,
+	})
+	c.Equal(http.StatusNoContent, status)
+
+	// Check that the test block data was updated
+	laboratoryResponse, status = GetLaboratoryByUUID(cookie, laboratoryUUID)
+	c.Equal(http.StatusOK, status)
+
+	blocks = laboratoryResponse["test_blocks"].([]interface{})
+	c.Equal(1, len(blocks))
+
+	block = blocks[0].(map[string]interface{})
+	c.Equal(newName, block["name"].(string))
+	c.Equal(firstLanguageUUID, block["language_uuid"].(string))
 }
 
 func TestDeleteTestBlock(t *testing.T) {

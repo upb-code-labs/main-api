@@ -91,10 +91,12 @@ func (controller *BlocksController) HandleUpdateTestBlock(c *gin.Context) {
 	// Validate the test archive (if any)
 	multipartHeader, err := c.FormFile("test_archive")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Please, make sure to send the test archive",
-		})
-		return
+		if err != http.ErrMissingFile {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Please, make sure to send the test archive",
+			})
+			return
+		}
 	}
 
 	if multipartHeader != nil {
