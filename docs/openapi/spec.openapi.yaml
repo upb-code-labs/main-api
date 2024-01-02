@@ -1704,7 +1704,7 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
                 
   # Submissions
-  /submissions/test_block/{block_uuid}/mine:
+  /submissions/{test_block_uuid}/mine:
     get:
       tags:
         - Submissions
@@ -1712,7 +1712,7 @@ paths:
         - cookieAuth: []
       parameters:
         - in: path
-          name: block_uuid
+          name: test_block_uuid
           schema:
             type: string
             example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
@@ -1744,7 +1744,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
   
-  /submissions/test_block/{block_uuid}:
+  /submissions/{test_block_uuid}:
     post:
       tags: 
         - Submissions
@@ -1752,11 +1752,16 @@ paths:
         - cookieAuth: []
       parameters:
         - in: path
-          name: block_uuid
+          name: test_block_uuid
           schema:
             type: string
             example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
           required: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/create_submission_req"
       description: Submit a `.zip` archive to a test block. 
       responses: 
         "201": 
@@ -1901,6 +1906,14 @@ components:
         password:
           type: string
           example: "password2023*/"
+    
+    create_submission_req:
+      type: object
+      properties:
+        submission_archive: 
+          type: string
+          format: binary # A `.zip` archive
+      
 
     # Responses
     default_error_response:
