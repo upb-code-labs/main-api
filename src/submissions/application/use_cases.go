@@ -1,7 +1,6 @@
 package application
 
 import (
-	"fmt"
 	"mime/multipart"
 
 	blocksDefinitions "github.com/UPB-Code-Labs/main-api/src/blocks/domain/definitions"
@@ -40,7 +39,6 @@ func (useCases *SubmissionUseCases) SaveSubmission(dto *dtos.CreateSubmissionDTO
 
 	if previousStudentSubmission != nil {
 		// If the student already has a submission, reset its status and overwrite the archive
-		fmt.Println("Student already has a submission")
 		err = useCases.resetSubmissionStatus(previousStudentSubmission, dto.SubmissionArchive)
 		if err != nil {
 			return "", err
@@ -55,15 +53,18 @@ func (useCases *SubmissionUseCases) SaveSubmission(dto *dtos.CreateSubmissionDTO
 		return previousStudentSubmission.UUID, nil
 	} else {
 		// If the student doesn't have a submission, create a new one
-		fmt.Println("Student doesn't have a submission")
-
-		// Submit the work to the submissions queue
-		err = useCases.submitWorkToQueue(previousStudentSubmission.UUID)
+		submissionUUID, err := useCases.createSubmission(dto)
 		if err != nil {
 			return "", err
 		}
 
-		return useCases.createSubmission(dto)
+		// Submit the work to the submissions queue
+		err = useCases.submitWorkToQueue(submissionUUID)
+		if err != nil {
+			return "", err
+		}
+
+		return submissionUUID, nil
 	}
 }
 
