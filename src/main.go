@@ -14,6 +14,10 @@ func main() {
 	defer shared.ClosePostgresConnection()
 	config.RunMigrations()
 
+	// Connect to RabbitMQ
+	shared.ConnectToRabbitMQ()
+	defer shared.CloseRabbitMQConnection()
+
 	// Start HTTP server
 	router := config.InstanceHttpServer()
 	router.Run(":8080")

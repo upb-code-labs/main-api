@@ -12,3 +12,6 @@ docker-compose.testing.yaml
 
 # Build
 dist/
+
+# Golang files
+go.work.sum

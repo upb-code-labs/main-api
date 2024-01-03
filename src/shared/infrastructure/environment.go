@@ -12,6 +12,7 @@ type EnvironmentSpec struct {
 
 	// Connection strings
 	DbConnectionString             string `split_words:"true" default:"postgres://postgres:postgres@localhost:5432/codelabs?sslmode=disable"`
+	RabbitMQConnectionString       string `split_words:"true" default:"amqp://rabbitmq:rabbitmq@localhost:5672/"`
 	WebClientUrl                   string `split_words:"true" default:"http://localhost:5173"`
 	StaticFilesMicroserviceAddress string `split_words:"true" default:"http://localhost:8081"`
 

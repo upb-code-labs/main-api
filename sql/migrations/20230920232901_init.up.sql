@@ -208,6 +208,19 @@ FROM
   INNER JOIN courses ON courses_has_users.course_id = courses.id
   INNER JOIN colors ON courses.color_id = colors.id;
 
+CREATE OR REPLACE VIEW submissions_work_metadata AS
+SELECT
+  submissions.id AS submission_id,
+  language_archive.file_id AS language_file_id,
+  test_archive.file_id AS test_file_id,
+  submission_archive.file_id AS submission_file_id
+FROM submissions 
+  INNER JOIN test_blocks ON submissions.test_block_id = test_blocks.id
+  INNER JOIN languages ON test_blocks.language_id = languages.id
+  INNER JOIN archives AS language_archive ON languages.template_archive_id = language_archive.id
+  INNER JOIN archives AS test_archive ON test_blocks.test_archive_id = test_archive.id
+  INNER JOIN archives AS submission_archive ON submissions.archive_id = submission_archive.id;
+
 --- ### Objectives
 CREATE
 OR REPLACE VIEW objectives_owners AS

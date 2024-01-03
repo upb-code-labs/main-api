@@ -6,11 +6,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
-	"net/textproto"
 	"time"
 
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/dtos"
@@ -134,6 +132,44 @@ func (repository *BlocksPostgresRepository) DoesTeacherOwnsTestBlock(teacherUUID
 	return laboratoryTeacherUUID == teacherUUID, nil
 }
 
+func (repository *BlocksPostgresRepository) CanStudentSubmitToTestBlock(studentUUID string, testBlockUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Check if the student is enrolled in the laboratory the block belongs to
+	query := `
+		SELECT user_id
+		FROM courses_has_users
+		WHERE course_id = (
+			SELECT id
+			FROM courses
+			WHERE id = (
+				SELECT course_id
+				FROM laboratories
+				WHERE id = (
+					SELECT laboratory_id
+					FROM test_blocks
+					WHERE id = $1
+				)
+			)
+		) 
+		AND user_id = $2 
+		AND is_user_active = true
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, testBlockUUID, studentUUID)
+	var studentID string
+	if err := row.Scan(&studentID); err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (repository *BlocksPostgresRepository) GetTestArchiveUUIDFromTestBlockUUID(blockUUID string) (uuid string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -166,34 +202,31 @@ func (repository *BlocksPostgresRepository) GetTestArchiveUUIDFromTestBlockUUID(
 func (repository *BlocksPostgresRepository) SaveTestsArchive(file *multipart.File) (uuid string, err error) {
 	// Create multipart writer
 	staticFilesEndpoint := fmt.Sprintf("%s/archives/save", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
-	baseMultipartBuffer, err := repository.getMultipartFormBuffer(
-		staticFilesEndpoint,
-		file,
-	)
+	baseMultipartBuffer, err := sharedInfrastructure.GetMultipartFormBufferFromFile(file)
 	if err != nil {
 		return "", err
 	}
 
 	// Add the file type field to the request
-	err = baseMultipartBuffer.bodyBufferWriter.WriteField("archive_type", "test")
+	err = baseMultipartBuffer.BodyBufferWriter.WriteField("archive_type", "test")
 	if err != nil {
 		return "", err
 	}
 
 	// Close the writer
-	err = baseMultipartBuffer.bodyBufferWriter.Close()
+	err = baseMultipartBuffer.BodyBufferWriter.Close()
 	if err != nil {
 		return "", err
 	}
 
 	// Prepare the request
-	req, err := http.NewRequest("POST", staticFilesEndpoint, baseMultipartBuffer.bodyBuffer)
+	req, err := http.NewRequest("POST", staticFilesEndpoint, baseMultipartBuffer.BodyBuffer)
 
 	if err != nil {
 		return "", err
 	}
 
-	req.Header.Set("Content-Type", baseMultipartBuffer.bodyBufferWriter.FormDataContentType())
+	req.Header.Set("Content-Type", baseMultipartBuffer.BodyBufferWriter.FormDataContentType())
 
 	// Send the request
 	client := &http.Client{}
@@ -225,40 +258,37 @@ func (repository *BlocksPostgresRepository) SaveTestsArchive(file *multipart.Fil
 func (repository *BlocksPostgresRepository) OverwriteTestsArchive(uuid string, file *multipart.File) (err error) {
 	// Create multipart writer
 	staticFilesEndpoint := fmt.Sprintf("%s/archives/overwrite", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
-	baseMultipartBuffer, err := repository.getMultipartFormBuffer(
-		staticFilesEndpoint,
-		file,
-	)
+	baseMultipartBuffer, err := sharedInfrastructure.GetMultipartFormBufferFromFile(file)
 	if err != nil {
 		return err
 	}
 
 	// Add the file type field to the request
-	err = baseMultipartBuffer.bodyBufferWriter.WriteField("archive_type", "test")
+	err = baseMultipartBuffer.BodyBufferWriter.WriteField("archive_type", "test")
 	if err != nil {
 		return err
 	}
 
 	// Add the archive uuid field to the request
-	err = baseMultipartBuffer.bodyBufferWriter.WriteField("archive_uuid", uuid)
+	err = baseMultipartBuffer.BodyBufferWriter.WriteField("archive_uuid", uuid)
 	if err != nil {
 		return err
 	}
 
 	// Close the writer
-	err = baseMultipartBuffer.bodyBufferWriter.Close()
+	err = baseMultipartBuffer.BodyBufferWriter.Close()
 	if err != nil {
 		return err
 	}
 
 	// Prepare the request
-	req, err := http.NewRequest("PUT", staticFilesEndpoint, baseMultipartBuffer.bodyBuffer)
+	req, err := http.NewRequest("PUT", staticFilesEndpoint, baseMultipartBuffer.BodyBuffer)
 
 	if err != nil {
 		return err
 	}
 
-	req.Header.Set("Content-Type", baseMultipartBuffer.bodyBufferWriter.FormDataContentType())
+	req.Header.Set("Content-Type", baseMultipartBuffer.BodyBufferWriter.FormDataContentType())
 
 	// Send the request
 	client := &http.Client{}
@@ -271,52 +301,6 @@ func (repository *BlocksPostgresRepository) OverwriteTestsArchive(uuid string, f
 	}
 
 	return nil
-}
-
-type baseMultipartFormBuffer struct {
-	bodyBuffer       *bytes.Buffer
-	bodyBufferWriter *multipart.Writer
-}
-
-func (repository *BlocksPostgresRepository) getMultipartFormBuffer(endpoint string, file *multipart.File) (br *baseMultipartFormBuffer, err error) {
-	FILE_NAME := "archive.zip"
-	FILE_CONTENT_TYPE := "application/zip"
-
-	// Create multipart writer
-	var bodyBuffer bytes.Buffer
-	multipartWriter := multipart.NewWriter(&bodyBuffer)
-
-	// Add the file field to the request
-	header := textproto.MIMEHeader{}
-	header.Set("Content-Disposition",
-		fmt.Sprintf(
-			`form-data; name="%s"; filename="%s"`,
-			"file",
-			FILE_NAME,
-		),
-	)
-	header.Set("Content-Type", FILE_CONTENT_TYPE)
-
-	// Reset the file pointer to the beginning
-	_, err = (*file).Seek(0, io.SeekStart)
-	if err != nil {
-		return nil, err
-	}
-
-	// Add the file to the request
-	fileWriter, err := multipartWriter.CreatePart(header)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := io.Copy(fileWriter, *file); err != nil {
-		return nil, err
-	}
-
-	return &baseMultipartFormBuffer{
-		bodyBuffer:       &bodyBuffer,
-		bodyBufferWriter: multipartWriter,
-	}, nil
 }
 
 func (repository *BlocksPostgresRepository) UpdateTestBlock(dto *dtos.UpdateTestBlockDTO) (err error) {
