@@ -33,7 +33,7 @@ func CloseRabbitMQConnection() {
 	}
 }
 
-func getRabbitMQChannel() *amqp.Channel {
+func GetRabbitMQChannel() *amqp.Channel {
 	if rabbitMQChannel == nil {
 		ConnectToRabbitMQ()
 	}
@@ -43,7 +43,7 @@ func getRabbitMQChannel() *amqp.Channel {
 
 func GetRabbitMQSubmissionsQueue() *amqp.Queue {
 	if rabbitMQSubmissionsQueue == nil {
-		ch := getRabbitMQChannel()
+		ch := GetRabbitMQChannel()
 
 		// Declare queue
 		qName := "submissions"

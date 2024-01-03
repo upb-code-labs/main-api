@@ -1,5 +1,7 @@
 package entities
 
+import "encoding/json"
+
 type Submission struct {
 	UUID        string `json:"uuid"`
 	ArchiveUUID string `json:"archive_uuid"`
@@ -13,4 +15,13 @@ type SubmissionWork struct {
 	LanguageUUID          string `json:"language_uuid"`
 	SubmissionArchiveUUID string `json:"submission_archive_uuid"`
 	TestArchiveUUID       string `json:"test_archive_uuid"`
+}
+
+func (sw *SubmissionWork) ToJSON() (string, error) {
+	bytes, err := json.Marshal(sw)
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes), nil
 }

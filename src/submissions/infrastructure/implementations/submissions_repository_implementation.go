@@ -246,7 +246,40 @@ func (repository *SubmissionsRepositoryImpl) GetSubmission(dto *dtos.GetSubmissi
 }
 
 func (repository *SubmissionsRepositoryImpl) GetSubmissionWorkMetadata(submissionUUID string) (submissionWorkMetadata *entities.SubmissionWork, err error) {
-	return nil, nil
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// TODO: Refactor into a view
+	// Get the file_id of the language from the relation between the submissions table and the test_blocks table
+	query := `
+		SELECT submissions.id, language_archive.file_id, test_archive.file_id, submission_archive.file_id
+		FROM submissions
+		INNER JOIN test_blocks 
+			ON submissions.test_block_id = test_blocks.id
+		INNER JOIN languages 
+			ON test_blocks.language_id = languages.id
+		INNER JOIN archives AS language_archive
+			ON languages.template_archive_id = language_archive.id
+		INNER JOIN archives AS test_archive 
+			ON test_blocks.test_archive_id = test_archive.id
+		INNER JOIN archives AS submission_archive 
+			ON submissions.archive_id = submission_archive.id
+		WHERE submissions.id = $1
+	`
+
+	submissionWorkMetadata = &entities.SubmissionWork{}
+
+	err = repository.Connection.QueryRowContext(
+		ctx, query, submissionUUID,
+	).Scan(
+		&submissionWorkMetadata.SubmissionUUID, &submissionWorkMetadata.LanguageUUID, &submissionWorkMetadata.TestArchiveUUID, &submissionWorkMetadata.SubmissionArchiveUUID,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return submissionWorkMetadata, nil
 }
 
 func (repository *SubmissionsRepositoryImpl) GetStudentSubmissionArchiveUUIDFromSubmissionUUID(submissionUUID string) (archiveUUID string, err error) {

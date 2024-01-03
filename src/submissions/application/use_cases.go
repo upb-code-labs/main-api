@@ -46,10 +46,23 @@ func (useCases *SubmissionUseCases) SaveSubmission(dto *dtos.CreateSubmissionDTO
 			return "", err
 		}
 
+		// Submit the work to the submissions queue
+		err = useCases.submitWorkToQueue(previousStudentSubmission.UUID)
+		if err != nil {
+			return "", err
+		}
+
 		return previousStudentSubmission.UUID, nil
 	} else {
 		// If the student doesn't have a submission, create a new one
 		fmt.Println("Student doesn't have a submission")
+
+		// Submit the work to the submissions queue
+		err = useCases.submitWorkToQueue(previousStudentSubmission.UUID)
+		if err != nil {
+			return "", err
+		}
+
 		return useCases.createSubmission(dto)
 	}
 }
@@ -73,8 +86,6 @@ func (useCases *SubmissionUseCases) resetSubmissionStatus(previousStudentSubmiss
 		return err
 	}
 
-	// TODO: Send a message to the submissions queue
-
 	return nil
 }
 
@@ -93,7 +104,21 @@ func (useCases *SubmissionUseCases) createSubmission(dto *dtos.CreateSubmissionD
 		return "", err
 	}
 
-	// TODO: Send a message to the submissions queue
-
 	return submissionUUID, nil
+}
+
+func (useCases *SubmissionUseCases) submitWorkToQueue(submissionUUID string) error {
+	// Get the submission work
+	submissionWork, err := useCases.SubmissionsRepository.GetSubmissionWorkMetadata(submissionUUID)
+	if err != nil {
+		return err
+	}
+
+	// Send the submission work to the submissions queue
+	err = useCases.SubmissionsQueueManager.QueueWork(submissionWork)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
