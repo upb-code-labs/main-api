@@ -29,7 +29,7 @@ func (controller *SubmissionsController) HandleReceiveSubmissions(c *gin.Context
 	fileMH, err := c.FormFile("submission_archive")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Please, make sure to send the test archive",
+			"message": "Please, make sure to send the submission archive",
 		})
 		return
 	}
