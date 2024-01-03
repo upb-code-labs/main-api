@@ -24,6 +24,7 @@ func ConnectToRabbitMQ() {
 	}
 
 	// Set channel
+	log.Println("Connected to RabbitMQ")
 	rabbitMQChannel = ch
 }
 
@@ -79,6 +80,7 @@ func GetRabbitMQSubmissionsQueue() *amqp.Queue {
 		}
 
 		// Set queue
+		log.Println("RabbitMQ submissions queue declared / set")
 		rabbitMQSubmissionsQueue = &q
 	}
 

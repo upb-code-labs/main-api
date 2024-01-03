@@ -24,6 +24,7 @@ func GetPostgresConnection() *sql.DB {
 		}
 
 		// Set connection
+		log.Println("Connected to Postgres")
 		pgConnection = db
 	}
 
