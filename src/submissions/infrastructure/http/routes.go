@@ -1,6 +1,7 @@
 package http
 
 import (
+	blocksImplementations "github.com/UPB-Code-Labs/main-api/src/blocks/infrastructure/implementations"
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/application"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/infrastructure/implementations"
@@ -11,6 +12,7 @@ func StartSubmissionsRoutes(g *gin.RouterGroup) {
 	submissionsGroup := g.Group("/submissions")
 
 	useCases := application.SubmissionUseCases{
+		BlocksRepository:        blocksImplementations.GetBlocksPostgresRepositoryInstance(),
 		SubmissionsRepository:   implementations.GetSubmissionsRepositoryInstance(),
 		SubmissionsQueueManager: implementations.GetSubmissionsRabbitMQQueueManagerInstance(),
 	}

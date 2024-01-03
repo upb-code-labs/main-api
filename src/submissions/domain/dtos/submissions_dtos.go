@@ -6,6 +6,7 @@ type CreateSubmissionDTO struct {
 	StudentUUID       string
 	TestBlockUUID     string
 	SubmissionArchive *multipart.File
+	SavedArchiveUUID  string
 }
 
 type GetSubmissionDTO struct {

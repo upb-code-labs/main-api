@@ -14,6 +14,9 @@ type BlockRepository interface {
 	DoesTeacherOwnsMarkdownBlock(teacherUUID string, blockUUID string) (bool, error)
 	DoesTeacherOwnsTestBlock(teacherUUID string, blockUUID string) (bool, error)
 
+	// Check blocks permissions
+	CanStudentSubmitToTestBlock(studentUUID string, testBlockUUID string) (bool, error)
+
 	// Create a new test block
 	SaveTestsArchive(file *multipart.File) (uuid string, err error)
 
