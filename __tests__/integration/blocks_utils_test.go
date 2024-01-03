@@ -71,16 +71,16 @@ func UpdateTestBlock(dto *UpdateTestBlockUtilsDTO) (response map[string]interfac
 
 	// Create the request
 	endpoint := fmt.Sprintf("/api/v1/blocks/test_blocks/%s", dto.blockUUID)
-	r, err := http.NewRequest("PUT", endpoint, &body)
+	req, err := http.NewRequest("PUT", endpoint, &body)
 	if err != nil {
 		panic(err)
 	}
-	r.Header.Add("Content-Type", writer.FormDataContentType())
-	r.AddCookie(dto.cookie)
+	req.Header.Add("Content-Type", writer.FormDataContentType())
+	req.AddCookie(dto.cookie)
 
 	// Send the request
 	w := httptest.NewRecorder()
-	router.ServeHTTP(w, r)
+	router.ServeHTTP(w, req)
 
 	// Parse the response
 	jsonResponse := ParseJsonResponse(w.Body)
