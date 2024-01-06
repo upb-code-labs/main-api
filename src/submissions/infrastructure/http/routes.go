@@ -28,12 +28,11 @@ func StartSubmissionsRoutes(g *gin.RouterGroup) {
 		controllers.HandleReceiveSubmissions,
 	)
 
-	/*
-		submissionsGroup.GET(
-			"/:test_block_uuid/mine",
-			sharedInfrastructure.WithAuthenticationMiddleware(),
-			sharedInfrastructure.WithAuthorizationMiddleware([]string{"student"}),
-			controllers.HandleGetSubmission,
-		)
-	*/
+	submissionsGroup.GET(
+		"/:test_block_uuid/status",
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		sharedInfrastructure.WithAuthorizationMiddleware([]string{"student"}),
+		sharedInfrastructure.WithServerSentEventsMiddleware(),
+		controllers.HandleGetSubmission,
+	)
 }
