@@ -24,6 +24,8 @@ func GetSubmissionsRealTimeUpdatesQueueMgrInstance() *SubmissionsRealTimeUpdates
 			Queue: getSubmissionsRealTimeUpdatesQueue(),
 			// Channel will be set when ListenForUpdates is called
 		}
+
+		attachSubmissionsRealTimeUpdatesQueueToExchange()
 	}
 
 	return submissionsRealTimeUpdatesQueueMgrInstance
@@ -79,10 +81,10 @@ func getSubmissionsRealTimeUpdatesQueue() *amqp.Queue {
 		ch := sharedInfrastructure.GetRabbitMQChannel()
 
 		// Declare queue
-		qName := "submission-real-time-updates"
-		qDurable := true
+		qName := "" // RabbitMQ will generate a random name
+		qDurable := false
 		qAutoDelete := false
-		qExclusive := false
+		qExclusive := true // The queue will be deleted when the instance of the gateway is closed
 		qNoWait := false
 		qArgs := amqp.Table{}
 
@@ -121,6 +123,35 @@ func getSubmissionsRealTimeUpdatesQueue() *amqp.Queue {
 	}
 
 	return submissionsRealTimeUpdatesQueueMgrInstance.Queue
+}
+
+// attachSubmissionsRealTimeUpdatesQueueToExchange attaches the submissions real time updates queue to the submissions exchange
+func attachSubmissionsRealTimeUpdatesQueueToExchange() {
+	ch := sharedInfrastructure.GetRabbitMQChannel()
+
+	// Bind queue to exchange
+	qName := getSubmissionsRealTimeUpdatesQueue().Name
+	routingKey := ""
+	exchangeName := "submissions-real-time-updates"
+	noWait := false
+	args := amqp.Table{}
+
+	err := ch.QueueBind(
+		qName,
+		routingKey,
+		exchangeName,
+		noWait,
+		args,
+	)
+
+	if err != nil {
+		log.Fatal(
+			"[RabbitMQ]: There was an error while binding the submission real time updates queue to the submissions exchange",
+			err.Error(),
+		)
+	}
+
+	log.Println("[RabbitMQ]: Submission real time updates queue bound to submissions exchange")
 }
 
 // processUpdates processes the updates received from the submission real time updates queue
