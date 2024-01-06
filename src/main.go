@@ -3,6 +3,7 @@ package main
 import (
 	config "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
 	shared "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	submissionsImplementations "github.com/UPB-Code-Labs/main-api/src/submissions/infrastructure/implementations"
 )
 
 func main() {
@@ -17,6 +18,14 @@ func main() {
 	// Connect to RabbitMQ
 	shared.ConnectToRabbitMQ()
 	defer shared.CloseRabbitMQConnection()
+
+	// Start listening for messages in the submissions real time updates queue
+	submissionsRealTimeUpdatesQueueMgr := submissionsImplementations.GetSubmissionsRealTimeUpdatesQueueMgrInstance()
+	go submissionsRealTimeUpdatesQueueMgr.ListenForUpdates()
+
+	// Start listening for SSE connections
+	realTimeSubmissionsUpdatesSender := submissionsImplementations.GetSubmissionsRealTimeUpdatesSenderInstance()
+	go realTimeSubmissionsUpdatesSender.Listen()
 
 	// Start HTTP server
 	router := config.InstanceHttpServer()

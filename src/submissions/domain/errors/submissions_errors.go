@@ -21,3 +21,13 @@ func (err UnableToQueueSubmissionWork) Error() string {
 func (err UnableToQueueSubmissionWork) StatusCode() int {
 	return http.StatusInternalServerError
 }
+
+type StudentSubmissionNotFound struct{}
+
+func (err StudentSubmissionNotFound) Error() string {
+	return "You don't have a submission for this test block"
+}
+
+func (err StudentSubmissionNotFound) StatusCode() int {
+	return http.StatusNotFound
+}

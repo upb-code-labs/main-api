@@ -241,10 +241,6 @@ func (repository *SubmissionsRepositoryImpl) GetStudentSubmission(studentUUID st
 	return submission, nil
 }
 
-func (repository *SubmissionsRepositoryImpl) GetSubmission(dto *dtos.GetSubmissionDTO) (submission *entities.Submission, err error) {
-	return nil, nil
-}
-
 func (repository *SubmissionsRepositoryImpl) GetSubmissionWorkMetadata(submissionUUID string) (submissionWorkMetadata *entities.SubmissionWork, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()

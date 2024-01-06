@@ -15,7 +15,6 @@ type SubmissionsRepository interface {
 	SaveSubmission(dto *dtos.CreateSubmissionDTO) (submissionUUID string, err error)
 	ResetSubmissionStatus(submissionUUID string) (err error)
 
-	GetSubmission(dto *dtos.GetSubmissionDTO) (submissions *entities.Submission, err error)
 	GetStudentSubmission(studentUUID string, testBlockUUID string) (submission *entities.Submission, err error)
 	GetSubmissionWorkMetadata(submissionUUID string) (submissionWorkMetadata *entities.SubmissionWork, err error)
 

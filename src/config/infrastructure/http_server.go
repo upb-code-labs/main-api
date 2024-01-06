@@ -29,11 +29,6 @@ func InstanceHttpServer() (r *gin.Engine) {
 	engine := gin.Default()
 	engine.Use(sharedInfrastructure.ErrorHandlerMiddleware())
 
-	isInProductionEnvironment := sharedInfrastructure.GetEnvironment().Environment == "production"
-	if isInProductionEnvironment {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
 	// Configure CORS rules
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}

@@ -123,3 +123,35 @@ func (useCases *SubmissionUseCases) submitWorkToQueue(submissionUUID string) err
 
 	return nil
 }
+
+func (useCases *SubmissionUseCases) GetSubmissionStatus(studentUUID, testBlockUUID string) (*dtos.SubmissionStatusUpdateDTO, error) {
+	// Check if the student could submit to the given test block
+	canSubmit, err := useCases.CanStudentSubmitToTestBlock(studentUUID, testBlockUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !canSubmit {
+		return nil, errors.StudentCannotSubmitToTestBlock{}
+	}
+
+	// Get the submission
+	submission, err := useCases.SubmissionsRepository.GetStudentSubmission(studentUUID, testBlockUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	if submission == nil {
+		return nil, errors.StudentSubmissionNotFound{}
+	}
+
+	// Get the submission status
+	dto := dtos.SubmissionStatusUpdateDTO{
+		SubmissionUUID:   submission.UUID,
+		SubmissionStatus: submission.Status,
+		TestsPassed:      submission.Passing,
+		TestsOutput:      submission.Stdout,
+	}
+
+	return &dto, nil
+}
