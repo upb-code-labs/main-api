@@ -19,6 +19,10 @@ func main() {
 	shared.ConnectToRabbitMQ()
 	defer shared.CloseRabbitMQConnection()
 
+	// Start listening for messages in the submissions real time updates queue
+	submissionsRealTimeUpdatesQueueMgr := submissionsImplementations.GetSubmissionsRealTimeUpdatesQueueMgrInstance()
+	go submissionsRealTimeUpdatesQueueMgr.ListenForUpdates()
+
 	// Start listening for SSE connections
 	realTimeSubmissionsUpdatesSender := submissionsImplementations.GetSubmissionsRealTimeUpdatesSenderInstance()
 	go realTimeSubmissionsUpdatesSender.Listen()
