@@ -322,6 +322,24 @@ func (repository *BlocksPostgresRepository) UpdateTestBlock(dto *dtos.UpdateTest
 	return nil
 }
 
+func (repository *BlocksPostgresRepository) GetTestBlockLaboratoryUUID(blockUUID string) (laboratoryUUID string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT laboratory_id
+		FROM test_blocks
+		WHERE id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, blockUUID)
+	if err := row.Scan(&laboratoryUUID); err != nil {
+		return "", err
+	}
+
+	return laboratoryUUID, nil
+}
+
 func (repository *BlocksPostgresRepository) DeleteMarkdownBlock(blockUUID string) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -479,14 +497,14 @@ func (repository *BlocksPostgresRepository) deleteDependentArchives(archives []*
 		err := json.NewEncoder(&body).Encode(archive)
 		if err != nil {
 			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Unable to encode the request: %s", err.Error())
-			repository.saveDeletionErrorLog(archive, errMessage)
+			log.Println(errMessage)
 		}
 
 		// Create the request
 		req, err := http.NewRequest("POST", staticFilesEndpoint, &body)
 		if err != nil {
 			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Unable to create the request: %s", err.Error())
-			repository.saveDeletionErrorLog(archive, errMessage)
+			log.Println(errMessage)
 		}
 
 		// Send the request
@@ -497,26 +515,7 @@ func (repository *BlocksPostgresRepository) deleteDependentArchives(archives []*
 		microserviceError := sharedInfrastructure.ParseMicroserviceError(res, err)
 		if microserviceError != nil {
 			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Microservice returned an error: %s", microserviceError.Error())
-			repository.saveDeletionErrorLog(archive, errMessage)
+			log.Println(errMessage)
 		}
-	}
-}
-
-func (repository *BlocksPostgresRepository) saveDeletionErrorLog(archive *sharedEntities.StaticFileArchive, errorMessage string) {
-	// Log the error to the console
-	log.Println(errorMessage)
-
-	// Save the error log to the database
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-
-	query := `
-		INSERT INTO files_deletion_error_logs (file_id, file_type, error_message)
-		VALUES ($1, $2, $3)
-	`
-
-	_, err := repository.Connection.ExecContext(ctx, query, archive.ArchiveUUID, archive.ArchiveType, errorMessage)
-	if err != nil {
-		log.Println("[ERR] - [BlocksPostgresRepository] - [saveDeletionErrorLog]: Unable to save the error log", err)
 	}
 }

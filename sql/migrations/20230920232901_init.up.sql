@@ -95,14 +95,6 @@ CREATE TABLE IF NOT EXISTS archives (
   "file_id" UUID NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS files_deletion_error_logs (
-  "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "file_id" UUID NOT NULL REFERENCES archives(id),
-  "file_type" VARCHAR(16) NOT NULL,
-  "requested_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "error_message" TEXT NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS languages (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "template_archive_id" UUID NOT NULL UNIQUE REFERENCES archives(id),

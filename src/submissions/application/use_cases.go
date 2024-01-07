@@ -2,8 +2,10 @@ package application
 
 import (
 	"mime/multipart"
+	"time"
 
 	blocksDefinitions "github.com/UPB-Code-Labs/main-api/src/blocks/domain/definitions"
+	laboratoriesDefinitions "github.com/UPB-Code-Labs/main-api/src/laboratories/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/entities"
@@ -11,6 +13,7 @@ import (
 )
 
 type SubmissionUseCases struct {
+	LaboratoriesRepository  laboratoriesDefinitions.LaboratoriesRepository
 	BlocksRepository        blocksDefinitions.BlockRepository
 	SubmissionsRepository   definitions.SubmissionsRepository
 	SubmissionsQueueManager definitions.SubmissionsQueueManager
@@ -31,6 +34,16 @@ func (useCases *SubmissionUseCases) SaveSubmission(dto *dtos.CreateSubmissionDTO
 		return "", errors.StudentCannotSubmitToTestBlock{}
 	}
 
+	// Validate the laboratory is open
+	isLaboratoryOpen, err := useCases.isTestBlockLaboratoryOpen(dto.TestBlockUUID)
+	if err != nil {
+		return "", err
+	}
+
+	if !isLaboratoryOpen {
+		return "", errors.LaboratoryIsClosed{}
+	}
+
 	// Check if the student already has a submission for the given test block
 	previousStudentSubmission, err := useCases.SubmissionsRepository.GetStudentSubmission(dto.StudentUUID, dto.TestBlockUUID)
 	if err != nil {
@@ -38,6 +51,22 @@ func (useCases *SubmissionUseCases) SaveSubmission(dto *dtos.CreateSubmissionDTO
 	}
 
 	if previousStudentSubmission != nil {
+		// Check if the previous submission was submitted in the last minute
+		parsedSubmittedAt, err := time.Parse(time.RFC3339, previousStudentSubmission.SubmittedAt)
+		if err != nil {
+			return "", err
+		}
+
+		if time.Since(parsedSubmittedAt).Minutes() < 1 {
+			return "", errors.StudentHasRecentSubmission{}
+		}
+
+		// Check if the previous submission is still pending
+		finalStatus := "ready"
+		if previousStudentSubmission.Status != finalStatus {
+			return "", errors.StudentHasPendingSubmission{}
+		}
+
 		// If the student already has a submission, reset its status and overwrite the archive
 		err = useCases.resetSubmissionStatus(previousStudentSubmission, dto.SubmissionArchive)
 		if err != nil {
@@ -66,6 +95,32 @@ func (useCases *SubmissionUseCases) SaveSubmission(dto *dtos.CreateSubmissionDTO
 
 		return submissionUUID, nil
 	}
+}
+
+func (useCases *SubmissionUseCases) isTestBlockLaboratoryOpen(testBlockUUID string) (bool, error) {
+	// Get the UUID of the laboratory the test block belongs to
+	laboratoryUUID, err := useCases.BlocksRepository.GetTestBlockLaboratoryUUID(testBlockUUID)
+	if err != nil {
+		return false, err
+	}
+
+	// Get the laboratory
+	laboratory, err := useCases.LaboratoriesRepository.GetLaboratoryByUUID(laboratoryUUID)
+	if err != nil {
+		return false, err
+	}
+
+	// Check if the laboratory is open
+	parsedClosingDate, err := time.Parse(time.RFC3339, laboratory.DueDate)
+	if err != nil {
+		return false, err
+	}
+
+	if time.Now().After(parsedClosingDate) {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (useCases *SubmissionUseCases) resetSubmissionStatus(previousStudentSubmission *entities.Submission, newArchive *multipart.File) error {
