@@ -18,6 +18,8 @@ DROP INDEX IF EXISTS idx_users_lower_fullName;
 DROP INDEX IF EXISTS idx_users_role;
 
 -- ## Views
+DROP VIEW IF EXISTS submissions_work_metadata;
+
 DROP VIEW IF EXISTS courses_with_color;
 
 DROP VIEW IF EXISTS courses_has_users_view;
@@ -29,8 +31,6 @@ DROP VIEW IF EXISTS objectives_owners;
 DROP VIEW IF EXISTS criteria_owners;
 
 -- ## Tables
-DROP TABLE IF EXISTS files_deletion_error_logs;
-
 DROP TABLE IF EXISTS archives;
 
 DROP TABLE IF EXISTS grade_has_criteria;

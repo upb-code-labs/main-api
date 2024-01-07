@@ -9,6 +9,7 @@ import (
 	rubricsHttp "github.com/UPB-Code-Labs/main-api/src/rubrics/infrastructure/http"
 	sessionHttp "github.com/UPB-Code-Labs/main-api/src/session/infrastructure/http"
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	submissionsHttp "github.com/UPB-Code-Labs/main-api/src/submissions/infrastructure/http"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -21,16 +22,12 @@ var routesGroups = []func(*gin.RouterGroup){
 	rubricsHttp.StartRubricsRoutes,
 	laboratoriesHttp.StartLaboratoriesRoutes,
 	languagesHttp.StartLanguagesRoutes,
+	submissionsHttp.StartSubmissionsRoutes,
 }
 
 func InstanceHttpServer() (r *gin.Engine) {
 	engine := gin.Default()
 	engine.Use(sharedInfrastructure.ErrorHandlerMiddleware())
-
-	isInProductionEnvironment := sharedInfrastructure.GetEnvironment().Environment == "production"
-	if isInProductionEnvironment {
-		gin.SetMode(gin.ReleaseMode)
-	}
 
 	// Configure CORS rules
 	corsConfig := cors.DefaultConfig()

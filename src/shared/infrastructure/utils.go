@@ -1,11 +1,13 @@
 package infrastructure
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"time"
 
 	sharedDomainErrors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
@@ -98,4 +100,50 @@ func ParseMicroserviceError(resp *http.Response, err error) error {
 	}
 
 	return nil
+}
+
+type baseMultipartFormBuffer struct {
+	BodyBuffer       *bytes.Buffer
+	BodyBufferWriter *multipart.Writer
+}
+
+func GetMultipartFormBufferFromFile(file *multipart.File) (*baseMultipartFormBuffer, error) {
+	FILE_NAME := "archive.zip"
+	FILE_CONTENT_TYPE := "application/zip"
+
+	// Create multipart writer
+	var bodyBuffer bytes.Buffer
+	multipartWriter := multipart.NewWriter(&bodyBuffer)
+
+	// Add the file field to the request
+	header := textproto.MIMEHeader{}
+	header.Set("Content-Disposition",
+		fmt.Sprintf(
+			`form-data; name="%s"; filename="%s"`,
+			"file",
+			FILE_NAME,
+		),
+	)
+	header.Set("Content-Type", FILE_CONTENT_TYPE)
+
+	// Reset the file pointer to the beginning
+	_, err := (*file).Seek(0, io.SeekStart)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add the file to the request
+	fileWriter, err := multipartWriter.CreatePart(header)
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := io.Copy(fileWriter, *file); err != nil {
+		return nil, err
+	}
+
+	return &baseMultipartFormBuffer{
+		BodyBuffer:       &bodyBuffer,
+		BodyBufferWriter: multipartWriter,
+	}, nil
 }

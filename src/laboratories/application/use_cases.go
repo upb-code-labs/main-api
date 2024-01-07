@@ -10,6 +10,8 @@ import (
 	languagesDefinitions "github.com/UPB-Code-Labs/main-api/src/languages/domain/definitions"
 	rubricsDefinitions "github.com/UPB-Code-Labs/main-api/src/rubrics/domain/definitions"
 	rubricsErrors "github.com/UPB-Code-Labs/main-api/src/rubrics/domain/errors"
+	staticFilesDefinitions "github.com/UPB-Code-Labs/main-api/src/static-files/domain/definitions"
+	staticFilesDTOs "github.com/UPB-Code-Labs/main-api/src/static-files/domain/dtos"
 )
 
 type LaboratoriesUseCases struct {
@@ -18,6 +20,7 @@ type LaboratoriesUseCases struct {
 	RubricsRepository      rubricsDefinitions.RubricsRepository
 	LanguagesRepository    languagesDefinitions.LanguagesRepository
 	BlocksRepository       blocksDefinitions.BlockRepository
+	StaticFilesRepository  staticFilesDefinitions.StaticFilesRepository
 }
 
 func (useCases *LaboratoriesUseCases) CreateLaboratory(dto *dtos.CreateLaboratoryDTO) (laboratory *entities.Laboratory, err error) {
@@ -123,7 +126,12 @@ func (useCases *LaboratoriesUseCases) CreateTestBlock(dto *dtos.CreateTestBlockD
 	}
 
 	// Send the file to the static files microservice
-	savedArchiveUUID, err := useCases.BlocksRepository.SaveTestsArchive(dto.MultipartFile)
+	savedArchiveUUID, err := useCases.StaticFilesRepository.SaveArchive(
+		&staticFilesDTOs.SaveStaticFileDTO{
+			File:     dto.MultipartFile,
+			FileType: "test",
+		},
+	)
 	if err != nil {
 		return "", err
 	}

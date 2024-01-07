@@ -11,6 +11,7 @@ import (
 	"github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/requests"
 	configInfrastructure "github.com/UPB-Code-Labs/main-api/src/config/infrastructure"
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	submissionsImplementations "github.com/UPB-Code-Labs/main-api/src/submissions/infrastructure/implementations"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,6 +43,13 @@ func TestMain(m *testing.M) {
 	setupDatabase()
 	defer sharedInfrastructure.ClosePostgresConnection()
 
+	// Setup RabbitMQ
+	setupRabbitMQ()
+	defer sharedInfrastructure.CloseRabbitMQConnection()
+
+	// Setup SSE
+	setupSSE()
+
 	// Setup http router
 	setupRouter()
 	registerBaseAccounts()
@@ -54,6 +62,21 @@ func TestMain(m *testing.M) {
 func setupDatabase() {
 	sharedInfrastructure.GetPostgresConnection()
 	configInfrastructure.RunMigrations()
+}
+
+func setupRabbitMQ() {
+	// Connect to RabbitMQ
+	sharedInfrastructure.ConnectToRabbitMQ()
+
+	// Start listening for messages in the submissions real time updates queue
+	submissionsRealTimeUpdatesQueueMgr := submissionsImplementations.GetSubmissionsRealTimeUpdatesQueueMgrInstance()
+	go submissionsRealTimeUpdatesQueueMgr.ListenForUpdates()
+}
+
+func setupSSE() {
+	// Start listening for SSE connections
+	realTimeSubmissionsUpdatesSender := submissionsImplementations.GetSubmissionsRealTimeUpdatesSenderInstance()
+	go realTimeSubmissionsUpdatesSender.Listen()
 }
 
 func setupRouter() {
@@ -122,6 +145,17 @@ func GetSampleTestsArchive() (*os.File, error) {
 	TEST_FILE_PATH := "../data/java_tests_sample.zip"
 
 	zipFile, err := os.Open(TEST_FILE_PATH)
+	if err != nil {
+		return nil, err
+	}
+
+	return zipFile, nil
+}
+
+func GetSampleSubmissionArchive() (*os.File, error) {
+	SUBMISSION_FILE_PATH := "../data/java_submission_sample.zip"
+
+	zipFile, err := os.Open(SUBMISSION_FILE_PATH)
 	if err != nil {
 		return nil, err
 	}

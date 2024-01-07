@@ -1,28 +1,24 @@
 package implementations
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
-	"encoding/json"
-	"fmt"
-	"io"
 	"log"
-	"mime/multipart"
-	"net/http"
-	"net/textproto"
 	"time"
 
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/errors"
 	laboratoriesDomainErrors "github.com/UPB-Code-Labs/main-api/src/laboratories/domain/errors"
 	sharedEntities "github.com/UPB-Code-Labs/main-api/src/shared/domain/entities"
-	sharedDomainErrors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	staticFilesDefinitions "github.com/UPB-Code-Labs/main-api/src/static-files/domain/definitions"
+	staticFilesDTOs "github.com/UPB-Code-Labs/main-api/src/static-files/domain/dtos"
+	staticFilesImplementations "github.com/UPB-Code-Labs/main-api/src/static-files/infrastructure/implementations"
 )
 
 type BlocksPostgresRepository struct {
-	Connection *sql.DB
+	Connection            *sql.DB
+	StaticFilesRepository staticFilesDefinitions.StaticFilesRepository
 }
 
 // Singleton
@@ -31,7 +27,8 @@ var blocksPostgresRepositoryInstance *BlocksPostgresRepository
 func GetBlocksPostgresRepositoryInstance() *BlocksPostgresRepository {
 	if blocksPostgresRepositoryInstance == nil {
 		blocksPostgresRepositoryInstance = &BlocksPostgresRepository{
-			Connection: sharedInfrastructure.GetPostgresConnection(),
+			Connection:            sharedInfrastructure.GetPostgresConnection(),
+			StaticFilesRepository: &staticFilesImplementations.StaticFilesMicroserviceImplementation{},
 		}
 	}
 
@@ -134,6 +131,44 @@ func (repository *BlocksPostgresRepository) DoesTeacherOwnsTestBlock(teacherUUID
 	return laboratoryTeacherUUID == teacherUUID, nil
 }
 
+func (repository *BlocksPostgresRepository) CanStudentSubmitToTestBlock(studentUUID string, testBlockUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Check if the student is enrolled in the laboratory the block belongs to
+	query := `
+		SELECT user_id
+		FROM courses_has_users
+		WHERE course_id = (
+			SELECT id
+			FROM courses
+			WHERE id = (
+				SELECT course_id
+				FROM laboratories
+				WHERE id = (
+					SELECT laboratory_id
+					FROM test_blocks
+					WHERE id = $1
+				)
+			)
+		) 
+		AND user_id = $2 
+		AND is_user_active = true
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, testBlockUUID, studentUUID)
+	var studentID string
+	if err := row.Scan(&studentID); err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}
+
 func (repository *BlocksPostgresRepository) GetTestArchiveUUIDFromTestBlockUUID(blockUUID string) (uuid string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -163,162 +198,6 @@ func (repository *BlocksPostgresRepository) GetTestArchiveUUIDFromTestBlockUUID(
 	return uuid, nil
 }
 
-func (repository *BlocksPostgresRepository) SaveTestsArchive(file *multipart.File) (uuid string, err error) {
-	// Create multipart writer
-	staticFilesEndpoint := fmt.Sprintf("%s/archives/save", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
-	baseMultipartBuffer, err := repository.getMultipartFormBuffer(
-		staticFilesEndpoint,
-		file,
-	)
-	if err != nil {
-		return "", err
-	}
-
-	// Add the file type field to the request
-	err = baseMultipartBuffer.bodyBufferWriter.WriteField("archive_type", "test")
-	if err != nil {
-		return "", err
-	}
-
-	// Close the writer
-	err = baseMultipartBuffer.bodyBufferWriter.Close()
-	if err != nil {
-		return "", err
-	}
-
-	// Prepare the request
-	req, err := http.NewRequest("POST", staticFilesEndpoint, baseMultipartBuffer.bodyBuffer)
-
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Set("Content-Type", baseMultipartBuffer.bodyBufferWriter.FormDataContentType())
-
-	// Send the request
-	client := &http.Client{}
-	res, err := client.Do(req)
-
-	// Forward error message if any
-	microserviceError := sharedInfrastructure.ParseMicroserviceError(res, err)
-	if microserviceError != nil {
-		return "", microserviceError
-	}
-
-	// Return the UUID of the saved file
-	var response map[string]interface{}
-	err = json.NewDecoder(res.Body).Decode(&response)
-	if err != nil {
-		return "", err
-	}
-
-	if response["uuid"] == nil {
-		return "", &sharedDomainErrors.GenericDomainError{
-			Code:    http.StatusInternalServerError,
-			Message: "The static files microservice did not return the UUID of the saved file",
-		}
-	}
-
-	return response["uuid"].(string), nil
-}
-
-func (repository *BlocksPostgresRepository) OverwriteTestsArchive(uuid string, file *multipart.File) (err error) {
-	// Create multipart writer
-	staticFilesEndpoint := fmt.Sprintf("%s/archives/overwrite", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
-	baseMultipartBuffer, err := repository.getMultipartFormBuffer(
-		staticFilesEndpoint,
-		file,
-	)
-	if err != nil {
-		return err
-	}
-
-	// Add the file type field to the request
-	err = baseMultipartBuffer.bodyBufferWriter.WriteField("archive_type", "test")
-	if err != nil {
-		return err
-	}
-
-	// Add the archive uuid field to the request
-	err = baseMultipartBuffer.bodyBufferWriter.WriteField("archive_uuid", uuid)
-	if err != nil {
-		return err
-	}
-
-	// Close the writer
-	err = baseMultipartBuffer.bodyBufferWriter.Close()
-	if err != nil {
-		return err
-	}
-
-	// Prepare the request
-	req, err := http.NewRequest("PUT", staticFilesEndpoint, baseMultipartBuffer.bodyBuffer)
-
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", baseMultipartBuffer.bodyBufferWriter.FormDataContentType())
-
-	// Send the request
-	client := &http.Client{}
-	res, err := client.Do(req)
-
-	// Forward error message if any
-	microserviceError := sharedInfrastructure.ParseMicroserviceError(res, err)
-	if microserviceError != nil {
-		return microserviceError
-	}
-
-	return nil
-}
-
-type baseMultipartFormBuffer struct {
-	bodyBuffer       *bytes.Buffer
-	bodyBufferWriter *multipart.Writer
-}
-
-func (repository *BlocksPostgresRepository) getMultipartFormBuffer(endpoint string, file *multipart.File) (br *baseMultipartFormBuffer, err error) {
-	FILE_NAME := "archive.zip"
-	FILE_CONTENT_TYPE := "application/zip"
-
-	// Create multipart writer
-	var bodyBuffer bytes.Buffer
-	multipartWriter := multipart.NewWriter(&bodyBuffer)
-
-	// Add the file field to the request
-	header := textproto.MIMEHeader{}
-	header.Set("Content-Disposition",
-		fmt.Sprintf(
-			`form-data; name="%s"; filename="%s"`,
-			"file",
-			FILE_NAME,
-		),
-	)
-	header.Set("Content-Type", FILE_CONTENT_TYPE)
-
-	// Reset the file pointer to the beginning
-	_, err = (*file).Seek(0, io.SeekStart)
-	if err != nil {
-		return nil, err
-	}
-
-	// Add the file to the request
-	fileWriter, err := multipartWriter.CreatePart(header)
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := io.Copy(fileWriter, *file); err != nil {
-		return nil, err
-	}
-
-	return &baseMultipartFormBuffer{
-		bodyBuffer:       &bodyBuffer,
-		bodyBufferWriter: multipartWriter,
-	}, nil
-}
-
 func (repository *BlocksPostgresRepository) UpdateTestBlock(dto *dtos.UpdateTestBlockDTO) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -336,6 +215,24 @@ func (repository *BlocksPostgresRepository) UpdateTestBlock(dto *dtos.UpdateTest
 	}
 
 	return nil
+}
+
+func (repository *BlocksPostgresRepository) GetTestBlockLaboratoryUUID(blockUUID string) (laboratoryUUID string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT laboratory_id
+		FROM test_blocks
+		WHERE id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, blockUUID)
+	if err := row.Scan(&laboratoryUUID); err != nil {
+		return "", err
+	}
+
+	return laboratoryUUID, nil
 }
 
 func (repository *BlocksPostgresRepository) DeleteMarkdownBlock(blockUUID string) (err error) {
@@ -487,52 +384,16 @@ func (repository *BlocksPostgresRepository) getDependentArchivesByTestBlockUUID(
 
 func (repository *BlocksPostgresRepository) deleteDependentArchives(archives []*sharedEntities.StaticFileArchive) {
 	log.Printf("[INFO] - [BlocksPostgresRepository] - [deleteDependentArchives]: Deleting %d archives \n", len(archives))
-	staticFilesEndpoint := fmt.Sprintf("%s/archives/delete", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
 
 	for _, archive := range archives {
-		// Create the request body
-		var body bytes.Buffer
-		err := json.NewEncoder(&body).Encode(archive)
+		err := repository.StaticFilesRepository.DeleteArchive(
+			&staticFilesDTOs.StaticFileArchiveDTO{
+				FileUUID: archive.ArchiveUUID,
+				FileType: archive.ArchiveType,
+			},
+		)
 		if err != nil {
-			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Unable to encode the request: %s", err.Error())
-			repository.saveDeletionErrorLog(archive, errMessage)
+			log.Printf("[ERROR] - [BlocksPostgresRepository] - [deleteDependentArchives]: %s \n", err.Error())
 		}
-
-		// Create the request
-		req, err := http.NewRequest("POST", staticFilesEndpoint, &body)
-		if err != nil {
-			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Unable to create the request: %s", err.Error())
-			repository.saveDeletionErrorLog(archive, errMessage)
-		}
-
-		// Send the request
-		client := &http.Client{}
-		res, err := client.Do(req)
-
-		// Forward error message if any
-		microserviceError := sharedInfrastructure.ParseMicroserviceError(res, err)
-		if microserviceError != nil {
-			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Microservice returned an error: %s", microserviceError.Error())
-			repository.saveDeletionErrorLog(archive, errMessage)
-		}
-	}
-}
-
-func (repository *BlocksPostgresRepository) saveDeletionErrorLog(archive *sharedEntities.StaticFileArchive, errorMessage string) {
-	// Log the error to the console
-	log.Println(errorMessage)
-
-	// Save the error log to the database
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-
-	query := `
-		INSERT INTO files_deletion_error_logs (file_id, file_type, error_message)
-		VALUES ($1, $2, $3)
-	`
-
-	_, err := repository.Connection.ExecContext(ctx, query, archive.ArchiveUUID, archive.ArchiveType, errorMessage)
-	if err != nil {
-		log.Println("[ERR] - [BlocksPostgresRepository] - [saveDeletionErrorLog]: Unable to save the error log", err)
 	}
 }
