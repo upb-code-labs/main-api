@@ -1,26 +1,24 @@
 package implementations
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
-	"encoding/json"
-	"fmt"
 	"log"
-	"mime/multipart"
-	"net/http"
 	"time"
 
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/errors"
 	laboratoriesDomainErrors "github.com/UPB-Code-Labs/main-api/src/laboratories/domain/errors"
 	sharedEntities "github.com/UPB-Code-Labs/main-api/src/shared/domain/entities"
-	sharedDomainErrors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	staticFilesDefinitions "github.com/UPB-Code-Labs/main-api/src/static-files/domain/definitions"
+	staticFilesDTOs "github.com/UPB-Code-Labs/main-api/src/static-files/domain/dtos"
+	staticFilesImplementations "github.com/UPB-Code-Labs/main-api/src/static-files/infrastructure/implementations"
 )
 
 type BlocksPostgresRepository struct {
-	Connection *sql.DB
+	Connection            *sql.DB
+	StaticFilesRepository staticFilesDefinitions.StaticFilesRepository
 }
 
 // Singleton
@@ -29,7 +27,8 @@ var blocksPostgresRepositoryInstance *BlocksPostgresRepository
 func GetBlocksPostgresRepositoryInstance() *BlocksPostgresRepository {
 	if blocksPostgresRepositoryInstance == nil {
 		blocksPostgresRepositoryInstance = &BlocksPostgresRepository{
-			Connection: sharedInfrastructure.GetPostgresConnection(),
+			Connection:            sharedInfrastructure.GetPostgresConnection(),
+			StaticFilesRepository: &staticFilesImplementations.StaticFilesMicroserviceImplementation{},
 		}
 	}
 
@@ -197,110 +196,6 @@ func (repository *BlocksPostgresRepository) GetTestArchiveUUIDFromTestBlockUUID(
 	}
 
 	return uuid, nil
-}
-
-func (repository *BlocksPostgresRepository) SaveTestsArchive(file *multipart.File) (uuid string, err error) {
-	// Create multipart writer
-	staticFilesEndpoint := fmt.Sprintf("%s/archives/save", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
-	baseMultipartBuffer, err := sharedInfrastructure.GetMultipartFormBufferFromFile(file)
-	if err != nil {
-		return "", err
-	}
-
-	// Add the file type field to the request
-	err = baseMultipartBuffer.BodyBufferWriter.WriteField("archive_type", "test")
-	if err != nil {
-		return "", err
-	}
-
-	// Close the writer
-	err = baseMultipartBuffer.BodyBufferWriter.Close()
-	if err != nil {
-		return "", err
-	}
-
-	// Prepare the request
-	req, err := http.NewRequest("POST", staticFilesEndpoint, baseMultipartBuffer.BodyBuffer)
-
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Set("Content-Type", baseMultipartBuffer.BodyBufferWriter.FormDataContentType())
-
-	// Send the request
-	client := &http.Client{}
-	res, err := client.Do(req)
-
-	// Forward error message if any
-	microserviceError := sharedInfrastructure.ParseMicroserviceError(res, err)
-	if microserviceError != nil {
-		return "", microserviceError
-	}
-
-	// Return the UUID of the saved file
-	var response map[string]interface{}
-	err = json.NewDecoder(res.Body).Decode(&response)
-	if err != nil {
-		return "", err
-	}
-
-	if response["uuid"] == nil {
-		return "", &sharedDomainErrors.GenericDomainError{
-			Code:    http.StatusInternalServerError,
-			Message: "The static files microservice did not return the UUID of the saved file",
-		}
-	}
-
-	return response["uuid"].(string), nil
-}
-
-func (repository *BlocksPostgresRepository) OverwriteTestsArchive(uuid string, file *multipart.File) (err error) {
-	// Create multipart writer
-	staticFilesEndpoint := fmt.Sprintf("%s/archives/overwrite", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
-	baseMultipartBuffer, err := sharedInfrastructure.GetMultipartFormBufferFromFile(file)
-	if err != nil {
-		return err
-	}
-
-	// Add the file type field to the request
-	err = baseMultipartBuffer.BodyBufferWriter.WriteField("archive_type", "test")
-	if err != nil {
-		return err
-	}
-
-	// Add the archive uuid field to the request
-	err = baseMultipartBuffer.BodyBufferWriter.WriteField("archive_uuid", uuid)
-	if err != nil {
-		return err
-	}
-
-	// Close the writer
-	err = baseMultipartBuffer.BodyBufferWriter.Close()
-	if err != nil {
-		return err
-	}
-
-	// Prepare the request
-	req, err := http.NewRequest("PUT", staticFilesEndpoint, baseMultipartBuffer.BodyBuffer)
-
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", baseMultipartBuffer.BodyBufferWriter.FormDataContentType())
-
-	// Send the request
-	client := &http.Client{}
-	res, err := client.Do(req)
-
-	// Forward error message if any
-	microserviceError := sharedInfrastructure.ParseMicroserviceError(res, err)
-	if microserviceError != nil {
-		return microserviceError
-	}
-
-	return nil
 }
 
 func (repository *BlocksPostgresRepository) UpdateTestBlock(dto *dtos.UpdateTestBlockDTO) (err error) {
@@ -489,33 +384,16 @@ func (repository *BlocksPostgresRepository) getDependentArchivesByTestBlockUUID(
 
 func (repository *BlocksPostgresRepository) deleteDependentArchives(archives []*sharedEntities.StaticFileArchive) {
 	log.Printf("[INFO] - [BlocksPostgresRepository] - [deleteDependentArchives]: Deleting %d archives \n", len(archives))
-	staticFilesEndpoint := fmt.Sprintf("%s/archives/delete", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
 
 	for _, archive := range archives {
-		// Create the request body
-		var body bytes.Buffer
-		err := json.NewEncoder(&body).Encode(archive)
+		err := repository.StaticFilesRepository.DeleteArchive(
+			&staticFilesDTOs.StaticFileArchiveDTO{
+				FileUUID: archive.ArchiveUUID,
+				FileType: archive.ArchiveType,
+			},
+		)
 		if err != nil {
-			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Unable to encode the request: %s", err.Error())
-			log.Println(errMessage)
-		}
-
-		// Create the request
-		req, err := http.NewRequest("POST", staticFilesEndpoint, &body)
-		if err != nil {
-			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Unable to create the request: %s", err.Error())
-			log.Println(errMessage)
-		}
-
-		// Send the request
-		client := &http.Client{}
-		res, err := client.Do(req)
-
-		// Forward error message if any
-		microserviceError := sharedInfrastructure.ParseMicroserviceError(res, err)
-		if microserviceError != nil {
-			errMessage := fmt.Sprintf("[ERR] - [BlocksPostgresRepository] - [deleteDependentArchives]: Microservice returned an error: %s", microserviceError.Error())
-			log.Println(errMessage)
+			log.Printf("[ERROR] - [BlocksPostgresRepository] - [deleteDependentArchives]: %s \n", err.Error())
 		}
 	}
 }

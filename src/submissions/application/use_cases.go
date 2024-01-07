@@ -6,6 +6,8 @@ import (
 
 	blocksDefinitions "github.com/UPB-Code-Labs/main-api/src/blocks/domain/definitions"
 	laboratoriesDefinitions "github.com/UPB-Code-Labs/main-api/src/laboratories/domain/definitions"
+	staticFilesDefinitions "github.com/UPB-Code-Labs/main-api/src/static-files/domain/definitions"
+	staticFilesDTOs "github.com/UPB-Code-Labs/main-api/src/static-files/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/entities"
@@ -13,6 +15,7 @@ import (
 )
 
 type SubmissionUseCases struct {
+	StaticFilesRepository   staticFilesDefinitions.StaticFilesRepository
 	LaboratoriesRepository  laboratoriesDefinitions.LaboratoriesRepository
 	BlocksRepository        blocksDefinitions.BlockRepository
 	SubmissionsRepository   definitions.SubmissionsRepository
@@ -131,7 +134,13 @@ func (useCases *SubmissionUseCases) resetSubmissionStatus(previousStudentSubmiss
 	}
 
 	// Overwrite the archive in the static files microservice
-	err = useCases.SubmissionsRepository.OverwriteSubmissionArchive(newArchive, archiveUUID)
+	err = useCases.StaticFilesRepository.OverwriteArchive(
+		&staticFilesDTOs.OverwriteStaticFileDTO{
+			FileUUID: archiveUUID,
+			FileType: "submission",
+			File:     newArchive,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -147,7 +156,12 @@ func (useCases *SubmissionUseCases) resetSubmissionStatus(previousStudentSubmiss
 
 func (useCases *SubmissionUseCases) createSubmission(dto *dtos.CreateSubmissionDTO) (string, error) {
 	// Save the .zip archive in the static files microservice
-	archiveUUID, err := useCases.SubmissionsRepository.SaveSubmissionArchive(dto.SubmissionArchive)
+	archiveUUID, err := useCases.StaticFilesRepository.SaveArchive(
+		&staticFilesDTOs.SaveStaticFileDTO{
+			FileType: "submission",
+			File:     dto.SubmissionArchive,
+		},
+	)
 	if err != nil {
 		return "", err
 	}

@@ -3,13 +3,8 @@ package implementations
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
-	"fmt"
-	"mime/multipart"
-	"net/http"
 	"time"
 
-	sharedDomainErrors "github.com/UPB-Code-Labs/main-api/src/shared/domain/errors"
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/entities"
@@ -30,112 +25,6 @@ func GetSubmissionsRepositoryInstance() *SubmissionsRepositoryImpl {
 	}
 
 	return submissionsRepositoryInstance
-}
-
-// Methods implementation
-func (repository *SubmissionsRepositoryImpl) SaveSubmissionArchive(file *multipart.File) (archiveUUID string, err error) {
-	staticFilesEndpoint := fmt.Sprintf("%s/archives/save", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
-
-	// Create multipart writer
-	baseMultipartBuffer, err := sharedInfrastructure.GetMultipartFormBufferFromFile(file)
-	if err != nil {
-		return "", err
-	}
-
-	// Add the file type field to the request
-	err = baseMultipartBuffer.BodyBufferWriter.WriteField("archive_type", "submission")
-	if err != nil {
-		return "", err
-	}
-
-	// Close the writer
-	err = baseMultipartBuffer.BodyBufferWriter.Close()
-	if err != nil {
-		return "", err
-	}
-
-	// Create the request
-	req, err := http.NewRequest("POST", staticFilesEndpoint, baseMultipartBuffer.BodyBuffer)
-
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Set("Content-Type", baseMultipartBuffer.BodyBufferWriter.FormDataContentType())
-
-	// Send the request
-	client := &http.Client{}
-	res, err := client.Do(req)
-
-	// Forward error message if any
-	microserviceError := sharedInfrastructure.ParseMicroserviceError(res, err)
-	if microserviceError != nil {
-		return "", microserviceError
-	}
-
-	// Return the UUID of the saved file
-	var response map[string]interface{}
-	err = json.NewDecoder(res.Body).Decode(&response)
-	if err != nil {
-		return "", err
-	}
-
-	if response["uuid"] == nil {
-		return "", &sharedDomainErrors.GenericDomainError{
-			Code:    http.StatusInternalServerError,
-			Message: "The static files microservice did not return the UUID of the saved file",
-		}
-	}
-
-	return response["uuid"].(string), nil
-}
-
-func (repository *SubmissionsRepositoryImpl) OverwriteSubmissionArchive(file *multipart.File, archiveUUID string) (err error) {
-	staticFilesEndpoint := fmt.Sprintf("%s/archives/overwrite", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress)
-
-	// Create multipart writer
-	baseMultipartBuffer, err := sharedInfrastructure.GetMultipartFormBufferFromFile(file)
-	if err != nil {
-		return err
-	}
-
-	// Add the file type field to the request
-	err = baseMultipartBuffer.BodyBufferWriter.WriteField("archive_type", "submission")
-	if err != nil {
-		return err
-	}
-
-	// Add the archive UUID field to the request
-	err = baseMultipartBuffer.BodyBufferWriter.WriteField("archive_uuid", archiveUUID)
-	if err != nil {
-		return err
-	}
-
-	// Close the writer
-	err = baseMultipartBuffer.BodyBufferWriter.Close()
-	if err != nil {
-		return err
-	}
-
-	// Create the request
-	req, err := http.NewRequest("PUT", staticFilesEndpoint, baseMultipartBuffer.BodyBuffer)
-	if err != nil {
-		return err
-	}
-
-	req.Header.Set("Content-Type", baseMultipartBuffer.BodyBufferWriter.FormDataContentType())
-
-	// Send the request
-	client := &http.Client{}
-	res, err := client.Do(req)
-
-	// Forward error message if any
-	microserviceError := sharedInfrastructure.ParseMicroserviceError(res, err)
-	if microserviceError != nil {
-		return microserviceError
-	}
-
-	return nil
 }
 
 func (repository *SubmissionsRepositoryImpl) SaveSubmission(dto *dtos.CreateSubmissionDTO) (submissionUUID string, err error) {

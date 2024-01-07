@@ -8,6 +8,7 @@ import (
 	languagesImplementation "github.com/UPB-Code-Labs/main-api/src/languages/infrastructure/implementations"
 	rubricImplementation "github.com/UPB-Code-Labs/main-api/src/rubrics/infrastructure/implementations"
 	"github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	staticFilesImplementations "github.com/UPB-Code-Labs/main-api/src/static-files/infrastructure/implementations"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,6 +16,7 @@ func StartLaboratoriesRoutes(g *gin.RouterGroup) {
 	laboratoriesGroup := g.Group("/laboratories")
 
 	useCases := application.LaboratoriesUseCases{
+		StaticFilesRepository:  &staticFilesImplementations.StaticFilesMicroserviceImplementation{},
 		LaboratoriesRepository: implementations.GetLaboratoriesPostgresRepositoryInstance(),
 		CoursesRepository:      coursesImplementation.GetCoursesPgRepository(),
 		RubricsRepository:      rubricImplementation.GetRubricsPgRepository(),
