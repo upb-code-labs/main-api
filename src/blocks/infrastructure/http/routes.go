@@ -5,6 +5,7 @@ import (
 	"github.com/UPB-Code-Labs/main-api/src/blocks/infrastructure/implementations"
 	languagesImplementations "github.com/UPB-Code-Labs/main-api/src/languages/infrastructure/implementations"
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
+	staticFilesImplementations "github.com/UPB-Code-Labs/main-api/src/static-files/infrastructure/implementations"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,8 +13,9 @@ func StartBlocksRoutes(g *gin.RouterGroup) {
 	blocksGroup := g.Group("/blocks")
 
 	useCases := application.BlocksUseCases{
-		BlocksRepository:    implementations.GetBlocksPostgresRepositoryInstance(),
-		LanguagesRepository: languagesImplementations.GetLanguagesRepositoryInstance(),
+		StaticFilesRepository: &staticFilesImplementations.StaticFilesMicroserviceImplementation{},
+		BlocksRepository:      implementations.GetBlocksPostgresRepositoryInstance(),
+		LanguagesRepository:   languagesImplementations.GetLanguagesRepositoryInstance(),
 	}
 
 	controller := BlocksController{

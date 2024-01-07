@@ -3,9 +3,6 @@ package implementations
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"io"
-	"net/http"
 	"time"
 
 	"github.com/UPB-Code-Labs/main-api/src/languages/domain/entities"
@@ -116,25 +113,4 @@ func (repository *LanguagesRepository) GetTemplateArchiveUUIDByLanguageUUID(uuid
 	}
 
 	return templateUUID, nil
-}
-
-func (repository *LanguagesRepository) GetTemplateBytes(uuid string) (template []byte, err error) {
-	// Send a request to the static files microservice
-	staticFilesMsEndpoint := fmt.Sprintf("%s/templates/%s", sharedInfrastructure.GetEnvironment().StaticFilesMicroserviceAddress, uuid)
-	resp, err := http.Get(staticFilesMsEndpoint)
-
-	// If there is an error try to forward the error message
-	microserviceError := sharedInfrastructure.ParseMicroserviceError(resp, err)
-	if microserviceError != nil {
-		return nil, microserviceError
-	}
-
-	// Read the body
-	defer resp.Body.Close()
-	template, err = io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return template, nil
 }
