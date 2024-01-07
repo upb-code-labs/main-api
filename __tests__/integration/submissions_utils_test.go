@@ -59,3 +59,43 @@ func SubmitSolutionToTestBlock(dto *SubmitSToTestBlockUtilsDTO) (response map[st
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+type closeNotifierRecorder struct {
+	*httptest.ResponseRecorder
+	closeNotify chan bool
+}
+
+func (c *closeNotifierRecorder) CloseNotify() <-chan bool {
+	return c.closeNotify
+}
+
+type RealTimeSubmissionStatusResponse struct {
+	w   *closeNotifierRecorder
+	r   *http.Request
+	err error
+}
+
+// GetRealTimeSubmissionStatus sends a request to the server to get the real time status of a submission and returns the response recorder
+func GetRealTimeSubmissionStatus(testBlockUUID string, cookie *http.Cookie) *RealTimeSubmissionStatusResponse {
+	// Create the request
+	endpoint := fmt.Sprintf("/api/v1/submissions/%s/status", testBlockUUID)
+	req, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return &RealTimeSubmissionStatusResponse{err: err}
+	}
+
+	req.AddCookie(cookie)
+
+	// Send the request
+	w := &closeNotifierRecorder{
+		ResponseRecorder: httptest.NewRecorder(),
+		closeNotify:      make(chan bool, 1),
+	}
+	router.ServeHTTP(w, req)
+
+	return &RealTimeSubmissionStatusResponse{
+		w:   w,
+		r:   req,
+		err: err,
+	}
+}
