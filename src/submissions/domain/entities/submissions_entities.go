@@ -8,6 +8,7 @@ type Submission struct {
 	Passing     bool   `json:"passing"`
 	Status      string `json:"status"`
 	Stdout      string `json:"stdout"`
+	SubmittedAt string `json:"-"`
 }
 
 type SubmissionWork struct {

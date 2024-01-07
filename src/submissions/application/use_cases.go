@@ -2,6 +2,7 @@ package application
 
 import (
 	"mime/multipart"
+	"time"
 
 	blocksDefinitions "github.com/UPB-Code-Labs/main-api/src/blocks/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/definitions"
@@ -38,6 +39,22 @@ func (useCases *SubmissionUseCases) SaveSubmission(dto *dtos.CreateSubmissionDTO
 	}
 
 	if previousStudentSubmission != nil {
+		// Check if the previous submission was submitted in the last minute
+		parsedSubmittedAt, err := time.Parse(time.RFC3339, previousStudentSubmission.SubmittedAt)
+		if err != nil {
+			return "", err
+		}
+
+		if time.Since(parsedSubmittedAt).Minutes() < 1 {
+			return "", errors.StudentHasRecentSubmission{}
+		}
+
+		// Check if the previous submission is still pending
+		finalStatus := "ready"
+		if previousStudentSubmission.Status != finalStatus {
+			return "", errors.StudentHasPendingSubmission{}
+		}
+
 		// If the student already has a submission, reset its status and overwrite the archive
 		err = useCases.resetSubmissionStatus(previousStudentSubmission, dto.SubmissionArchive)
 		if err != nil {

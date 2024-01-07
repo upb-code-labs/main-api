@@ -217,7 +217,7 @@ func (repository *SubmissionsRepositoryImpl) GetStudentSubmission(studentUUID st
 	defer cancel()
 
 	query := `
-		SELECT id, archive_id, passing, status, stdout
+		SELECT id, archive_id, passing, status, stdout, submitted_at
 		FROM submissions
 		WHERE student_id = $1 AND test_block_id = $2
 	`
@@ -227,7 +227,12 @@ func (repository *SubmissionsRepositoryImpl) GetStudentSubmission(studentUUID st
 	err = repository.Connection.QueryRowContext(
 		ctx, query, studentUUID, testBlockUUID,
 	).Scan(
-		&submission.UUID, &submission.ArchiveUUID, &submission.Passing, &submission.Status, &submission.Stdout,
+		&submission.UUID,
+		&submission.ArchiveUUID,
+		&submission.Passing,
+		&submission.Status,
+		&submission.Stdout,
+		&submission.SubmittedAt,
 	)
 
 	if err != nil {
