@@ -322,6 +322,24 @@ func (repository *BlocksPostgresRepository) UpdateTestBlock(dto *dtos.UpdateTest
 	return nil
 }
 
+func (repository *BlocksPostgresRepository) GetTestBlockLaboratoryUUID(blockUUID string) (laboratoryUUID string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT laboratory_id
+		FROM test_blocks
+		WHERE id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, blockUUID)
+	if err := row.Scan(&laboratoryUUID); err != nil {
+		return "", err
+	}
+
+	return laboratoryUUID, nil
+}
+
 func (repository *BlocksPostgresRepository) DeleteMarkdownBlock(blockUUID string) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()

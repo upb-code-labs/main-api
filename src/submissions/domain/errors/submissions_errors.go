@@ -51,3 +51,13 @@ func (err StudentHasPendingSubmission) Error() string {
 func (err StudentHasPendingSubmission) StatusCode() int {
 	return http.StatusForbidden
 }
+
+type LaboratoryIsClosed struct{}
+
+func (err LaboratoryIsClosed) Error() string {
+	return "The laboratory no longer accepts submissions"
+}
+
+func (err LaboratoryIsClosed) StatusCode() int {
+	return http.StatusForbidden
+}

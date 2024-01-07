@@ -32,4 +32,7 @@ type BlockRepository interface {
 	// Delete blocks
 	DeleteMarkdownBlock(blockUUID string) (err error)
 	DeleteTestBlock(blockUUID string) (err error)
+
+	// Get the laboratory the block belongs to
+	GetTestBlockLaboratoryUUID(blockUUID string) (laboratoryUUID string, err error)
 }
