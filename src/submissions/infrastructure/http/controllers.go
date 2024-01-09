@@ -3,8 +3,8 @@ package http
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
+	"time"
 
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/application"
@@ -90,46 +90,44 @@ func (controller *SubmissionsController) HandleGetSubmission(c *gin.Context) {
 		return
 	}
 
-	// Create a channel to send real time updates about the submission
 	realTimeUpdater := submissionsImplementations.GetSubmissionsRealTimeUpdatesSenderInstance()
+
+	// Create a channel to send real time updates about the submission
 	updatesChannel := realTimeUpdater.CreateChannel(currentStatus.SubmissionUUID)
 	defer realTimeUpdater.DeleteChannel(currentStatus.SubmissionUUID)
 
-	// Add the current status to the channel. Please, note that further updates will be sent
-	// from the Real Time Updates queue manager
+	/*
+		 Add the current status to the channel. Please, note that further updates will be sent
+		from the Real Time Updates queue manager
+	*/
 	go realTimeUpdater.SendUpdate(currentStatus)
+
+	// Connection timeout
+	timeoutCh := time.After(5 * time.Minute)
 
 	// Send real time updates
 	c.Stream(func(_ io.Writer) bool {
 		select {
 		// A new update was received
-		case update := <-*updatesChannel:
-			// Parse the update to a JSON
-			json, err := json.Marshal(update)
-
-			if err != nil {
-				log.Printf(
-					"[SSE]: Error while parsing the update to JSON: %s",
-					err.Error(),
-				)
-
-				realTimeUpdater.DeleteChannel(testBlockUUID)
+		case update, ok := <-*updatesChannel:
+			// Check the channel is not closed
+			if !ok {
 				return false
 			}
+
+			// Parse the update to a JSON
+			json, _ := json.Marshal(update)
 
 			// Send the update
 			c.SSEvent("update", string(json))
-
-			// Check if the submission is finished
-			if update.SubmissionStatus == "ready" {
-				realTimeUpdater.DeleteChannel(testBlockUUID)
-				return false
-			}
-
 			return true
+
+		// The connection timed out
+		case <-timeoutCh:
+			return false
+
 		// The client closed the connection
 		case <-c.Writer.CloseNotify():
-			realTimeUpdater.DeleteChannel(testBlockUUID)
 			return false
 		}
 	})
