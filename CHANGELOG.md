@@ -1,3 +1,12 @@
+## [0.42.2](https://github.com/upb-code-labs/main-api/compare/v0.42.1...v0.42.2) (2024-01-09)
+
+
+### Bug Fixes
+
+* Update SSE controller ([#144](https://github.com/upb-code-labs/main-api/issues/144)) ([cd6091d](https://github.com/upb-code-labs/main-api/commit/cd6091d3b2d78c369f82bd9ad100b74b1b089421))
+
+
+
 ## [0.42.1](https://github.com/upb-code-labs/main-api/compare/v0.42.0...v0.42.1) (2024-01-07)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * Update test block without sending a new test archive ([#135](https://github.com/upb-code-labs/main-api/issues/135)) ([63266f0](https://github.com/upb-code-labs/main-api/commit/63266f07a667844eb0ba7f3263c1bb84678c9ce4))
-
-
-
-# [0.40.0](https://github.com/upb-code-labs/main-api/compare/v0.39.0...v0.40.0) (2023-12-30)
-
-
-### Features
-
-* Delete test block ([#132](https://github.com/upb-code-labs/main-api/issues/132)) ([3ddaa80](https://github.com/upb-code-labs/main-api/commit/3ddaa80089b3e88404bfa0f92070d5f1e21722de))
 
 
 
