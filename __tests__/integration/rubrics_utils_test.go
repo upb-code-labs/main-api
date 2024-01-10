@@ -26,6 +26,15 @@ func GetRubricByUUID(cookie *http.Cookie, uuid string) (response map[string]inte
 	return ParseJsonResponse(w.Body), w.Code
 }
 
+func DeleteRubric(cookie *http.Cookie, uuid string) (response map[string]interface{}, status int) {
+	endpoint := "/api/v1/rubrics/" + uuid
+	w, r := PrepareRequest("DELETE", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	return ParseJsonResponse(w.Body), w.Code
+}
+
 func UpdateRubricName(cookie *http.Cookie, uuid string, payload map[string]interface{}) (response map[string]interface{}, status int) {
 	w, r := PrepareRequest("PATCH", "/api/v1/rubrics/"+uuid+"/name", payload)
 	r.AddCookie(cookie)
