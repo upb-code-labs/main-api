@@ -1,3 +1,12 @@
+# [0.43.0](https://github.com/upb-code-labs/main-api/compare/v0.42.2...v0.43.0) (2024-01-10)
+
+
+### Features
+
+* Delete rubric ([#147](https://github.com/upb-code-labs/main-api/issues/147)) ([6394ee9](https://github.com/upb-code-labs/main-api/commit/6394ee9deeb2b7e072a65fc2afcabd7dfa000566))
+
+
+
 ## [0.42.2](https://github.com/upb-code-labs/main-api/compare/v0.42.1...v0.42.2) (2024-01-09)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Submit archive to test block ([#137](https://github.com/upb-code-labs/main-api/issues/137)) ([b000f9b](https://github.com/upb-code-labs/main-api/commit/b000f9b2ab4d1f4863859525e39366de6d8e33e4))
-
-
-
-## [0.40.1](https://github.com/upb-code-labs/main-api/compare/v0.40.0...v0.40.1) (2024-01-02)
-
-
-### Bug Fixes
-
-* Update test block without sending a new test archive ([#135](https://github.com/upb-code-labs/main-api/issues/135)) ([63266f0](https://github.com/upb-code-labs/main-api/commit/63266f07a667844eb0ba7f3263c1bb84678c9ce4))
 
 
 
