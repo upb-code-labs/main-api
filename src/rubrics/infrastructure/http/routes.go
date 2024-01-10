@@ -39,6 +39,13 @@ func StartRubricsRoutes(g *gin.RouterGroup) {
 		controller.HandleGetRubricByUUID,
 	)
 
+	rubricsGroup.DELETE(
+		"/:rubricUUID",
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleDeleteRubric,
+	)
+
 	rubricsGroup.PATCH(
 		"/:rubricUUID/name",
 		sharedInfrastructure.WithAuthenticationMiddleware(),
