@@ -120,7 +120,15 @@ func (controller *SubmissionsController) HandleGetSubmission(c *gin.Context) {
 
 			// Send the update
 			c.SSEvent("update", string(json))
-			return true
+
+			shouldCloseConnection := update.SubmissionStatus == "ready" &&
+				sharedInfrastructure.GetEnvironment().ExecEnvironment == "testing"
+
+			if shouldCloseConnection {
+				return false
+			} else {
+				return true
+			}
 
 		// The connection timed out
 		case <-timeoutCh:
