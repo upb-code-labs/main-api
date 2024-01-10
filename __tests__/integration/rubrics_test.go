@@ -188,6 +188,52 @@ func TestGetRubricByUUID(t *testing.T) {
 	}
 }
 
+func TestDeleteRubric(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    secondRegisteredTeacherEmail,
+		"password": secondRegisteredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a rubric
+	response, status := CreateRubric(cookie, map[string]interface{}{
+		"name": "Delete rubric test - Rubric",
+	})
+	c.Equal(http.StatusCreated, status)
+	rubricUUID := response["uuid"].(string)
+
+	// Test cases
+	testCases := []GenericTestCase{
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"rubricUUID": "not-valid-uuid",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"rubricUUID": rubricUUID,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"rubricUUID": rubricUUID,
+			},
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+	}
+
+	for _, testCase := range testCases {
+		_, status := DeleteRubric(cookie, testCase.Payload["rubricUUID"].(string))
+		c.Equal(testCase.ExpectedStatusCode, status)
+	}
+}
+
 func TestUpdateRubricName(t *testing.T) {
 	c := require.New(t)
 

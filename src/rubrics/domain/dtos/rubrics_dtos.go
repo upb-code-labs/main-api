@@ -16,6 +16,11 @@ type GetRubricDto struct {
 	RubricUUID  string
 }
 
+type DeleteRubricDTO struct {
+	TeacherUUID string
+	RubricUUID  string
+}
+
 type UpdateRubricNameDTO struct {
 	TeacherUUID string
 	RubricUUID  string

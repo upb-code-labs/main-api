@@ -101,6 +101,34 @@ func (controller *RubricsController) HandleGetRubricByUUID(c *gin.Context) {
 	})
 }
 
+func (controller *RubricsController) HandleDeleteRubric(c *gin.Context) {
+	teacher_uuid := c.GetString("session_uuid")
+
+	// Validate rubric UUID
+	rubric_uuid := c.Param("rubricUUID")
+	if err := sharedInfrastructure.GetValidator().Var(rubric_uuid, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid rubric uuid",
+		})
+		return
+	}
+
+	// Create DTO
+	dto := dtos.DeleteRubricDTO{
+		TeacherUUID: teacher_uuid,
+		RubricUUID:  rubric_uuid,
+	}
+
+	// Delete the rubric
+	err := controller.UseCases.DeleteRubric(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
 func (controller *RubricsController) HandleUpdateRubricName(c *gin.Context) {
 	teacher_uuid := c.GetString("session_uuid")
 

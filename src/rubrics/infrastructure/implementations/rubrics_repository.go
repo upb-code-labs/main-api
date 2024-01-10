@@ -172,6 +172,28 @@ func (repository *RubricsPostgresRepository) GetByUUID(uuid string) (rubric *ent
 	return rubric, nil
 }
 
+func (repository *RubricsPostgresRepository) Delete(uuid string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Delete the rubric
+	query := `
+		DELETE FROM rubrics
+		WHERE id = $1
+	`
+
+	_, err = repository.Connection.ExecContext(ctx, query, uuid)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return &errors.RubricNotFoundError{}
+		}
+
+		return err
+	}
+
+	return nil
+}
+
 func (repository *RubricsPostgresRepository) UpdateName(dto *dtos.UpdateRubricNameDTO) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()

@@ -21,6 +21,8 @@ jobs:
         run: docker-compose up -d
 
       - name: Clean and coverage
+        env: 
+          EXEC_ENVIRONMENT: testing
         run: |
           export DB_MIGRATIONS_PATH=file://$(pwd)/sql/migrations
           go clean -cache
