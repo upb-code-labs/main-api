@@ -7,6 +7,9 @@ import (
 )
 
 type EnvironmentSpec struct {
+	// Execution environment
+	ExecEnvironment string `split_words:"true" default:"development"`
+
 	// Connection strings
 	DbConnectionString             string `split_words:"true" default:"postgres://postgres:postgres@localhost:5432/codelabs?sslmode=disable"`
 	RabbitMQConnectionString       string `split_words:"true" default:"amqp://rabbitmq:rabbitmq@localhost:5672/"`

@@ -326,3 +326,112 @@ func TestCreateTestBlock(t *testing.T) {
 	// c.Equal(http.StatusCreated, status)
 	c.Contains(response, "uuid")
 }
+
+func TestGetStudentsProgres(t *testing.T) {
+	c := require.New(t)
+
+	// ## Prepare
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a course
+	courseUUID, status := CreateCourse("Get students progress test - course")
+	c.Equal(http.StatusCreated, status)
+
+	// Create a laboratory
+	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
+		"name":         "Get students progress test - laboratory",
+		"course_uuid":  courseUUID,
+		"opening_date": "2023-12-01T08:00",
+		"due_date":     "3023-12-01T00:00",
+	})
+	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
+	c.Equal(http.StatusCreated, status)
+
+	// Add a student to the course
+	invitationCode, code := GetInvitationCode(courseUUID)
+	c.Equal(http.StatusOK, code)
+	c.NotEmpty(invitationCode)
+
+	_, code = AddStudentToCourse(invitationCode)
+	c.Equal(http.StatusOK, code)
+
+	// Get languages list
+	languagesResponse, status := GetSupportedLanguages(cookie)
+	c.Equal(http.StatusOK, status)
+
+	languages := languagesResponse["languages"].([]interface{})
+	c.Greater(len(languages), 0)
+
+	firstLanguage := languages[0].(map[string]interface{})
+	firstLanguageUUID := firstLanguage["uuid"].(string)
+
+	// Create a test block
+	zipFile, err := GetSampleTestsArchive()
+	c.Nil(err)
+
+	blockCreationResponse, status := CreateTestBlock(&CreateTestBlockUtilsDTO{
+		laboratoryUUID: laboratoryUUID,
+		languageUUID:   firstLanguageUUID,
+		blockName:      "Get students progress test - block",
+		cookie:         cookie,
+		testFile:       zipFile,
+	})
+	c.Equal(http.StatusCreated, status)
+	testBlockUUID := blockCreationResponse["uuid"].(string)
+
+	// Login as a student
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredStudentEmail,
+		"password": registeredStudentPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie = w.Result().Cookies()[0]
+
+	// Submit a solution
+	zipFile, err = GetSampleSubmissionArchive()
+	c.Nil(err)
+
+	_, status = SubmitSolutionToTestBlock(&SubmitSToTestBlockUtilsDTO{
+		blockUUID: testBlockUUID,
+		file:      zipFile,
+		cookie:    cookie,
+	})
+	c.Equal(http.StatusCreated, status)
+
+	// ## Test
+
+	// Login as a teacher again
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie = w.Result().Cookies()[0]
+
+	// Get the students progress
+	response, status := GetStudentsProgressInLaboratory(laboratoryUUID, cookie)
+	c.Equal(http.StatusOK, status)
+
+	totalTestBlocks := response["total_test_blocks"].(float64)
+	studentsProgress := response["students_progress"].([]interface{})
+	c.Equal(1, int(totalTestBlocks))
+	c.Equal(1, len(studentsProgress))
+
+	studentProgress := studentsProgress[0].(map[string]interface{})
+	studentPendingSubmissionsCount := studentProgress["pending_submissions"].(float64)
+	studentRunningSubmissionsCount := studentProgress["running_submissions"].(float64)
+	studentFailingSubmissionsCount := studentProgress["failing_submissions"].(float64)
+	StudentSuccessSubmissionsCount := studentProgress["success_submissions"].(float64)
+
+	c.GreaterOrEqual(int(studentPendingSubmissionsCount), 0)
+	c.GreaterOrEqual(int(studentRunningSubmissionsCount), 0)
+	c.GreaterOrEqual(int(studentFailingSubmissionsCount), 0)
+	c.GreaterOrEqual(int(StudentSuccessSubmissionsCount), 0)
+}

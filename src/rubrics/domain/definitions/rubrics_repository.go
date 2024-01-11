@@ -8,6 +8,7 @@ import (
 type RubricsRepository interface {
 	Save(dto *dtos.CreateRubricDTO) (rubric *entities.Rubric, err error)
 	GetByUUID(uuid string) (rubric *entities.Rubric, err error)
+	Delete(uuid string) (err error)
 	GetAllCreatedByTeacher(teacherUUID string) (rubrics []*dtos.CreatedRubricDTO, err error)
 
 	DoesTeacherOwnRubric(teacherUUID string, rubricUUID string) (bool, error)

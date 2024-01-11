@@ -152,6 +152,34 @@ func (controller *LaboratoriesController) HandleUpdateLaboratory(c *gin.Context)
 	c.Status(http.StatusNoContent)
 }
 
+func (controller *LaboratoriesController) HandleGetLaboratoryProgress(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+	laboratoryUUID := c.Param("laboratory_uuid")
+
+	// Validate the laboratory UUID
+	if err := infrastructure.GetValidator().Var(laboratoryUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Laboratory UUID is not valid",
+		})
+		return
+	}
+
+	// Get laboratory progress
+	dto := dtos.GetLaboratoryProgressDTO{
+		LaboratoryUUID: laboratoryUUID,
+		TeacherUUID:    teacherUUID,
+	}
+
+	progressDTO, err := controller.UseCases.GetLaboratoryProgress(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	// Return laboratory progress
+	c.JSON(http.StatusOK, progressDTO)
+}
+
 func (controller *LaboratoriesController) HandleCreateMarkdownBlock(c *gin.Context) {
 	teacherUUID := c.GetString("session_uuid")
 	laboratoryUUID := c.Param("laboratory_uuid")
