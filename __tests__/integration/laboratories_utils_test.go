@@ -2,6 +2,7 @@ package integration
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -99,6 +100,16 @@ func CreateTestBlock(dto *CreateTestBlockUtilsDTO) (response map[string]interfac
 
 	// Send the request
 	router.ServeHTTP(w, r)
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}
+
+func GetStudentsProgressInLaboratory(laboratoryUUID string, cookie *http.Cookie) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/laboratories/%s/progress", laboratoryUUID)
+	w, r := PrepareRequest("GET", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }

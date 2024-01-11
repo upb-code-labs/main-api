@@ -12,4 +12,7 @@ type LaboratoriesRepository interface {
 
 	CreateMarkdownBlock(laboratoryUUID string) (blockUUID string, err error)
 	CreateTestBlock(dto *dtos.CreateTestBlockDTO) (blockUUID string, err error)
+
+	GetTotalTestBlocks(laboratoryUUID string) (total int, err error)
+	GetStudentsProgress(laboratoryUUID string) (progress []*dtos.LaboratoryStudentProgressDTO, err error)
 }

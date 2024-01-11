@@ -285,3 +285,66 @@ func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.Crea
 	// Return the new block UUID
 	return blockUUID, nil
 }
+
+func (repository *LaboratoriesPostgresRepository) GetTotalTestBlocks(laboratoryUUID string) (total int, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT COUNT(tb.id)
+		FROM test_blocks AS tb
+		WHERE tb.laboratory_id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, laboratoryUUID)
+	if err := row.Scan(&total); err != nil {
+		if err == sql.ErrNoRows {
+			return 0, errors.LaboratoryNotFoundError{}
+		}
+
+		return 0, err
+	}
+
+	return total, nil
+}
+
+func (repository *LaboratoriesPostgresRepository) GetStudentsProgress(laboratoryUUID string) (progress []*dtos.LaboratoryStudentProgressDTO, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT spv.student_id, spv.student_full_name, spv.pending_submissions, spv.running_submissions, spv.failing_submissions, spv.success_submissions
+		FROM students_progress_view AS spv
+		WHERE spv.laboratory_id = $1
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, laboratoryUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.LaboratoryNotFoundError{}
+		}
+
+		return nil, err
+	}
+
+	progress = []*dtos.LaboratoryStudentProgressDTO{}
+
+	for rows.Next() {
+		studentProgress := dtos.LaboratoryStudentProgressDTO{}
+
+		if err := rows.Scan(
+			&studentProgress.StudentUUID,
+			&studentProgress.StudentFullName,
+			&studentProgress.PendingSubmissions,
+			&studentProgress.RunningSubmissions,
+			&studentProgress.FailingSubmissions,
+			&studentProgress.SuccessSubmissions,
+		); err != nil {
+			return nil, err
+		}
+
+		progress = append(progress, &studentProgress)
+	}
+
+	return progress, nil
+}

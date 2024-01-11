@@ -89,10 +89,16 @@ func (repository *SubmissionsRepositoryImpl) ResetSubmissionStatus(submissionUUI
 			status = $2,
 			stdout = $3,
 			submitted_at = CURRENT_TIMESTAMP
+		WHERE id = $4
 	`
 
 	_, err = repository.Connection.ExecContext(
-		ctx, query, DEFAULT_PASSING_VALUE, DEFAULT_STATUS_VALUE, DEFAULT_STDOUT_VALUE,
+		ctx,
+		query,
+		DEFAULT_PASSING_VALUE,
+		DEFAULT_STATUS_VALUE,
+		DEFAULT_STDOUT_VALUE,
+		submissionUUID,
 	)
 	if err != nil {
 		return err

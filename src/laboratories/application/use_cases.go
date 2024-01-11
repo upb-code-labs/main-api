@@ -140,3 +140,32 @@ func (useCases *LaboratoriesUseCases) CreateTestBlock(dto *dtos.CreateTestBlockD
 	// Save the information in the database
 	return useCases.LaboratoriesRepository.CreateTestBlock(dto)
 }
+
+func (useCases *LaboratoriesUseCases) GetLaboratoryProgress(dto *dtos.GetLaboratoryProgressDTO) (progress *dtos.LaboratoryProgressDTO, err error) {
+	// Check that the teacher owns the laboratory
+	teacherOwnsLaboratory, err := useCases.doesTeacherOwnsLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !teacherOwnsLaboratory {
+		return nil, &coursesErrors.TeacherDoesNotOwnsCourseError{}
+	}
+
+	// Get the total test blocks
+	totalTestBlocks, err := useCases.LaboratoriesRepository.GetTotalTestBlocks(dto.LaboratoryUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the students progress
+	studentsProgress, err := useCases.LaboratoriesRepository.GetStudentsProgress(dto.LaboratoryUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dtos.LaboratoryProgressDTO{
+		TotalTestBlocks:  totalTestBlocks,
+		StudentsProgress: studentsProgress,
+	}, nil
+}

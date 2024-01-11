@@ -18,6 +18,8 @@ DROP INDEX IF EXISTS idx_users_lower_fullName;
 DROP INDEX IF EXISTS idx_users_role;
 
 -- ## Views
+DROP VIEW IF EXISTS students_progress_view;
+
 DROP VIEW IF EXISTS submissions_work_metadata;
 
 DROP VIEW IF EXISTS courses_with_color;

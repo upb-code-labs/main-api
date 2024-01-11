@@ -198,6 +198,7 @@ FROM
   INNER JOIN courses ON courses_has_users.course_id = courses.id
   INNER JOIN colors ON courses.color_id = colors.id;
 
+-- ### Submissions work to be sent to the work queue
 CREATE OR REPLACE VIEW submissions_work_metadata AS
 SELECT
   submissions.id AS submission_id,
@@ -210,6 +211,33 @@ FROM submissions
   INNER JOIN archives AS language_archive ON languages.template_archive_id = language_archive.id
   INNER JOIN archives AS test_archive ON test_blocks.test_archive_id = test_archive.id
   INNER JOIN archives AS submission_archive ON submissions.archive_id = submission_archive.id;
+
+-- ### Students progress
+CREATE OR REPLACE VIEW students_progress_view AS
+SELECT
+  users.id AS student_id,
+  users.full_name as student_full_name,
+  test_blocks.laboratory_id,
+  COUNT(submissions.id) FILTER (
+	  WHERE submissions.status = 'pending'
+  ) AS pending_submissions,
+  COUNT(submissions.id) FILTER (
+	  WHERE submissions.status = 'running'
+  ) AS running_submissions,
+  COUNT(submissions.id) FILTER (
+	  WHERE submissions.status = 'ready' AND submissions.passing = FALSE
+  ) AS failing_submissions,
+  COUNT(submissions.id) FILTER (
+	  WHERE submissions.status = 'ready' AND submissions.passing = TRUE
+  ) AS success_submissions
+FROM
+  submissions
+JOIN
+  users ON submissions.student_id = users.id
+JOIN
+  test_blocks ON submissions.test_block_id = test_blocks.id
+GROUP BY
+  users.id, users.full_name, test_blocks.laboratory_id;
 
 --- ### Objectives
 CREATE
