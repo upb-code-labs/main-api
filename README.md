@@ -1,25 +1,26 @@
-# Main API
+# Gateway
 
-[![Integration](https://github.com/upb-code-labs/main-api/actions/workflows/integration.yaml/badge.svg?branch=dev)](https://github.com/upb-code-labs/main-api/actions/workflows/integration.yaml)
-[![Coverage](https://github.com/upb-code-labs/main-api/actions/workflows/coverage.yaml/badge.svg)](https://github.com/upb-code-labs/main-api/actions/workflows/coverage.yaml)
-[![Release](https://github.com/upb-code-labs/main-api/actions/workflows/release.yaml/badge.svg)](https://github.com/upb-code-labs/main-api/actions/workflows/release.yaml)
+Welcome to the gateway repository. This service is responsible for the following tasks:
 
-## Development 🧑🏻‍💻
+- Authentication
+- Authorization
+- Serve the REST API
+- Send SSE updates to the web client
+- Proxy requests to the static files micro-service
+- Publish messages to the RabbitMQ submissions queue
 
-### Environment variables
+Bellow is a diagram of the overall architecture of the system with the gateway / main api highlighted in green.
 
-| Name                   | Description                                |
-| ---------------------- | ------------------------------------------ |
-| `DB_CONNECTION_STRING` | Connection string to the postgres database |
-| `DB_MIGRATIONS_PATH`   | Absolute path to the migrations folder     |
+![Gateway service highlighted with a green rectangle in the overall architecture diagram](./docs/images/gateway-highlighted.jpg)
 
-Environment variables have default values, but you can override them by exporting them in your shell.
+## Documentation
 
-```bash
-set NAME=VALUE
-```
+Please, refer to the following documents for more information about the gateway service:
 
-## Coverage 🧪
-
-| [![Sunburst](https://codecov.io/gh/upb-code-labs/main-api/graphs/sunburst.svg?token=Q9QHF616RS)](https://app.codecov.io/gh/upb-code-labs/main-api) | [![square](https://codecov.io/gh/upb-code-labs/main-api/graphs/tree.svg?token=Q9QHF616RS)](https://app.codecov.io/gh/upb-code-labs/main-api) |
-| -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Document                                                  | Description                                                                                         |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [Contributing](./docs/contributing.md)                    | Contributing guidelines.                                                                            |
+| [Environment](./docs/environment.md)                      | A description of the environment variables used by the gateway service.                       |
+| [Bruno Collection](./docs/bruno)                          | A collection of REST API requests to be used with [Bruno](https://github.com/usebruno/bruno).       |
+| [Insomnia Collection](./docs/insomnia)                    | A collection of REST API requests to be used with [Insomnia](https://insomnia.rest/).               |
+| [OpenAPI Specification](./docs/openapi/spec.openapi.yaml) | A description of the REST API using the [OpenAPI Specification](https://swagger.io/specification/). |
