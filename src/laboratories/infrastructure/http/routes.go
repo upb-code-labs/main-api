@@ -34,24 +34,35 @@ func StartLaboratoriesRoutes(g *gin.RouterGroup) {
 		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleCreateLaboratory,
 	)
+
 	laboratoriesGroup.GET(
 		"/:laboratory_uuid",
 		infrastructure.WithAuthenticationMiddleware(),
 		infrastructure.WithAuthorizationMiddleware([]string{"teacher", "student"}),
 		controller.HandleGetLaboratory,
 	)
+
 	laboratoriesGroup.PUT(
 		"/:laboratory_uuid",
 		infrastructure.WithAuthenticationMiddleware(),
 		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleUpdateLaboratory,
 	)
+
+	laboratoriesGroup.GET(
+		"/:laboratory_uuid/progress",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleGetLaboratoryProgress,
+	)
+
 	laboratoriesGroup.POST(
 		"/markdown_blocks/:laboratory_uuid",
 		infrastructure.WithAuthenticationMiddleware(),
 		infrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleCreateMarkdownBlock,
 	)
+
 	laboratoriesGroup.POST(
 		"/test_blocks/:laboratory_uuid",
 		infrastructure.WithAuthenticationMiddleware(),
