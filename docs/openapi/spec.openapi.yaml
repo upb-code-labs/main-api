@@ -174,7 +174,7 @@ paths:
           required: true
       responses: 
         "200": 
-          description: Students whith the given fullname are listed
+          description: Students with the given fullname are listed
           content:
             application/json:
               schema:
@@ -640,7 +640,7 @@ paths:
           required: true
       responses:
         "200":
-          description: The studenst are listed.
+          description: The students are listed.
           content:
             application/json:
               schema:
@@ -810,7 +810,7 @@ paths:
       description: Get `.zip` archive with the template for the given language
       responses:
         "200":
-          description: The `.zip` archive is retreived / downloaded
+          description: The `.zip` archive is retrieved / downloaded
           content: 
             application/zip:
               schema:
@@ -894,7 +894,7 @@ paths:
           required: true
       responses: 
         "200": 
-          description: The laboratory information was retreived successfully. 
+          description: The laboratory information was retrieved successfully. 
           content: 
             application/json: 
               schema: 
@@ -1066,7 +1066,7 @@ paths:
           required: true
       responses: 
         "200": 
-          description: The information about the progress was retreived successfully. 
+          description: The information about the progress was retrieved successfully. 
           content: 
             application/json: 
               schema: 
@@ -1118,7 +1118,7 @@ paths:
           required: true
       responses: 
         "200": 
-          description: The information about the progress of the student was retreived successfully. 
+          description: The information about the progress of the student was retrieved successfully. 
           content: 
             application/json: 
               schema: 
@@ -1383,7 +1383,7 @@ paths:
       description: Get content of the given rubric.
       responses:
         "200":
-          description: The content of the rubric was uptained.
+          description: The content of the rubric was retrieved.
           content:
             application/json:
               schema:
@@ -2097,7 +2097,7 @@ components:
           example: "962022d9-8a0a-4686-b10e-fca700601772"
         name: 
           type: string
-          example: "Duubly Linked List Methods"
+          example: "Doubly Linked List Methods"
         order: 
           type: number
           example: 1
@@ -2144,10 +2144,22 @@ components:
           items: 
             type: object
             properties: 
-              student:
+              student_uuid: 
                 type: string
-                example: "Chanel Durk"
-              completed: 
+                example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
+              student_full_name: 
+                type: string
+                example: "Pedro Chaparro"
+              pending_submissions:
+                type: number
+                example: 0
+              running_submissions:
+                type: number
+                example: 1
+              failing_submissions: 
+                type: number
+                example: 1
+              success_submissions: 
                 type: number
                 example: 2
     
