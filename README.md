@@ -15,12 +15,12 @@ Bellow is a diagram of the overall architecture of the system with the gateway /
 
 ## Documentation
 
-Please, refer to the following documents for more information about the tests micro-service:
+Please, refer to the following documents for more information about the gateway service:
 
 | Document                                                  | Description                                                                                         |
 | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | [Contributing](./docs/contributing.md)                    | Contributing guidelines.                                                                            |
-| [Environment](./docs/environment.md)                      | A description of the environment variables used by the tests micro-service.                         |
+| [Environment](./docs/environment.md)                      | A description of the environment variables used by the gateway service.                       |
 | [Bruno Collection](./docs/bruno)                          | A collection of REST API requests to be used with [Bruno](https://github.com/usebruno/bruno).       |
 | [Insomnia Collection](./docs/insomnia)                    | A collection of REST API requests to be used with [Insomnia](https://insomnia.rest/).               |
 | [OpenAPI Specification](./docs/openapi/spec.openapi.yaml) | A description of the REST API using the [OpenAPI Specification](https://swagger.io/specification/). |
