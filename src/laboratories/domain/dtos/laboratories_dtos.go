@@ -56,3 +56,12 @@ type LaboratoryStudentProgressDTO struct {
 	FailingSubmissions int    `json:"failing_submissions"`
 	SuccessSubmissions int    `json:"success_submissions"`
 }
+
+type LaboratoryDetailsDTO struct {
+	UUID        string  `json:"uuid"`
+	CourseUUID  string  `json:"-"`
+	RubricUUID  *string `json:"rubric_uuid"`
+	Name        string  `json:"name"`
+	OpeningDate string  `json:"opening_date"`
+	DueDate     string  `json:"due_date"`
+}
