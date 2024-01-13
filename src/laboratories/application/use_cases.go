@@ -58,6 +58,29 @@ func (useCases *LaboratoriesUseCases) GetLaboratory(dto *dtos.GetLaboratoryDTO) 
 	return laboratory, nil
 }
 
+func (useCases *LaboratoriesUseCases) GetLaboratoryInformation(dto *dtos.GetLaboratoryDTO) (laboratoryInformation *dtos.LaboratoryDetailsDTO, err error) {
+	// Get the laboratory
+	laboratoryInformation, err = useCases.LaboratoriesRepository.GetLaboratoryInformationByUUID(dto.LaboratoryUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check the user is enrolled in the course
+	isEnrolled, err := useCases.CoursesRepository.IsUserInCourse(
+		dto.UserUUID,
+		laboratoryInformation.CourseUUID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if !isEnrolled {
+		return nil, coursesErrors.UserNotInCourseError{}
+	}
+
+	return laboratoryInformation, nil
+}
+
 func (useCases *LaboratoriesUseCases) UpdateLaboratory(dto *dtos.UpdateLaboratoryDTO) error {
 	// Check that the teacher owns the laboratory / course
 	teacherOwnsLaboratory, err := useCases.doesTeacherOwnsLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)

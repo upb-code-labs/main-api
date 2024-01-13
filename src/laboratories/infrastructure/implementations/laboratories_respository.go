@@ -75,6 +75,46 @@ func (repository *LaboratoriesPostgresRepository) GetLaboratoryByUUID(uuid strin
 	return laboratory, nil
 }
 
+func (repository *LaboratoriesPostgresRepository) GetLaboratoryInformationByUUID(uuid string) (laboratory *dtos.LaboratoryDetailsDTO, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get base laboratory data
+	query := `
+		SELECT id, rubric_id, course_id, name, opening_date, due_date
+		FROM laboratories
+		WHERE id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, uuid)
+	laboratoryDetails := &dtos.LaboratoryDetailsDTO{}
+	rubricUUID := sql.NullString{}
+
+	// Parse the row
+	if err := row.Scan(
+		&laboratoryDetails.UUID,
+		&rubricUUID,
+		&laboratoryDetails.CourseUUID,
+		&laboratoryDetails.Name,
+		&laboratoryDetails.OpeningDate,
+		&laboratoryDetails.DueDate,
+	); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.LaboratoryNotFoundError{}
+		}
+
+		return nil, err
+	}
+
+	if rubricUUID.Valid {
+		laboratoryDetails.RubricUUID = &rubricUUID.String
+	} else {
+		laboratoryDetails.RubricUUID = nil
+	}
+
+	return laboratoryDetails, nil
+}
+
 func (repository *LaboratoriesPostgresRepository) getMarkdownBlocks(laboratoryUUID string) ([]entities.MarkdownBlock, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
