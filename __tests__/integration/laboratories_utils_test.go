@@ -28,6 +28,16 @@ func GetLaboratoryByUUID(cookie *http.Cookie, uuid string) (response map[string]
 	return jsonResponse, w.Code
 }
 
+func GetLaboratoryInformationByUUID(cookie *http.Cookie, uuid string) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/laboratories/%s/information", uuid)
+	w, r := PrepareRequest("GET", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}
+
 func UpdateLaboratory(cookie *http.Cookie, uuid string, payload map[string]interface{}) (response map[string]interface{}, statusCode int) {
 	w, r := PrepareRequest("PUT", "/api/v1/laboratories/"+uuid, payload)
 	r.AddCookie(cookie)
