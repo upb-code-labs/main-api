@@ -912,7 +912,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
         "404":
-          description: No laboratory found with the given UUID. 
+          description: No laboratory found with the given UUId. 
           content:
             application/json:
               schema:
@@ -997,7 +997,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
         "404":
-          description: No laboratory found with the given UUID. 
+          description: No laboratory found with the given UUId. 
           content:
             application/json:
               schema:
@@ -1130,7 +1130,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
         "404":
-          description: No laboratory found with the given UUID. 
+          description: No laboratory found with the given UUId. 
           content:
             application/json:
               schema:
@@ -1182,7 +1182,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
         "404":
-          description: No laboratory found with the given UUID. 
+          description: No laboratory found with the given UUId. 
           content:
             application/json:
               schema:
@@ -1838,7 +1838,7 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
                 
   # Submissions
-  /submissions/{test_block_uuid}/mine:
+  /submissions/{test_block_uuid}/status:
     get:
       tags:
         - Submissions
@@ -1856,7 +1856,7 @@ paths:
         "200": 
           description: The laboratory information was retrieved successfully. 
           content: 
-            application/json: 
+            text/event-stream: 
               schema: 
                 $ref: "#/components/schemas/submission_metadata"
         "403":
@@ -2306,20 +2306,17 @@ components:
     submission_metadata:
       type: object
       properties: 
-        uuid: 
+        submission_uuid: 
           type: string
           example: "2c8d6612-09f5-47d5-b55d-b2f3c26c4ba9"
-        archive_uuid: 
-          type: string
-          example: "3ddd8d16-157d-409a-b65a-390f7ac5550c"
-        passing:
+        tests_passed:
           type: boolean
           example: true
-        status: 
+        submission_status: 
           type: string
           enum: ["pending", "running", "ready"]
           example: "running"
-        stdout: 
+        tests_output: 
           type: string
           example: "[ERROR] SinglyLinkedList.addTest(): Expected 1 received 0"
     
