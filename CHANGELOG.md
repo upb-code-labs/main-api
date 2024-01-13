@@ -1,3 +1,12 @@
+# [0.45.0](https://github.com/upb-code-labs/main-api/compare/v0.44.0...v0.45.0) (2024-01-13)
+
+
+### Features
+
+* Get summarized information of a laboratory ([#160](https://github.com/upb-code-labs/main-api/issues/160)) ([8925fac](https://github.com/upb-code-labs/main-api/commit/8925facca3a8fccd9707d57f89272a3cebe0ee7b))
+
+
+
 # [0.44.0](https://github.com/upb-code-labs/main-api/compare/v0.43.0...v0.44.0) (2024-01-11)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * Add submissions limits ([#140](https://github.com/upb-code-labs/main-api/issues/140)) ([b2255a1](https://github.com/upb-code-labs/main-api/commit/b2255a1e68212a788356e57f78504f2e441239f1))
-
-
-
-# [0.42.0](https://github.com/upb-code-labs/main-api/compare/v0.41.0...v0.42.0) (2024-01-06)
-
-
-### Features
-
-* Real time submission status ([#138](https://github.com/upb-code-labs/main-api/issues/138)) ([4e879f3](https://github.com/upb-code-labs/main-api/commit/4e879f36655914e51ff835e3266b112c5291c24e))
 
 
 
