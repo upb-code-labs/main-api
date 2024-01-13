@@ -912,7 +912,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
         "404":
-          description: No laboratory found with the given UUId. 
+          description: No laboratory found with the given UUID. 
           content:
             application/json:
               schema:
@@ -952,6 +952,52 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
         "403":
           description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+  
+  /laboratories/{laboratory_uuid}/information: 
+    get: 
+      tags: 
+        - Laboratories
+      security:
+        - cookieAuth: []
+      description: Get the information of the given laboratory. Sames as `/laboratories/{laboratory_uuid}` but without the blocks to save bandwidth. 
+      parameters:
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "1f071796-c01b-458b-8949-665592d90986"
+          required: true
+      responses: 
+        "200": 
+          description: The laboratory information was retrieved successfully. 
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/laboratory_information"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "404":
+          description: No laboratory found with the given UUID. 
           content:
             application/json:
               schema:
@@ -1084,7 +1130,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
         "404":
-          description: No laboratory found with the given UUId. 
+          description: No laboratory found with the given UUID. 
           content:
             application/json:
               schema:
@@ -1136,7 +1182,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
         "404":
-          description: No laboratory found with the given UUId. 
+          description: No laboratory found with the given UUID. 
           content:
             application/json:
               schema:
@@ -2190,7 +2236,7 @@ components:
           type: number
           example: 1
     
-    laboratory: 
+    laboratory_information:   
       type: object
       properties: 
         uuid: 
@@ -2208,18 +2254,24 @@ components:
         due_date: 
           type: string
           example: "2023-12-02T00:00"
-        markdown_blocks: 
-          type: array
-          items:
-            type: object
-            allOf:
-              - $ref: "#/components/schemas/markdown_block"
-        test_blocks: 
-          type: array
-          items:
-            type: object
-            allOf:
-              - $ref: "#/components/schemas/test_block"
+          
+    laboratory: 
+      allOf:
+        - $ref: "#/components/schemas/laboratory_information"
+        - type: object
+          properties: 
+            markdown_blocks: 
+              type: array
+              items:
+                type: object
+                allOf:
+                  - $ref: "#/components/schemas/markdown_block"
+            test_blocks: 
+              type: array
+              items:
+                type: object
+                allOf:
+                  - $ref: "#/components/schemas/test_block"
     
     laboratory_progress_metadata:
       type: object
