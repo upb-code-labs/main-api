@@ -1205,6 +1205,12 @@ paths:
       responses:
         "204":
           description: The content of the markdown block was updated.
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
         "403":
           description: The session token isn't valid or the user doesn't have enough permissions.
           content:
@@ -1277,6 +1283,53 @@ paths:
           description: The test block was removed.
         "403":
           description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+  
+  /blocks/swap_index: 
+    patch: 
+      tags:
+          - Blocks
+      security:
+        - cookieAuth: []
+      description: swap the index / order of the given two blocks. 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_block_uuid: 
+                  type: string
+                  example: '31dc456e-431b-4eac-a749-ae40ed1b6297'
+                second_block_uuid: 
+                  type: string
+                  example: '60b88902-0aa5-4189-b339-6c546d938c02'
+      responses:
+        "204":
+          description: The index / order of the given blocks were successfully swapped. 
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "404":
+          description: A block with (at least) one of the given UUIDs were not found.
           content:
             application/json:
               schema:
