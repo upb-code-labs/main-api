@@ -1467,6 +1467,41 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
   
+    delete: 
+      tags:
+        - Rubrics
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: rubric_uuid
+          schema:
+            type: string
+            example: "d97700fc-0888-4bb5-8c86-2f229b8dd0af"
+          required: true
+      description: Delete the given rubric. 
+      responses:
+        "204":
+          description: The rubric was deleted.
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+  
   /rubrics/{rubric_uuid}/name:
     patch: 
       tags:
