@@ -48,4 +48,9 @@ func StartAccountsRoutes(g *gin.RouterGroup) {
 		sharedInfrastructure.WithAuthenticationMiddleware(),
 		controller.HandleUpdatePassword,
 	)
+	accountsGroup.PUT(
+		"",
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		controller.HandleUpdateProfile,
+	)
 }

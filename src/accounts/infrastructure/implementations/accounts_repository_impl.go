@@ -317,3 +317,29 @@ func (repository *AccountsPostgresRepository) UpdatePassword(uuid string, newPas
 
 	return nil
 }
+
+// UpdateProfile updates the profile of a user in the database
+func (repository *AccountsPostgresRepository) UpdateProfile(dto dtos.UpdateAccountDTO) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		UPDATE users
+		SET full_name = $1, email = $2, institutional_id = $3
+		WHERE id = $4
+	`
+
+	_, err := repository.Connection.ExecContext(
+		ctx,
+		query,
+		dto.FullName,
+		dto.Email,
+		dto.InstitutionalId,
+		dto.UserUUID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

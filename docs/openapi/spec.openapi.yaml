@@ -243,6 +243,46 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+  
+  /accounts:
+    put:
+      tags: 
+        - Accounts
+      security:
+        - cookieAuth: []
+      description: Updates the user's profile. 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/update_profile_req"
+      responses:
+        "204":
+          description: The profile was updated. 
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "409":
+          description: The email or institutional ID are already in use. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"  
 
   # Session
   /session/login:
@@ -2070,6 +2110,22 @@ components:
         new_password:
           type: string
           example: "password2024*/"
+    
+    update_profile_req:
+      type: object
+      properties:
+        full_name: 
+          type: string
+          example: "Pedro Chaparro"
+        email: 
+          type: string
+          example: "pedrochaparro@upb.edu.co"
+        institutional_id:
+          type: string
+          example: "000371272"
+        password:
+          type: string
+          example: "password2023*/"
     
     create_laboratory_req: 
       type: object
