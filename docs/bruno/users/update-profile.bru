@@ -1,0 +1,20 @@
+meta {
+  name: update-profile
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{BASE_URL}}/accounts
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "full_name": "Veli Ayele", 
+    "email": "veli.ayele.2024@upb.edu.co", 
+    "institutional_id": null, 
+    "password": "upbbbga2023*/"
+  }
+}
