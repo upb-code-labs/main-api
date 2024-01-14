@@ -256,14 +256,14 @@ func (repository *LaboratoriesPostgresRepository) CreateMarkdownBlock(laboratory
 	return blockUUID, nil
 }
 
-func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.CreateTestBlockDTO) (blockUUID string, err error) {
+func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.CreateTestBlockDTO) (createdTestBlockDTO *dtos.CreatedTestBlockDTO, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	// Start transaction
 	tx, err := repository.Connection.BeginTx(ctx, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer tx.Rollback()
 
@@ -280,7 +280,7 @@ func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.Crea
 	row := tx.QueryRowContext(ctx, query, dto.LaboratoryUUID)
 	var dbBlockIndexUUID string
 	if err := row.Scan(&dbBlockIndexUUID); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// Save the archive metadata
@@ -291,9 +291,10 @@ func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.Crea
 	`
 
 	row = tx.QueryRowContext(ctx, query, dto.TestArchiveUUID)
-	var dbArchiveUUID string
-	if err := row.Scan(&dbArchiveUUID); err != nil {
-		return "", err
+	createdTestBlockDTO = &dtos.CreatedTestBlockDTO{}
+
+	if err := row.Scan(&createdTestBlockDTO.TestArchiveUUID); err != nil {
+		return nil, err
 	}
 
 	// Create test block
@@ -307,23 +308,23 @@ func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.Crea
 		ctx,
 		query,
 		dto.LanguageUUID,
-		dbArchiveUUID,
+		createdTestBlockDTO.TestArchiveUUID,
 		dto.LaboratoryUUID,
 		dbBlockIndexUUID,
 		dto.Name,
 	)
 
-	if err := row.Scan(&blockUUID); err != nil {
-		return "", err
+	if err := row.Scan(&createdTestBlockDTO.BlockUUID); err != nil {
+		return nil, err
 	}
 
 	// Commit transaction
 	if err := tx.Commit(); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// Return the new block UUID
-	return blockUUID, nil
+	return createdTestBlockDTO, nil
 }
 
 func (repository *LaboratoriesPostgresRepository) GetTotalTestBlocks(laboratoryUUID string) (total int, err error) {

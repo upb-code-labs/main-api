@@ -38,6 +38,11 @@ type CreateTestBlockDTO struct {
 	MultipartFile   *multipart.File
 }
 
+type CreatedTestBlockDTO struct {
+	BlockUUID       string `json:"uuid"`
+	TestArchiveUUID string `json:"test_archive_uuid"`
+}
+
 type GetLaboratoryProgressDTO struct {
 	LaboratoryUUID string
 	TeacherUUID    string

@@ -131,37 +131,37 @@ func (useCases *LaboratoriesUseCases) doesTeacherOwnsLaboratory(teacherUUID, lab
 	return useCases.CoursesRepository.DoesTeacherOwnsCourse(teacherUUID, laboratory.CourseUUID)
 }
 
-func (useCases *LaboratoriesUseCases) CreateTestBlock(dto *dtos.CreateTestBlockDTO) (blockUUID string, err error) {
+func (useCases *LaboratoriesUseCases) CreateTestBlock(reqDTO *dtos.CreateTestBlockDTO) (resDTO *dtos.CreatedTestBlockDTO, err error) {
 	// Check that the teacher owns the laboratory
-	teacherOwnsLaboratory, err := useCases.doesTeacherOwnsLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)
+	teacherOwnsLaboratory, err := useCases.doesTeacherOwnsLaboratory(reqDTO.TeacherUUID, reqDTO.LaboratoryUUID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if !teacherOwnsLaboratory {
-		return "", &coursesErrors.TeacherDoesNotOwnsCourseError{}
+		return nil, &coursesErrors.TeacherDoesNotOwnsCourseError{}
 	}
 
 	// Check that the language exists
-	_, err = useCases.LanguagesRepository.GetByUUID(dto.LanguageUUID)
+	_, err = useCases.LanguagesRepository.GetByUUID(reqDTO.LanguageUUID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// Send the file to the static files microservice
 	savedArchiveUUID, err := useCases.StaticFilesRepository.SaveArchive(
 		&staticFilesDTOs.SaveStaticFileDTO{
-			File:     dto.MultipartFile,
+			File:     reqDTO.MultipartFile,
 			FileType: "test",
 		},
 	)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	dto.TestArchiveUUID = savedArchiveUUID
+	reqDTO.TestArchiveUUID = savedArchiveUUID
 
 	// Save the information in the database
-	return useCases.LaboratoriesRepository.CreateTestBlock(dto)
+	return useCases.LaboratoriesRepository.CreateTestBlock(reqDTO)
 }
 
 func (useCases *LaboratoriesUseCases) GetLaboratoryProgress(dto *dtos.GetLaboratoryProgressDTO) (progress *dtos.LaboratoryProgressDTO, err error) {
