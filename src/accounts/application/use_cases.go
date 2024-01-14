@@ -153,18 +153,27 @@ func (useCases *AccountsUseCases) UpdateProfile(dto dtos.UpdateAccountDTO) error
 	if err != nil && err != sql.ErrNoRows {
 		return err
 	}
-	if existingUser != nil {
+
+	emailIsUsedByAnotherUser := existingUser != nil &&
+		existingUser.UUID != dto.UserUUID
+
+	if emailIsUsedByAnotherUser {
 		return errors.EmailAlreadyInUseError{Email: dto.Email}
 	}
 
 	// Check if institutional ID is already in use
-	existingUser, err = useCases.AccountsRepository.GetUserByInstitutionalId(*dto.InstitutionalId)
-	if err != nil && err != sql.ErrNoRows {
-		return err
-	}
+	if dto.InstitutionalId != nil {
+		existingUser, err = useCases.AccountsRepository.GetUserByInstitutionalId(*dto.InstitutionalId)
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
 
-	if existingUser != nil {
-		return errors.InstitutionalIdAlreadyInUseError{InstitutionalId: *dto.InstitutionalId}
+		institutionalIdIsUsedByAnotherUser := existingUser != nil &&
+			existingUser.UUID != dto.UserUUID
+
+		if institutionalIdIsUsedByAnotherUser {
+			return errors.InstitutionalIdAlreadyInUseError{InstitutionalId: *dto.InstitutionalId}
+		}
 	}
 
 	// Update profile
