@@ -7,3 +7,9 @@ type RegisterUserDTO struct {
 	Password        string
 	CreatedBy       string
 }
+
+type UpdatePasswordDTO struct {
+	UserUUID    string
+	OldPassword string
+	NewPassword string
+}

@@ -297,3 +297,79 @@ func TestSearchStudentsByFullName(t *testing.T) {
 	_, code = SearchStudentsByFullName(cookie, "")
 	c.Equal(http.StatusBadRequest, code)
 }
+
+func TestUpdatePassword(t *testing.T) {
+	c := require.New(t)
+
+	// --- 1. Login as a student ---
+	// Register a student
+	testStudentEmail := "gandalf.sasho.2020@upb.edu.co"
+	testStudentOldPassword := "gandalf/password/2023"
+	code := RegisterStudentAccount(requests.RegisterUserRequest{
+		FullName:        "Gandalf Sasho",
+		Email:           testStudentEmail,
+		Password:        testStudentOldPassword,
+		InstitutionalId: "000456790",
+	})
+	c.Equal(http.StatusCreated, code)
+
+	// Login as a student
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    testStudentEmail,
+		"password": testStudentOldPassword,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Update password
+	testStudentNewPassword := "gandalf/password/2024"
+	testCases := []GenericTestCase{
+		{
+			Payload: map[string]interface{}{
+				"old_password": "wrong_password",
+				"new_password": testStudentNewPassword,
+			},
+			ExpectedStatusCode: http.StatusUnauthorized,
+		},
+		{
+			Payload: map[string]interface{}{
+				"old_password": testStudentOldPassword,
+				"new_password": "short",
+			},
+			ExpectedStatusCode: http.StatusBadRequest,
+		},
+		{
+			Payload: map[string]interface{}{
+				"old_password": testStudentOldPassword,
+				"new_password": testStudentNewPassword,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		code = UpdatePasswordUtil(UpdatePasswordUtilDTO{
+			OldPassword: testCase.Payload["old_password"].(string),
+			NewPassword: testCase.Payload["new_password"].(string),
+			Cookie:      cookie,
+		})
+
+		c.Equal(testCase.ExpectedStatusCode, code)
+	}
+
+	// Login with the old password
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    testStudentEmail,
+		"password": testStudentOldPassword,
+	})
+	router.ServeHTTP(w, r)
+	c.Equal(http.StatusUnauthorized, w.Code)
+
+	// Login with the new password
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    testStudentEmail,
+		"password": testStudentNewPassword,
+	})
+	router.ServeHTTP(w, r)
+	c.Equal(http.StatusOK, w.Code)
+}

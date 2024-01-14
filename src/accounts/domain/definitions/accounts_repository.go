@@ -17,4 +17,6 @@ type AccountsRepository interface {
 	GetAdmins() ([]*entities.User, error)
 
 	SearchStudentsByFullName(fullName string) ([]*entities.User, error)
+
+	UpdatePassword(uuid string, newPassword string) error
 }
