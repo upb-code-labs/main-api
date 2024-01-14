@@ -1,3 +1,12 @@
+# [0.46.0](https://github.com/upb-code-labs/main-api/compare/v0.45.0...v0.46.0) (2024-01-14)
+
+
+### Features
+
+* Update password ([#162](https://github.com/upb-code-labs/main-api/issues/162)) ([1ac8830](https://github.com/upb-code-labs/main-api/commit/1ac8830acd9734b213fd8e3c547fef18d4e503ad))
+
+
+
 # [0.45.0](https://github.com/upb-code-labs/main-api/compare/v0.44.0...v0.45.0) (2024-01-13)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * Update SSE controller ([#144](https://github.com/upb-code-labs/main-api/issues/144)) ([cd6091d](https://github.com/upb-code-labs/main-api/commit/cd6091d3b2d78c369f82bd9ad100b74b1b089421))
-
-
-
-## [0.42.1](https://github.com/upb-code-labs/main-api/compare/v0.42.0...v0.42.1) (2024-01-07)
-
-
-### Bug Fixes
-
-* Add submissions limits ([#140](https://github.com/upb-code-labs/main-api/issues/140)) ([b2255a1](https://github.com/upb-code-labs/main-api/commit/b2255a1e68212a788356e57f78504f2e441239f1))
 
 
 
