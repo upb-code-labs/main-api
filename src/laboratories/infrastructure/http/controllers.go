@@ -292,13 +292,11 @@ func (controller *LaboratoriesController) HandleCreateTestBlock(c *gin.Context) 
 	}
 
 	// Create the block
-	blockUUID, err := controller.UseCases.CreateTestBlock(&dto)
+	createdBlockDTO, err := controller.UseCases.CreateTestBlock(&dto)
 	if err != nil {
 		c.Error(err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"uuid": blockUUID,
-	})
+	c.JSON(http.StatusCreated, createdBlockDTO)
 }
