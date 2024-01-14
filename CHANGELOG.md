@@ -1,3 +1,12 @@
+# [0.47.0](https://github.com/upb-code-labs/main-api/compare/v0.46.0...v0.47.0) (2024-01-14)
+
+
+### Features
+
+* Swap blocks index ([#163](https://github.com/upb-code-labs/main-api/issues/163)) ([074da6b](https://github.com/upb-code-labs/main-api/commit/074da6b86e20290b9b2a71215835941dfcb7952b))
+
+
+
 # [0.46.0](https://github.com/upb-code-labs/main-api/compare/v0.45.0...v0.46.0) (2024-01-14)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Delete rubric ([#147](https://github.com/upb-code-labs/main-api/issues/147)) ([6394ee9](https://github.com/upb-code-labs/main-api/commit/6394ee9deeb2b7e072a65fc2afcabd7dfa000566))
-
-
-
-## [0.42.2](https://github.com/upb-code-labs/main-api/compare/v0.42.1...v0.42.2) (2024-01-09)
-
-
-### Bug Fixes
-
-* Update SSE controller ([#144](https://github.com/upb-code-labs/main-api/issues/144)) ([cd6091d](https://github.com/upb-code-labs/main-api/commit/cd6091d3b2d78c369f82bd9ad100b74b1b089421))
 
 
 
