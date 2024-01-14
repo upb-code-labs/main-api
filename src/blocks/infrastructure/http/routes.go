@@ -49,4 +49,11 @@ func StartBlocksRoutes(g *gin.RouterGroup) {
 		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleDeleteTestBlock,
 	)
+
+	blocksGroup.PATCH(
+		"/swap_index",
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleSwapBlocks,
+	)
 }

@@ -299,3 +299,21 @@ func (repository *AccountsPostgresRepository) SearchStudentsByFullName(fullName 
 
 	return students, nil
 }
+
+func (repository *AccountsPostgresRepository) UpdatePassword(uuid string, newPassword string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		UPDATE users
+		SET password_hash = $1
+		WHERE id = $2
+	`
+
+	_, err := repository.Connection.ExecContext(ctx, query, newPassword, uuid)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

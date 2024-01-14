@@ -277,3 +277,85 @@ func TestDeleteTestBlock(t *testing.T) {
 	blocks = laboratoryResponse["test_blocks"].([]interface{})
 	c.Equal(0, len(blocks))
 }
+
+func TestSwapBlocks(t *testing.T) {
+	c := require.New(t)
+
+	// Login as a teacher
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Create a course
+	courseUUID, _ := CreateCourse("Swap blocks test - course")
+
+	// Create a laboratory
+	laboratoryCreationResponse, _ := CreateLaboratory(cookie, map[string]interface{}{
+		"name":         "Swap blocks test - laboratory",
+		"course_uuid":  courseUUID,
+		"opening_date": "2023-12-01T08:00",
+		"due_date":     "3023-12-01T00:00",
+	})
+	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
+
+	// Get the supported languages
+	languagesResponse, _ := GetSupportedLanguages(cookie)
+	languages := languagesResponse["languages"].([]interface{})
+
+	firstLanguage := languages[0].(map[string]interface{})
+	firstLanguageUUID := firstLanguage["uuid"].(string)
+
+	// Create a markdown block
+	blockCreationResponse, _ := CreateMarkdownBlock(cookie, laboratoryUUID)
+	markdownBlockUUID := blockCreationResponse["uuid"].(string)
+
+	// Create a test block
+	zipFile, err := GetSampleTestsArchive()
+	c.Nil(err)
+
+	blockCreationResponse, _ = CreateTestBlock(&CreateTestBlockUtilsDTO{
+		laboratoryUUID: laboratoryUUID,
+		languageUUID:   firstLanguageUUID,
+		blockName:      "Swap blocks test - block 1",
+		cookie:         cookie,
+		testFile:       zipFile,
+	})
+	testBlock1UUID := blockCreationResponse["uuid"].(string)
+
+	// Get the laboratory
+	laboratoryResponse, _ := GetLaboratoryByUUID(cookie, laboratoryUUID)
+	markdownBlocks := laboratoryResponse["markdown_blocks"].([]interface{})
+	testBlocks := laboratoryResponse["test_blocks"].([]interface{})
+
+	markdownBlock := markdownBlocks[0].(map[string]interface{})
+	testBlock := testBlocks[0].(map[string]interface{})
+
+	oldMarkdownBlockIndex := markdownBlock["index"].(float64)
+	oldTestBlockIndex := testBlock["index"].(float64)
+
+	// Swap the blocks
+	_, status := SwapBlocks(&SwapBlocksUtilsDTO{
+		FirstBlockUUID:  markdownBlockUUID,
+		SecondBlockUUID: testBlock1UUID,
+		Cookie:          cookie,
+	})
+	c.Equal(http.StatusNoContent, status)
+
+	// Check that the blocks were swapped
+	laboratoryResponse, _ = GetLaboratoryByUUID(cookie, laboratoryUUID)
+
+	markdownBlocks = laboratoryResponse["markdown_blocks"].([]interface{})
+	testBlocks = laboratoryResponse["test_blocks"].([]interface{})
+
+	markdownBlock = markdownBlocks[0].(map[string]interface{})
+	testBlock = testBlocks[0].(map[string]interface{})
+
+	newMarkdownBlockIndex := markdownBlock["index"].(float64)
+	newTestBlockIndex := testBlock["index"].(float64)
+
+	c.Equal(oldMarkdownBlockIndex, newTestBlockIndex)
+	c.Equal(oldTestBlockIndex, newMarkdownBlockIndex)
+}

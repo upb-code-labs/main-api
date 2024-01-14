@@ -7,11 +7,12 @@ import (
 
 type LaboratoriesRepository interface {
 	GetLaboratoryByUUID(uuid string) (laboratory *entities.Laboratory, err error)
+	GetLaboratoryInformationByUUID(uuid string) (laboratory *dtos.LaboratoryDetailsDTO, err error)
 	SaveLaboratory(dto *dtos.CreateLaboratoryDTO) (laboratory *entities.Laboratory, err error)
 	UpdateLaboratory(dto *dtos.UpdateLaboratoryDTO) error
 
 	CreateMarkdownBlock(laboratoryUUID string) (blockUUID string, err error)
-	CreateTestBlock(dto *dtos.CreateTestBlockDTO) (blockUUID string, err error)
+	CreateTestBlock(dto *dtos.CreateTestBlockDTO) (CreatedTestBlockDTO *dtos.CreatedTestBlockDTO, err error)
 
 	GetTotalTestBlocks(laboratoryUUID string) (total int, err error)
 	GetStudentsProgress(laboratoryUUID string) (progress []*dtos.LaboratoryStudentProgressDTO, err error)

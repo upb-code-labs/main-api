@@ -81,10 +81,11 @@ func TestGetLaboratoryByUUID(t *testing.T) {
 	c.Equal(http.StatusCreated, status)
 
 	// Define tests cases
+	randomUUID := "4e2ba78e-a8f0-4312-b4a7-e8c6933029b8"
 	testCases := []GenericTestCase{
 		{
 			Payload: map[string]interface{}{
-				"laboratory_uuid": "4e2ba78e-a8f0-4312-b4a7-e8c6933029b8",
+				"laboratory_uuid": randomUUID,
 			},
 			ExpectedStatusCode: http.StatusNotFound,
 		},
@@ -104,10 +105,20 @@ func TestGetLaboratoryByUUID(t *testing.T) {
 
 	// Run tests
 	for _, tc := range testCases {
-		getLaboratoryResponse, status := GetLaboratoryByUUID(cookie, tc.Payload["laboratory_uuid"].(string))
+		getLaboratoryResponse, status := GetLaboratoryByUUID(
+			cookie,
+			tc.Payload["laboratory_uuid"].(string),
+		)
+		c.Equal(tc.ExpectedStatusCode, status)
+
+		getLaboratoryInformationResponse, status := GetLaboratoryInformationByUUID(
+			cookie,
+			tc.Payload["laboratory_uuid"].(string),
+		)
 		c.Equal(tc.ExpectedStatusCode, status)
 
 		if tc.ExpectedStatusCode == http.StatusOK {
+			// ## Validate laboratory request
 			// Validate string fields
 			c.Equal(laboratoryUUID, getLaboratoryResponse["uuid"])
 			c.Equal(laboratoryName, getLaboratoryResponse["name"])
@@ -118,6 +129,13 @@ func TestGetLaboratoryByUUID(t *testing.T) {
 			// Validate blocks fields
 			c.Equal(0, len(getLaboratoryResponse["markdown_blocks"].([]interface{})))
 			c.Equal(0, len(getLaboratoryResponse["test_blocks"].([]interface{})))
+
+			// ## Validate laboratory information request
+			c.Equal(laboratoryUUID, getLaboratoryInformationResponse["uuid"])
+			c.Equal(laboratoryName, getLaboratoryInformationResponse["name"])
+			c.Nil(getLaboratoryInformationResponse["rubric_uuid"])
+			c.Contains(getLaboratoryInformationResponse["opening_date"], laboratoryOpeningDate)
+			c.Contains(getLaboratoryInformationResponse["due_date"], laboratoryDueDate)
 		}
 	}
 }
@@ -322,12 +340,12 @@ func TestCreateTestBlock(t *testing.T) {
 		testFile:       zipFile,
 	})
 
-	// Validate the response
-	// c.Equal(http.StatusCreated, status)
-	c.Contains(response, "uuid")
+	c.Equal(http.StatusCreated, status)
+	c.NotEmpty(response["uuid"])
+	c.NotEmpty(response["test_archive_uuid"])
 }
 
-func TestGetStudentsProgres(t *testing.T) {
+func TestGetStudentsProgress(t *testing.T) {
 	c := require.New(t)
 
 	// ## Prepare

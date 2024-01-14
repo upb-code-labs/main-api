@@ -42,6 +42,13 @@ func StartLaboratoriesRoutes(g *gin.RouterGroup) {
 		controller.HandleGetLaboratory,
 	)
 
+	laboratoriesGroup.GET(
+		"/:laboratory_uuid/information",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher", "student"}),
+		controller.HandleGetLaboratoryInformation,
+	)
+
 	laboratoriesGroup.PUT(
 		"/:laboratory_uuid",
 		infrastructure.WithAuthenticationMiddleware(),

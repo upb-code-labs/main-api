@@ -96,3 +96,23 @@ func DeleteTestBlock(cookie *http.Cookie, blockUUID string) (response map[string
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+type SwapBlocksUtilsDTO struct {
+	FirstBlockUUID  string
+	SecondBlockUUID string
+	Cookie          *http.Cookie
+}
+
+func SwapBlocks(dto *SwapBlocksUtilsDTO) (response map[string]interface{}, statusCode int) {
+	payload := map[string]interface{}{
+		"first_block_uuid":  dto.FirstBlockUUID,
+		"second_block_uuid": dto.SecondBlockUUID,
+	}
+
+	w, r := PrepareRequest("PATCH", "/api/v1/blocks/swap_index", payload)
+	r.AddCookie(dto.Cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}

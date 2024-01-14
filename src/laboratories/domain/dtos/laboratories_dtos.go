@@ -38,6 +38,11 @@ type CreateTestBlockDTO struct {
 	MultipartFile   *multipart.File
 }
 
+type CreatedTestBlockDTO struct {
+	BlockUUID       string `json:"uuid"`
+	TestArchiveUUID string `json:"test_archive_uuid"`
+}
+
 type GetLaboratoryProgressDTO struct {
 	LaboratoryUUID string
 	TeacherUUID    string
@@ -55,4 +60,13 @@ type LaboratoryStudentProgressDTO struct {
 	RunningSubmissions int    `json:"running_submissions"`
 	FailingSubmissions int    `json:"failing_submissions"`
 	SuccessSubmissions int    `json:"success_submissions"`
+}
+
+type LaboratoryDetailsDTO struct {
+	UUID        string  `json:"uuid"`
+	CourseUUID  string  `json:"-"`
+	RubricUUID  *string `json:"rubric_uuid"`
+	Name        string  `json:"name"`
+	OpeningDate string  `json:"opening_date"`
+	DueDate     string  `json:"due_date"`
 }
