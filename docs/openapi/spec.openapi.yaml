@@ -1078,6 +1078,9 @@ paths:
                   uuid:
                     type: string
                     example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
+                  test_archive_uuid:
+                    type: string
+                    example: "67a56a2a-b7b8-4369-b726-7b387b49d64e"
         "400":
           description: Required fields were missed or doesn't fulfill the required format.
           content:
