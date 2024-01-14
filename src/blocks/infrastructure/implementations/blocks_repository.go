@@ -3,11 +3,13 @@ package implementations
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/errors"
+	laboratoriesEntities "github.com/UPB-Code-Labs/main-api/src/laboratories/domain/entities"
 	laboratoriesDomainErrors "github.com/UPB-Code-Labs/main-api/src/laboratories/domain/errors"
 	sharedEntities "github.com/UPB-Code-Labs/main-api/src/shared/domain/entities"
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
@@ -396,4 +398,99 @@ func (repository *BlocksPostgresRepository) deleteDependentArchives(archives []*
 			log.Printf("[ERROR] - [BlocksPostgresRepository] - [deleteDependentArchives]: %s \n", err.Error())
 		}
 	}
+}
+
+func (repository *BlocksPostgresRepository) GetMarkdownBlockByUUID(blockUUID string) (markdownBlock *laboratoriesEntities.MarkdownBlock, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+	SELECT mb.id, mb.content, bi.block_position
+	FROM markdown_blocks mb
+	RIGHT JOIN blocks_index bi ON mb.block_index_id = bi.id
+	WHERE mb.id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, blockUUID)
+
+	// Parse the row
+	markdownBlock = &laboratoriesEntities.MarkdownBlock{}
+	err = row.Scan(
+		&markdownBlock.UUID,
+		&markdownBlock.Content,
+		&markdownBlock.Index,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, &errors.BlockNotFound{}
+		}
+
+		return nil, err
+	}
+
+	return markdownBlock, nil
+}
+
+func (repository *BlocksPostgresRepository) GetTestBlockByUUID(blockUUID string) (testBlock *laboratoriesEntities.TestBlock, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT tb.id, tb.language_id, tb.test_archive_id, tb.name, bi.block_position
+		FROM test_blocks tb
+		RIGHT JOIN blocks_index bi ON tb.block_index_id = bi.id
+		WHERE tb.id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, blockUUID)
+
+	// Parse the row
+	testBlock = &laboratoriesEntities.TestBlock{}
+	err = row.Scan(
+		&testBlock.UUID,
+		&testBlock.LanguageUUID,
+		&testBlock.TestArchiveUUID,
+		&testBlock.Name,
+		&testBlock.Index,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, &errors.BlockNotFound{}
+		}
+
+		return nil, err
+	}
+
+	return testBlock, nil
+}
+
+func (repository *BlocksPostgresRepository) SwapBlocks(firstBlockUUID, secondBlockUUID string) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Define query to call the stored procedure
+	query := `
+		SELECT swap_blocks_index($1, $2)
+	`
+
+	// Start a transaction
+	tx, err := repository.Connection.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	// Run the query
+	fmt.Println("Swapping blocks", firstBlockUUID, secondBlockUUID)
+	_, err = tx.ExecContext(ctx, query, firstBlockUUID, secondBlockUUID)
+	if err != nil {
+		return err
+	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -260,6 +260,123 @@ FROM
   INNER JOIN objectives ON criteria.objective_id = objectives.id
   INNER JOIN rubrics ON objectives.rubric_id = rubrics.id;
 
+-- ## Procedures and functions
+--- ### Swap blocks index
+CREATE
+OR REPLACE FUNCTION swap_blocks_index(
+  IN first_block_id UUID,
+  IN second_block_id UUID
+)
+RETURNS VOID
+LANGUAGE PLPGSQL
+AS $$
+DECLARE
+  is_first_block_a_markdown_block BOOLEAN;
+  is_second_block_a_markdown_block BOOLEAN;
+  first_block_index_id UUID;
+  second_block_index_id UUID;
+BEGIN
+  -- Get the type of the blocks
+  SELECT
+    EXISTS(
+      SELECT
+        1
+      FROM
+        markdown_blocks
+      WHERE
+        id = first_block_id
+    )
+  INTO
+    is_first_block_a_markdown_block;
+
+  SELECT
+    EXISTS(
+      SELECT
+        1
+      FROM
+        markdown_blocks
+      WHERE
+        id = second_block_id
+    )
+  INTO
+    is_second_block_a_markdown_block;
+  
+  -- Get the index of the blocks
+  IF is_first_block_a_markdown_block THEN
+    SELECT
+      block_index_id
+    INTO
+      first_block_index_id
+    FROM
+      markdown_blocks
+    WHERE
+      id = first_block_id;
+  ELSE
+    SELECT
+      block_index_id
+    INTO
+      first_block_index_id
+    FROM
+      test_blocks
+    WHERE
+      id = first_block_id;
+  END IF;
+
+  IF is_second_block_a_markdown_block THEN
+    SELECT
+      block_index_id
+    INTO
+      second_block_index_id
+    FROM
+      markdown_blocks
+    WHERE
+      id = second_block_id;
+  ELSE
+    SELECT
+      block_index_id
+    INTO
+      second_block_index_id
+    FROM
+      test_blocks
+    WHERE
+      id = second_block_id;
+  END IF;
+
+  -- Swap the indexes
+  IF is_first_block_a_markdown_block THEN
+    UPDATE
+      markdown_blocks
+    SET
+      block_index_id = second_block_index_id
+    WHERE
+      id = first_block_id;
+  ELSE
+    UPDATE
+      test_blocks
+    SET
+      block_index_id = second_block_index_id
+    WHERE
+      id = first_block_id;
+  END IF;
+
+  IF is_second_block_a_markdown_block THEN
+    UPDATE
+      markdown_blocks
+    SET
+      block_index_id = first_block_index_id
+    WHERE
+      id = second_block_id;
+  ELSE
+    UPDATE
+      test_blocks
+    SET
+      block_index_id = first_block_index_id
+    WHERE
+      id = second_block_id;
+  END IF;
+END $$
+;
+
 -- ## Triggers
 --- ### Update created_by on users
 CREATE

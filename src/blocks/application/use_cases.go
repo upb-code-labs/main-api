@@ -1,9 +1,11 @@
 package application
 
 import (
+	"errors"
+
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/dtos"
-	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/errors"
+	blocksErrors "github.com/UPB-Code-Labs/main-api/src/blocks/domain/errors"
 	languagesDefinitions "github.com/UPB-Code-Labs/main-api/src/languages/domain/definitions"
 	staticFilesDefinitions "github.com/UPB-Code-Labs/main-api/src/static-files/domain/definitions"
 	staticFilesDTOs "github.com/UPB-Code-Labs/main-api/src/static-files/domain/dtos"
@@ -23,7 +25,7 @@ func (useCases *BlocksUseCases) UpdateMarkdownBlockContent(dto dtos.UpdateMarkdo
 	}
 
 	if !ownsBlock {
-		return errors.TeacherDoesNotOwnBlock{}
+		return blocksErrors.TeacherDoesNotOwnBlock{}
 	}
 
 	// Update the block
@@ -38,7 +40,7 @@ func (useCases *BlocksUseCases) UpdateTestBlock(dto dtos.UpdateTestBlockDTO) (er
 	}
 
 	if !ownsBlock {
-		return errors.TeacherDoesNotOwnBlock{}
+		return blocksErrors.TeacherDoesNotOwnBlock{}
 	}
 
 	// Validate the programming language exists
@@ -80,7 +82,7 @@ func (useCases *BlocksUseCases) DeleteMarkdownBlock(dto dtos.DeleteBlockDTO) (er
 	}
 
 	if !ownsBlock {
-		return errors.TeacherDoesNotOwnBlock{}
+		return blocksErrors.TeacherDoesNotOwnBlock{}
 	}
 
 	// Delete the block
@@ -95,9 +97,99 @@ func (useCases *BlocksUseCases) DeleteTestBlock(dto dtos.DeleteBlockDTO) (err er
 	}
 
 	if !ownsBlock {
-		return errors.TeacherDoesNotOwnBlock{}
+		return blocksErrors.TeacherDoesNotOwnBlock{}
 	}
 
 	// Delete the block
 	return useCases.BlocksRepository.DeleteTestBlock(dto.BlockUUID)
+}
+
+func (useCases *BlocksUseCases) SwapBlocks(dto dtos.SwapBlocksDTO) (err error) {
+	var blockNotFoundError *blocksErrors.BlockNotFound
+
+	// Check if the blocks exists
+	firstBlockAsMarkdown, firstBlockAsMarkdownErr := useCases.BlocksRepository.GetMarkdownBlockByUUID(dto.FirstBlockUUID)
+	if firstBlockAsMarkdownErr != nil {
+		// Forward the error if it's not a `BlockNotFound` error
+		if !errors.As(firstBlockAsMarkdownErr, &blockNotFoundError) {
+			return firstBlockAsMarkdownErr
+		}
+	}
+
+	fistBlockAsTest, firstBlockAsTestErr := useCases.BlocksRepository.GetTestBlockByUUID(dto.FirstBlockUUID)
+	if firstBlockAsTestErr != nil {
+		if !errors.As(firstBlockAsTestErr, &blockNotFoundError) {
+			return firstBlockAsTestErr
+		}
+	}
+
+	// Return an error if the block was not found
+	noFirstBlockFound := firstBlockAsMarkdown == nil && fistBlockAsTest == nil
+	if noFirstBlockFound {
+		return blocksErrors.BlockNotFound{}
+	}
+
+	secondBlockAsMarkdown, secondBlockAsMarkdownErr := useCases.BlocksRepository.GetMarkdownBlockByUUID(dto.SecondBlockUUID)
+	if secondBlockAsMarkdownErr != nil {
+		if !errors.As(secondBlockAsMarkdownErr, &blockNotFoundError) {
+			return secondBlockAsMarkdownErr
+		}
+	}
+
+	secondBlockAsTest, secondBlockAsTestErr := useCases.BlocksRepository.GetTestBlockByUUID(dto.SecondBlockUUID)
+	if secondBlockAsTestErr != nil {
+		if !errors.As(secondBlockAsTestErr, &blockNotFoundError) {
+			return secondBlockAsTestErr
+		}
+	}
+
+	// Return an error if the block was not found
+	noSecondBlockFound := secondBlockAsMarkdown == nil && secondBlockAsTest == nil
+	if noSecondBlockFound {
+		return blocksErrors.BlockNotFound{}
+	}
+
+	// Validate the teacher is the owner of the blocks
+	if firstBlockAsMarkdown != nil {
+		ownsBlock, err := useCases.BlocksRepository.DoesTeacherOwnsMarkdownBlock(dto.TeacherUUID, firstBlockAsMarkdown.UUID)
+		if err != nil {
+			return err
+		}
+
+		if !ownsBlock {
+			return blocksErrors.TeacherDoesNotOwnBlock{}
+		}
+	} else {
+		ownsBlock, err := useCases.BlocksRepository.DoesTeacherOwnsTestBlock(dto.TeacherUUID, fistBlockAsTest.UUID)
+		if err != nil {
+			return err
+		}
+
+		if !ownsBlock {
+			return blocksErrors.TeacherDoesNotOwnBlock{}
+		}
+	}
+
+	if secondBlockAsMarkdown != nil {
+		ownsBlock, err := useCases.BlocksRepository.DoesTeacherOwnsMarkdownBlock(dto.TeacherUUID, secondBlockAsMarkdown.UUID)
+		if err != nil {
+			return err
+		}
+
+		if !ownsBlock {
+			return blocksErrors.TeacherDoesNotOwnBlock{}
+		}
+	} else {
+		ownsBlock, err := useCases.BlocksRepository.DoesTeacherOwnsTestBlock(dto.TeacherUUID, secondBlockAsTest.UUID)
+		if err != nil {
+			return err
+		}
+
+		if !ownsBlock {
+			return blocksErrors.TeacherDoesNotOwnBlock{}
+		}
+	}
+
+	// Swap the blocks
+	return useCases.BlocksRepository.SwapBlocks(dto.FirstBlockUUID, dto.SecondBlockUUID)
 }
