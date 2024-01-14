@@ -65,3 +65,19 @@ func SearchStudentsByFullName(cookie *http.Cookie, fullName string) (response ma
 	router.ServeHTTP(w, r)
 	return ParseJsonResponse(w.Body), w.Code
 }
+
+type UpdatePasswordUtilDTO struct {
+	OldPassword string
+	NewPassword string
+	Cookie      *http.Cookie
+}
+
+func UpdatePasswordUtil(dto UpdatePasswordUtilDTO) int {
+	w, r := PrepareRequest("PATCH", "/api/v1/accounts/password", map[string]interface{}{
+		"old_password": dto.OldPassword,
+		"new_password": dto.NewPassword,
+	})
+	r.AddCookie(dto.Cookie)
+	router.ServeHTTP(w, r)
+	return w.Code
+}
