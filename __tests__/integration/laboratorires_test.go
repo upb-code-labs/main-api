@@ -340,9 +340,9 @@ func TestCreateTestBlock(t *testing.T) {
 		testFile:       zipFile,
 	})
 
-	// Validate the response
-	// c.Equal(http.StatusCreated, status)
-	c.Contains(response, "uuid")
+	c.Equal(http.StatusCreated, status)
+	c.NotEmpty(response["uuid"])
+	c.NotEmpty(response["test_archive_uuid"])
 }
 
 func TestGetStudentsProgress(t *testing.T) {
