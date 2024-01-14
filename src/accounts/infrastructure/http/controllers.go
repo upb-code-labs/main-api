@@ -1,7 +1,10 @@
 package infrastructure
 
 import (
+	"net/http"
+
 	"github.com/UPB-Code-Labs/main-api/src/accounts/application"
+	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/requests"
 	"github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/gin-gonic/gin"
@@ -16,7 +19,7 @@ func (controller *AccountsController) HandleRegisterStudent(c *gin.Context) {
 	var request requests.RegisterUserRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(400, gin.H{
-			"message": "Invalid request body",
+			"message": "Request body is not valid",
 		})
 		return
 	}
@@ -48,7 +51,7 @@ func (controller *AccountsController) HandleRegisterAdmin(c *gin.Context) {
 	var request requests.RegisterAdminRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(400, gin.H{
-			"message": "Invalid request body",
+			"message": "Request body is not valid",
 		})
 		return
 	}
@@ -81,7 +84,7 @@ func (controller *AccountsController) HandleRegisterTeacher(c *gin.Context) {
 	var request requests.RegisterTeacherRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(400, gin.H{
-			"message": "Invalid request body",
+			"message": "Request body is not valid",
 		})
 		return
 	}
@@ -158,4 +161,41 @@ func (controller *AccountsController) HandleSearchStudents(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"students": publicStudents,
 	})
+}
+
+func (controller *AccountsController) HandleUpdatePassword(c *gin.Context) {
+	userUUID := c.GetString("session_uuid")
+
+	// Parse request body
+	var request requests.UpdatePasswordRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(400, gin.H{
+			"message": "Request body is not valid",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(400, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Update password
+	dto := dtos.UpdatePasswordDTO{
+		UserUUID:    userUUID,
+		OldPassword: request.OldPassword,
+		NewPassword: request.NewPassword,
+	}
+
+	err := controller.UseCases.UpdatePassword(dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }

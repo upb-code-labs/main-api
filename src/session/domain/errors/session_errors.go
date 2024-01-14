@@ -7,7 +7,7 @@ import (
 type InvalidCredentialsError struct{}
 
 func (err InvalidCredentialsError) Error() string {
-	return "Invalid credentials"
+	return "Credentials are wrong"
 }
 
 func (err InvalidCredentialsError) StatusCode() int {

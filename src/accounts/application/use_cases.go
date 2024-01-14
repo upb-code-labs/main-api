@@ -7,6 +7,7 @@ import (
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/entities"
 	"github.com/UPB-Code-Labs/main-api/src/accounts/domain/errors"
+	sessionErrors "github.com/UPB-Code-Labs/main-api/src/session/domain/errors"
 )
 
 type AccountsUseCases struct {
@@ -96,4 +97,36 @@ func (useCases *AccountsUseCases) GetAdmins() ([]*entities.User, error) {
 
 func (useCases *AccountsUseCases) SearchStudentsByFullName(fullName string) ([]*entities.User, error) {
 	return useCases.AccountsRepository.SearchStudentsByFullName(fullName)
+}
+
+func (useCases *AccountsUseCases) UpdatePassword(dto dtos.UpdatePasswordDTO) error {
+	// Get user
+	user, err := useCases.AccountsRepository.GetUserByUUID(dto.UserUUID)
+	if err != nil {
+		return err
+	}
+
+	// Check if old password is correct
+	doesOldPasswordMatch, err := useCases.PasswordsHasher.ComparePasswords(dto.OldPassword, user.PasswordHash)
+	if err != nil {
+		return err
+	}
+
+	if !doesOldPasswordMatch {
+		return sessionErrors.InvalidCredentialsError{}
+	}
+
+	// Hash new password
+	newPasswordHash, err := useCases.PasswordsHasher.HashPassword(dto.NewPassword)
+	if err != nil {
+		return err
+	}
+
+	// Update password
+	err = useCases.AccountsRepository.UpdatePassword(dto.UserUUID, newPasswordHash)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

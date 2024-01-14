@@ -43,4 +43,9 @@ func StartAccountsRoutes(g *gin.RouterGroup) {
 		sharedInfrastructure.WithAuthorizationMiddleware([]string{"admin"}),
 		controller.HandleRegisterTeacher,
 	)
+	accountsGroup.PATCH(
+		"/password",
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		controller.HandleUpdatePassword,
+	)
 }

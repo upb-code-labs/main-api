@@ -45,3 +45,8 @@ func (request *RegisterUserRequest) ToDTO() *dtos.RegisterUserDTO {
 		Password:        request.Password,
 	}
 }
+
+type UpdatePasswordRequest struct {
+	OldPassword string `json:"old_password" validate:"required"`
+	NewPassword string `json:"new_password" validate:"required,min=8,max=255,secure_password"`
+}
