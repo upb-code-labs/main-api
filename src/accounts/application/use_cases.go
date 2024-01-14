@@ -130,3 +130,44 @@ func (useCases *AccountsUseCases) UpdatePassword(dto dtos.UpdatePasswordDTO) err
 
 	return nil
 }
+
+func (useCases *AccountsUseCases) UpdateProfile(dto dtos.UpdateAccountDTO) error {
+	// Get user
+	user, err := useCases.AccountsRepository.GetUserByUUID(dto.UserUUID)
+	if err != nil {
+		return err
+	}
+
+	// Check if the given password is correct
+	doesPasswordMatch, err := useCases.PasswordsHasher.ComparePasswords(dto.Password, user.PasswordHash)
+	if err != nil {
+		return err
+	}
+
+	if !doesPasswordMatch {
+		return sessionErrors.InvalidCredentialsError{}
+	}
+
+	// Check if email is already in use
+	existingUser, err := useCases.AccountsRepository.GetUserByEmail(dto.Email)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+	if existingUser != nil {
+		return errors.EmailAlreadyInUseError{Email: dto.Email}
+	}
+
+	// Check if institutional ID is already in use
+	existingUser, err = useCases.AccountsRepository.GetUserByInstitutionalId(*dto.InstitutionalId)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	if existingUser != nil {
+		return errors.InstitutionalIdAlreadyInUseError{InstitutionalId: *dto.InstitutionalId}
+	}
+
+	// Update profile
+	err = useCases.AccountsRepository.UpdateProfile(dto)
+	return err
+}

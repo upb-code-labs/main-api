@@ -19,4 +19,5 @@ type AccountsRepository interface {
 	SearchStudentsByFullName(fullName string) ([]*entities.User, error)
 
 	UpdatePassword(uuid string, newPassword string) error
+	UpdateProfile(dto dtos.UpdateAccountDTO) error
 }

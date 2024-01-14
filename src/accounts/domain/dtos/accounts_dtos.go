@@ -13,3 +13,11 @@ type UpdatePasswordDTO struct {
 	OldPassword string
 	NewPassword string
 }
+
+type UpdateAccountDTO struct {
+	UserUUID        string
+	FullName        string
+	Email           string
+	InstitutionalId *string
+	Password        string
+}
