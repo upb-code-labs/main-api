@@ -1,6 +1,9 @@
+-- ## Stored Procedures
+DROP FUNCTION IF EXISTS swap_blocks_index();
+DROP FUNCTION IF EXISTS update_created_by();
+
 -- ## Triggers
 DROP TRIGGER IF EXISTS set_created_by ON users;
-DROP FUNCTION IF EXISTS update_created_by();
 
 -- ## Indexes
 DROP INDEX IF EXISTS idx_class_users;

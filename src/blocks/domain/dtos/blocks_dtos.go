@@ -20,3 +20,9 @@ type DeleteBlockDTO struct {
 	TeacherUUID string
 	BlockUUID   string
 }
+
+type SwapBlocksDTO struct {
+	TeacherUUID     string
+	FirstBlockUUID  string
+	SecondBlockUUID string
+}

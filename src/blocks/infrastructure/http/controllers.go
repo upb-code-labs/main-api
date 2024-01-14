@@ -177,3 +177,39 @@ func (controller *BlocksController) HandleDeleteTestBlock(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+func (controller *BlocksController) HandleSwapBlocks(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+
+	// Parse request body
+	var request requests.SwapBlocksRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Request body is not valid",
+		})
+		return
+	}
+
+	// Validate request body
+	if err := sharedInfrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	dto := dtos.SwapBlocksDTO{
+		TeacherUUID:     teacherUUID,
+		FirstBlockUUID:  request.FirstBlockUUID,
+		SecondBlockUUID: request.SecondBlockUUID,
+	}
+
+	err := controller.UseCases.SwapBlocks(dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}

@@ -2,6 +2,7 @@ package definitions
 
 import (
 	"github.com/UPB-Code-Labs/main-api/src/blocks/domain/dtos"
+	laboratoriesEntities "github.com/UPB-Code-Labs/main-api/src/laboratories/domain/entities"
 )
 
 type BlockRepository interface {
@@ -27,4 +28,11 @@ type BlockRepository interface {
 
 	// Get the laboratory the block belongs to
 	GetTestBlockLaboratoryUUID(blockUUID string) (laboratoryUUID string, err error)
+
+	// Get blocks by UUID
+	GetMarkdownBlockByUUID(blockUUID string) (markdownBlock *laboratoriesEntities.MarkdownBlock, err error)
+	GetTestBlockByUUID(blockUUID string) (testBlock *laboratoriesEntities.TestBlock, err error)
+
+	// Swap the index of two blocks
+	SwapBlocks(firstBlockUUID, secondBlockUUID string) (err error)
 }
