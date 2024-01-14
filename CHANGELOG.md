@@ -1,3 +1,12 @@
+## [0.47.1](https://github.com/upb-code-labs/main-api/compare/v0.47.0...v0.47.1) (2024-01-14)
+
+
+### Bug Fixes
+
+* Return test archive UUID when creating new test blocks ([#165](https://github.com/upb-code-labs/main-api/issues/165)) ([f69803b](https://github.com/upb-code-labs/main-api/commit/f69803b27e875c90790af1baa9d267088e47036e))
+
+
+
 # [0.47.0](https://github.com/upb-code-labs/main-api/compare/v0.46.0...v0.47.0) (2024-01-14)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Get progress of students in laboratory ([#149](https://github.com/upb-code-labs/main-api/issues/149)) ([893017f](https://github.com/upb-code-labs/main-api/commit/893017f0461f978a33d49469b0a2ead25ceb1409))
-
-
-
-# [0.43.0](https://github.com/upb-code-labs/main-api/compare/v0.42.2...v0.43.0) (2024-01-10)
-
-
-### Features
-
-* Delete rubric ([#147](https://github.com/upb-code-labs/main-api/issues/147)) ([6394ee9](https://github.com/upb-code-labs/main-api/commit/6394ee9deeb2b7e072a65fc2afcabd7dfa000566))
 
 
 
