@@ -7,6 +7,7 @@ import (
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/definitions"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/laboratories/domain/entities"
+	laboratoriesErrors "github.com/UPB-Code-Labs/main-api/src/laboratories/domain/errors"
 	languagesDefinitions "github.com/UPB-Code-Labs/main-api/src/languages/domain/definitions"
 	rubricsDefinitions "github.com/UPB-Code-Labs/main-api/src/rubrics/domain/definitions"
 	rubricsErrors "github.com/UPB-Code-Labs/main-api/src/rubrics/domain/errors"
@@ -31,7 +32,7 @@ func (useCases *LaboratoriesUseCases) CreateLaboratory(dto *dtos.CreateLaborator
 	}
 
 	if !ownsCourse {
-		return nil, coursesErrors.TeacherDoesNotOwnsCourseError{}
+		return nil, laboratoriesErrors.TeacherDoesNotOwnLaboratoryError{}
 	}
 
 	// Create the laboratory
@@ -83,13 +84,13 @@ func (useCases *LaboratoriesUseCases) GetLaboratoryInformation(dto *dtos.GetLabo
 
 func (useCases *LaboratoriesUseCases) UpdateLaboratory(dto *dtos.UpdateLaboratoryDTO) error {
 	// Check that the teacher owns the laboratory / course
-	teacherOwnsLaboratory, err := useCases.doesTeacherOwnsLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)
+	teacherOwnsLaboratory, err := useCases.LaboratoriesRepository.DoesTeacherOwnLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)
 	if err != nil {
 		return err
 	}
 
 	if !teacherOwnsLaboratory {
-		return &coursesErrors.TeacherDoesNotOwnsCourseError{}
+		return laboratoriesErrors.TeacherDoesNotOwnLaboratoryError{}
 	}
 
 	// Check that the teacher owns the rubric
@@ -109,37 +110,28 @@ func (useCases *LaboratoriesUseCases) UpdateLaboratory(dto *dtos.UpdateLaborator
 
 func (useCases *LaboratoriesUseCases) CreateMarkdownBlock(dto *dtos.CreateMarkdownBlockDTO) (blockUUID string, err error) {
 	// Check that the teacher owns the laboratory
-	teacherOwnsLaboratory, err := useCases.doesTeacherOwnsLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)
+	teacherOwnsLaboratory, err := useCases.LaboratoriesRepository.DoesTeacherOwnLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)
 	if err != nil {
 		return "", err
 	}
 
 	if !teacherOwnsLaboratory {
-		return "", &coursesErrors.TeacherDoesNotOwnsCourseError{}
+		return "", laboratoriesErrors.TeacherDoesNotOwnLaboratoryError{}
 	}
 
 	// Create the block
 	return useCases.LaboratoriesRepository.CreateMarkdownBlock(dto.LaboratoryUUID)
 }
 
-func (useCases *LaboratoriesUseCases) doesTeacherOwnsLaboratory(teacherUUID, laboratoryUUID string) (bool, error) {
-	laboratory, err := useCases.LaboratoriesRepository.GetLaboratoryByUUID(laboratoryUUID)
-	if err != nil {
-		return false, err
-	}
-
-	return useCases.CoursesRepository.DoesTeacherOwnsCourse(teacherUUID, laboratory.CourseUUID)
-}
-
 func (useCases *LaboratoriesUseCases) CreateTestBlock(reqDTO *dtos.CreateTestBlockDTO) (resDTO *dtos.CreatedTestBlockDTO, err error) {
 	// Check that the teacher owns the laboratory
-	teacherOwnsLaboratory, err := useCases.doesTeacherOwnsLaboratory(reqDTO.TeacherUUID, reqDTO.LaboratoryUUID)
+	teacherOwnsLaboratory, err := useCases.LaboratoriesRepository.DoesTeacherOwnLaboratory(reqDTO.TeacherUUID, reqDTO.LaboratoryUUID)
 	if err != nil {
 		return nil, err
 	}
 
 	if !teacherOwnsLaboratory {
-		return nil, &coursesErrors.TeacherDoesNotOwnsCourseError{}
+		return nil, laboratoriesErrors.TeacherDoesNotOwnLaboratoryError{}
 	}
 
 	// Check that the language exists
@@ -166,13 +158,13 @@ func (useCases *LaboratoriesUseCases) CreateTestBlock(reqDTO *dtos.CreateTestBlo
 
 func (useCases *LaboratoriesUseCases) GetLaboratoryProgress(dto *dtos.GetLaboratoryProgressDTO) (progress *dtos.LaboratoryProgressDTO, err error) {
 	// Check that the teacher owns the laboratory
-	teacherOwnsLaboratory, err := useCases.doesTeacherOwnsLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)
+	teacherOwnsLaboratory, err := useCases.LaboratoriesRepository.DoesTeacherOwnLaboratory(dto.TeacherUUID, dto.LaboratoryUUID)
 	if err != nil {
 		return nil, err
 	}
 
 	if !teacherOwnsLaboratory {
-		return nil, &coursesErrors.TeacherDoesNotOwnsCourseError{}
+		return nil, laboratoriesErrors.TeacherDoesNotOwnLaboratoryError{}
 	}
 
 	// Get the total test blocks

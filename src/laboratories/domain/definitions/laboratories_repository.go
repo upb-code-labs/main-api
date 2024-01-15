@@ -16,4 +16,6 @@ type LaboratoriesRepository interface {
 
 	GetTotalTestBlocks(laboratoryUUID string) (total int, err error)
 	GetStudentsProgress(laboratoryUUID string) (progress []*dtos.LaboratoryStudentProgressDTO, err error)
+
+	DoesTeacherOwnLaboratory(teacherUUID string, laboratoryUUID string) (bool, error)
 }
