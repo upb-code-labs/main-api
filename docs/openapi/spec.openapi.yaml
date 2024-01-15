@@ -243,6 +243,72 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+  
+  /accounts/profile:
+    get: 
+      tags:
+        - Accounts
+      security:
+        - cookieAuth: []
+      description: Get the user's profile. This endpoint is necessary since we do not want to include sensitive data as the user full name and email and keep them in the session when the `/whoami` endpoint is requested. 
+      responses:
+        "200":
+          description: The profile details were obtained. 
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/account_profile_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"  
+      
+    put:
+      tags: 
+        - Accounts
+      security:
+        - cookieAuth: []
+      description: Updates the user's profile. 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/update_profile_req"
+      responses:
+        "204":
+          description: The profile was updated. 
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "409":
+          description: The email or institutional ID are already in use. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"  
 
   # Session
   /session/login:
@@ -2071,6 +2137,22 @@ components:
           type: string
           example: "password2024*/"
     
+    update_profile_req:
+      type: object
+      properties:
+        full_name: 
+          type: string
+          example: "Pedro Chaparro"
+        email: 
+          type: string
+          example: "pedrochaparro@upb.edu.co"
+        institutional_id:
+          type: string
+          example: "000371272"
+        password:
+          type: string
+          example: "password2023*/"
+    
     create_laboratory_req: 
       type: object
       properties:
@@ -2186,6 +2268,19 @@ components:
         role: 
           type: string
           example: "student"
+    
+    account_profile_response: 
+      type: object
+      properties: 
+        full_name: 
+          type: string
+          example: "Pedro Chaparro"
+        email: 
+          type: string
+          example: "pedrochaparro@upb.edu.co"
+        institutional_id:
+          type: string
+          example: "000371272"
 
     public_user_fields:
       type: object

@@ -130,3 +130,74 @@ func (useCases *AccountsUseCases) UpdatePassword(dto dtos.UpdatePasswordDTO) err
 
 	return nil
 }
+
+func (useCases *AccountsUseCases) UpdateProfile(dto dtos.UpdateAccountDTO) error {
+	// Get user
+	user, err := useCases.AccountsRepository.GetUserByUUID(dto.UserUUID)
+	if err != nil {
+		return err
+	}
+
+	// Check if the given password is correct
+	doesPasswordMatch, err := useCases.PasswordsHasher.ComparePasswords(dto.Password, user.PasswordHash)
+	if err != nil {
+		return err
+	}
+
+	if !doesPasswordMatch {
+		return sessionErrors.InvalidCredentialsError{}
+	}
+
+	// Check if email is already in use
+	existingUser, err := useCases.AccountsRepository.GetUserByEmail(dto.Email)
+	if err != nil && err != sql.ErrNoRows {
+		return err
+	}
+
+	emailIsUsedByAnotherUser := existingUser != nil &&
+		existingUser.UUID != dto.UserUUID
+
+	if emailIsUsedByAnotherUser {
+		return errors.EmailAlreadyInUseError{Email: dto.Email}
+	}
+
+	// Check if institutional ID is already in use
+	if dto.InstitutionalId != nil {
+		existingUser, err = useCases.AccountsRepository.GetUserByInstitutionalId(*dto.InstitutionalId)
+		if err != nil && err != sql.ErrNoRows {
+			return err
+		}
+
+		institutionalIdIsUsedByAnotherUser := existingUser != nil &&
+			existingUser.UUID != dto.UserUUID
+
+		if institutionalIdIsUsedByAnotherUser {
+			return errors.InstitutionalIdAlreadyInUseError{InstitutionalId: *dto.InstitutionalId}
+		}
+	}
+
+	// Update profile
+	err = useCases.AccountsRepository.UpdateProfile(dto)
+	return err
+}
+
+func (useCases *AccountsUseCases) GetProfile(userUUID string) (*dtos.UserProfileDTO, error) {
+	// Get user
+	user, err := useCases.AccountsRepository.GetUserByUUID(userUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.UserNotFoundError{}
+		}
+
+		return nil, err
+	}
+
+	// Create DTO
+	dto := dtos.UserProfileDTO{
+		FullName:        user.FullName,
+		Email:           user.Email,
+		InstitutionalId: &user.InstitutionalId,
+	}
+
+	return &dto, nil
+}

@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/UPB-Code-Labs/main-api/src/accounts/application"
@@ -198,4 +199,90 @@ func (controller *AccountsController) HandleUpdatePassword(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+// HandleUpdateProfile controller to update the profile of an account
+func (controller *AccountsController) HandleUpdateProfile(c *gin.Context) {
+	userUUID := c.GetString("session_uuid")
+	userRole := c.GetString("session_role")
+
+	// Parse and validate the request according to the user role
+	var request interface{}
+	switch userRole {
+	case "admin":
+		request = &requests.UpdateAdminProfileRequest{}
+	case "teacher":
+		request = &requests.UpdateTeacherProfileRequest{}
+	default:
+		request = &requests.UpdateStudentProfileRequest{}
+	}
+
+	if err := c.ShouldBindJSON(request); err != nil {
+		c.JSON(400, gin.H{
+			"message": "Request body is not valid",
+		})
+		return
+	}
+
+	if err := infrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(400, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Create the DTO to update the profile
+	var fullName, email, password string
+	var institutionalId *string
+
+	switch v := request.(type) {
+	case *requests.UpdateAdminProfileRequest:
+		fullName = v.FullName
+		email = v.Email
+		password = v.Password
+	case *requests.UpdateTeacherProfileRequest:
+		fullName = v.FullName
+		email = v.Email
+		password = v.Password
+	case *requests.UpdateStudentProfileRequest:
+		fullName = v.FullName
+		email = v.Email
+		institutionalId = v.InstitutionalId
+		password = v.Password
+	default:
+		c.Error(errors.New("request type not supported"))
+	}
+
+	updateAccountDTO := dtos.UpdateAccountDTO{
+		UserUUID:        userUUID,
+		FullName:        fullName,
+		Email:           email,
+		InstitutionalId: institutionalId,
+		Password:        password,
+	}
+
+	// Update profile
+	err := controller.UseCases.UpdateProfile(updateAccountDTO)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+}
+
+// HandleGetProfile controller to get the profile of an account
+func (controller *AccountsController) HandleGetProfile(c *gin.Context) {
+	userUUID := c.GetString("session_uuid")
+
+	// Get profile
+	profileDTO, err := controller.UseCases.GetProfile(userUUID)
+
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, profileDTO)
 }

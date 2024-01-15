@@ -373,3 +373,95 @@ func TestUpdatePassword(t *testing.T) {
 	router.ServeHTTP(w, r)
 	c.Equal(http.StatusOK, w.Code)
 }
+
+func TestGetAndUpdateProfile(t *testing.T) {
+	c := require.New(t)
+
+	// --- 1. Login as a student ---
+	// Register a student
+	testStudentName := "Yulia Ronja"
+	testStudentInstitutionalId := "000456791"
+	testStudentEmail := "yulia.ronja.2020@upb.edu.co"
+	testStudentOldPassword := "yulia/password/2023"
+
+	RegisterStudentAccount(requests.RegisterUserRequest{
+		FullName:        testStudentName,
+		Email:           testStudentEmail,
+		InstitutionalId: testStudentInstitutionalId,
+		Password:        testStudentOldPassword,
+	})
+
+	// Login as the student
+	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    testStudentEmail,
+		"password": testStudentOldPassword,
+	})
+	router.ServeHTTP(w, r)
+	cookie := w.Result().Cookies()[0]
+
+	// Get profile
+	profileResponse, code := GetProfileUtil(cookie)
+	c.Equal(http.StatusOK, code)
+	c.Equal(testStudentName, profileResponse["full_name"])
+	c.Equal(testStudentEmail, profileResponse["email"])
+	c.Equal(testStudentInstitutionalId, profileResponse["institutional_id"])
+
+	// Update profile
+	testStudentNewName := "Yulia Ronja Gillian"
+	testStudentNewEmail := "yulia.gillian.2024@upb.edu.co"
+	testStudentNewInstitutionalId := "000456792"
+
+	testCases := []GenericTestCase{
+		// Try to use an used email
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"full_name":        testStudentNewName,
+				"email":            registeredStudentEmail,
+				"institutional_id": testStudentNewInstitutionalId,
+				"password":         testStudentOldPassword,
+			},
+			ExpectedStatusCode: http.StatusConflict,
+		},
+		// Try to use a wrong password
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"full_name":        testStudentNewName,
+				"email":            testStudentNewEmail,
+				"institutional_id": testStudentNewInstitutionalId,
+				"password":         "wrong_password",
+			},
+			ExpectedStatusCode: http.StatusUnauthorized,
+		},
+		// Valid update
+		GenericTestCase{
+			Payload: map[string]interface{}{
+				"full_name":        testStudentNewName,
+				"email":            testStudentNewEmail,
+				"institutional_id": testStudentNewInstitutionalId,
+				"password":         testStudentOldPassword,
+			},
+			ExpectedStatusCode: http.StatusNoContent,
+		},
+	}
+
+	for _, testCase := range testCases {
+		tcInstitutionalId := testCase.Payload["institutional_id"].(string)
+
+		code = UpdateProfileUtil(UpdateProfileUtilDTO{
+			FullName:        testCase.Payload["full_name"].(string),
+			Email:           testCase.Payload["email"].(string),
+			InstitutionalId: &tcInstitutionalId,
+			Password:        testCase.Payload["password"].(string),
+			Cookie:          cookie,
+		})
+
+		c.Equal(testCase.ExpectedStatusCode, code)
+	}
+
+	// Get updated profile
+	profileResponse, code = GetProfileUtil(cookie)
+	c.Equal(http.StatusOK, code)
+	c.Equal(testStudentNewName, profileResponse["full_name"])
+	c.Equal(testStudentNewEmail, profileResponse["email"])
+	c.Equal(testStudentNewInstitutionalId, profileResponse["institutional_id"])
+}
