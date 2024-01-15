@@ -2100,6 +2100,46 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+  
+  /grades/laboratory/{laboratory_uuid}: 
+    get: 
+      tags: 
+        - Grades
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "a9be2f1e-e0e9-4b8d-9f72-6ed55ea5b1b8"
+          required: true
+      description: Get the existing grades of students for an specific laboratory. 
+      responses: 
+        "200": 
+          description: The grades were obtained successfully. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/students_grades_list_response"
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
     
   
 components:
@@ -2410,6 +2450,25 @@ components:
           type: array
           items: 
             $ref: "#/components/schemas/selected_criteria_in_grade"
+          
+    students_grades_list_response:
+      type: object
+      properties: 
+        grades: 
+          type: array
+          items: 
+            type: object
+            properties: 
+              student_uuid: 
+                type: string
+                example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
+              student_full_name: 
+                type: string
+                example: "Pedro Chaparro"
+              grade: 
+                type: number
+                example: 0.25
+    
     
     # Entities
     selected_criteria_in_grade: 
