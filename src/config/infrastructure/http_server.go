@@ -4,6 +4,7 @@ import (
 	accountsHttp "github.com/UPB-Code-Labs/main-api/src/accounts/infrastructure/http"
 	blocksHttp "github.com/UPB-Code-Labs/main-api/src/blocks/infrastructure/http"
 	coursesHttp "github.com/UPB-Code-Labs/main-api/src/courses/infrastructure/http"
+	gradesHttp "github.com/UPB-Code-Labs/main-api/src/grades/infrastructure/http"
 	laboratoriesHttp "github.com/UPB-Code-Labs/main-api/src/laboratories/infrastructure/http"
 	languagesHttp "github.com/UPB-Code-Labs/main-api/src/languages/infrastructure/http"
 	rubricsHttp "github.com/UPB-Code-Labs/main-api/src/rubrics/infrastructure/http"
@@ -17,11 +18,12 @@ import (
 var routesGroups = []func(*gin.RouterGroup){
 	accountsHttp.StartAccountsRoutes,
 	blocksHttp.StartBlocksRoutes,
-	sessionHttp.StartSessionRoutes,
 	coursesHttp.StartCoursesRoutes,
-	rubricsHttp.StartRubricsRoutes,
+	gradesHttp.StartGradesRoutes,
 	laboratoriesHttp.StartLaboratoriesRoutes,
 	languagesHttp.StartLanguagesRoutes,
+	rubricsHttp.StartRubricsRoutes,
+	sessionHttp.StartSessionRoutes,
 	submissionsHttp.StartSubmissionsRoutes,
 }
 
