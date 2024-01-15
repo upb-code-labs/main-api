@@ -5,6 +5,7 @@ import (
 	"github.com/UPB-Code-Labs/main-api/src/rubrics/domain/entities"
 )
 
+// RubricsRepository interface to define the methods that the repository of rubrics must implement
 type RubricsRepository interface {
 	Save(dto *dtos.CreateRubricDTO) (rubric *entities.Rubric, err error)
 	GetByUUID(uuid string) (rubric *entities.Rubric, err error)
@@ -24,4 +25,7 @@ type RubricsRepository interface {
 	AddCriteriaToObjective(dto *dtos.AddCriteriaToObjectiveDTO) (criteriaUUID string, err error)
 	UpdateCriteria(dto *dtos.UpdateCriteriaDTO) (err error)
 	DeleteCriteria(criteriaUUID string) (err error)
+
+	DoesRubricHaveObjective(rubricUUID string, objectiveUUID string) (bool, error)
+	DoesObjectiveHaveCriteria(objectiveUUID string, criteriaUUID string) (bool, error)
 }
