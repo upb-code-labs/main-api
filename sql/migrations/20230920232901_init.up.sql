@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS grades (
 
 CREATE TABLE IF NOT EXISTS grade_has_criteria (
   "grade_id" UUID NOT NULL REFERENCES grades(id),
-  "criteria_id" UUID NOT NULL REFERENCES criteria(id) ON DELETE CASCADE,
+  "criteria_id" UUID NULL NULL REFERENCES criteria(id) ON DELETE SET NULL,
   "objective_id" UUID NOT NULL REFERENCES objectives(id) ON DELETE CASCADE
 );
 
@@ -241,6 +241,7 @@ JOIN
 GROUP BY
   users.id, users.full_name, test_blocks.laboratory_id;
 
+
 --- ### Objectives
 CREATE
 OR REPLACE VIEW objectives_owners AS
@@ -261,6 +262,25 @@ FROM
   criteria
   INNER JOIN objectives ON criteria.objective_id = objectives.id
   INNER JOIN rubrics ON objectives.rubric_id = rubrics.id;
+
+-- ### Summarized grades
+CREATE
+OR REPLACE VIEW summarized_grades AS
+SELECT
+  grades.id AS grade_id,
+  grades.student_id,
+  students.full_name AS student_full_name,
+  grades.laboratory_id,
+  grades.rubric_id,
+  SUM(criteria.weight) AS total_criteria_weight,
+  grades.comment
+FROM
+  grades
+  INNER JOIN users AS students ON grades.student_id = students.id
+  INNER JOIN grade_has_criteria ON grades.id = grade_has_criteria.grade_id
+  INNER JOIN criteria ON grade_has_criteria.criteria_id = criteria.id
+GROUP BY
+  grades.id, students.full_name;
 
 -- ## Procedures and functions
 --- ### Swap blocks index

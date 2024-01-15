@@ -34,10 +34,9 @@ func (repository *GradesPostgresRepository) GetStudentsGradesInLaboratory(labora
 	defer cancel()
 
 	query := `
-		SELECT g.student_id, u.full_name, g.grade
-		FROM grades g
-		INNER JOIN users u ON u.id = g.student_id
-		WHERE g.laboratory_id = $1 AND g.rubric_id = $2
+		SELECT student_id, student_full_name, total_criteria_weight
+		FROM summarized_grades
+		WHERE laboratory_id = $1 AND rubric_id = $2
 	`
 
 	// Run the query
@@ -62,4 +61,162 @@ func (repository *GradesPostgresRepository) GetStudentsGradesInLaboratory(labora
 	}
 
 	return summarizedGrades, nil
+}
+
+// SetCriteriaToGrade sets a criteria to a student's grade
+func (repository *GradesPostgresRepository) SetCriteriaToGrade(dto *dtos.SetCriteriaToGradeDTO) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
+	// Check if the student has a grade in the laboratory
+	studentHasGrade, err := repository.doesStudentHasGrade(&dtos.CheckIfStudentHasGradeDTO{
+		StudentUUID:    dto.StudentUUID,
+		LaboratoryUUID: dto.LaboratoryUUID,
+		RubricUUID:     dto.RubricUUID,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Get the UUID of the grade of the student in the laboratory with the given rubric
+	studentGradeUUID := ""
+
+	if !studentHasGrade {
+		// Create a grade for the student if they do not have one
+		studentGradeUUID, err = repository.createStudentGrade(&dtos.CreateStudentGradeDTO{
+			CheckIfStudentHasGradeDTO: dtos.CheckIfStudentHasGradeDTO{
+				StudentUUID:    dto.StudentUUID,
+				LaboratoryUUID: dto.LaboratoryUUID,
+				RubricUUID:     dto.RubricUUID,
+			},
+		})
+
+		if err != nil {
+			return err
+		}
+	} else {
+		// Get the UUID of the grade of the student in the laboratory with the given rubric
+		studentGradeUUID, err = repository.getStudentGradeUUID(&dtos.GetStudentGradeDTO{
+			CheckIfStudentHasGradeDTO: dtos.CheckIfStudentHasGradeDTO{
+				StudentUUID:    dto.StudentUUID,
+				LaboratoryUUID: dto.LaboratoryUUID,
+				RubricUUID:     dto.RubricUUID,
+			},
+		})
+
+		if err != nil {
+			return err
+		}
+	}
+
+	// UPSERT the criteria to the grade
+	query := `
+		INSERT INTO grade_has_criteria (grade_id, criteria_id, objective_id)	
+		VALUES ($1, $2, $3)
+		ON CONFLICT (grade_id, objective_id) DO
+		UPDATE SET 
+			criteria_id = $2
+	`
+
+	// Run the query
+	if _, err := repository.Connection.ExecContext(
+		ctx,
+		query,
+		studentGradeUUID,
+		dto.CriteriaUUID,
+		dto.ObjectiveUUID,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// doesStudentHasGrade checks if a student has a grade in a laboratory
+func (repository *GradesPostgresRepository) doesStudentHasGrade(dto *dtos.CheckIfStudentHasGradeDTO) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
+	query := `
+		SELECT EXISTS (
+			SELECT 1
+			FROM grades
+			WHERE student_id = $1 AND laboratory_id = $2 AND rubric_id = $3
+		)
+	`
+
+	// Run the query
+	row := repository.Connection.QueryRowContext(
+		ctx,
+		query,
+		dto.StudentUUID,
+		dto.LaboratoryUUID,
+		dto.RubricUUID,
+	)
+
+	// Parse the result
+	var studentHasGrade bool
+	if err := row.Scan(&studentHasGrade); err != nil {
+		return false, err
+	}
+
+	return studentHasGrade, nil
+}
+
+// getStudentGrade returns the grade of a student in a laboratory
+func (repository *GradesPostgresRepository) getStudentGradeUUID(dto *dtos.GetStudentGradeDTO) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
+	query := `
+		SELECT id
+		FROM grades
+		WHERE student_id = $1 AND laboratory_id = $2 AND rubric_id = $3
+	`
+
+	// Run the query
+	row := repository.Connection.QueryRowContext(
+		ctx,
+		query,
+		dto.StudentUUID,
+		dto.LaboratoryUUID,
+		dto.RubricUUID,
+	)
+
+	// Parse the result
+	var gradeUUID string
+	if err := row.Scan(&gradeUUID); err != nil {
+		return "", err
+	}
+
+	return gradeUUID, nil
+}
+
+// createStudentGrade creates a grade for a student in a laboratory
+func (repository *GradesPostgresRepository) createStudentGrade(dto *dtos.CreateStudentGradeDTO) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
+	query := `
+		INSERT INTO grades (student_id, laboratory_id, rubric_id)
+		VALUES ($1, $2, $3)
+		RETURNING id
+	`
+
+	// Run the query
+	row := repository.Connection.QueryRowContext(
+		ctx,
+		query,
+		dto.StudentUUID,
+		dto.LaboratoryUUID,
+		dto.RubricUUID,
+	)
+
+	// Parse the result
+	var gradeUUID string
+	if err := row.Scan(&gradeUUID); err != nil {
+		return "", err
+	}
+
+	return gradeUUID, nil
 }
