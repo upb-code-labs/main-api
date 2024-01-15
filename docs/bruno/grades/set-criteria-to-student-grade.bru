@@ -1,0 +1,19 @@
+meta {
+  name: set-criteria-to-student-grade
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{BASE_URL}}/grades/laboratories/d0ce7e95-59b4-4ac1-9238-461e9a47ce1d/students/3fd0671b-8673-4282-94f5-9bd6300d943f
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "objective_uuid": "dd0e85ea-b03d-4b91-be3c-0a251b878e99",
+    "criteria_uuid": "5f55b8a3-56ab-4ef0-8d39-e47eb987dc76",
+    "rubric_uuid": "a6f00494-05b8-45d5-ba77-2f9a80454e41"
+  }
+}
