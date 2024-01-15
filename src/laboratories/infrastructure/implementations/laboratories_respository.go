@@ -389,3 +389,26 @@ func (repository *LaboratoriesPostgresRepository) GetStudentsProgress(laboratory
 
 	return progress, nil
 }
+
+// DoesTeacherOwnLaboratory returns true if the teacher owns the laboratory
+func (repository *LaboratoriesPostgresRepository) DoesTeacherOwnLaboratory(teacherUUID string, laboratoryUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT EXISTS (
+			SELECT 1
+			FROM laboratories AS l
+			INNER JOIN courses AS c ON l.course_id = c.id
+			WHERE l.id = $1 AND c.teacher_id = $2
+		)
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, laboratoryUUID, teacherUUID)
+	var exists bool
+	if err := row.Scan(&exists); err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
