@@ -1998,7 +1998,7 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
     
   # Grades
-  /grades/{student_uuid}/{laboratory_uuid}/{rubric_uuid}: 
+  /grades/laboratories/{laboratory_uuid}/students/{student_uuid}/rubrics/{rubric_uuid}: 
     get:
       tags: 
         - Grades
@@ -2049,6 +2049,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+  
+  /grades/laboratories/{laboratory_uuid}/students/{student_uuid}: 
     put:
       tags: 
         - Grades
@@ -2066,12 +2068,6 @@ paths:
           schema:
             type: string
             example: "a9be2f1e-e0e9-4b8d-9f72-6ed55ea5b1b8"
-          required: true
-        - in: path
-          name: rubric_uuid
-          schema:
-            type: string
-            example: "3fc29baf-9517-430c-9048-0f85599b61b7"
           required: true
       description: Select / deselect a criteria to be added to the student's grade. 
       requestBody:
@@ -2280,10 +2276,13 @@ components:
           example: "password2023*/"
 
     select_criteria_to_grade_req:
-      type: object
       allOf:
         - $ref: "#/components/schemas/selected_criteria_in_grade"
-        
+      type: object
+      properties: 
+        rubric_uuid:
+          type: string
+          example: "3fc29baf-9517-430c-9048-0f85599b61b7"
 
     # Responses
     default_error_response:
