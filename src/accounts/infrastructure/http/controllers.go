@@ -271,3 +271,18 @@ func (controller *AccountsController) HandleUpdateProfile(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+// HandleGetProfile controller to get the profile of an account
+func (controller *AccountsController) HandleGetProfile(c *gin.Context) {
+	userUUID := c.GetString("session_uuid")
+
+	// Get profile
+	profileDTO, err := controller.UseCases.GetProfile(userUUID)
+
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, profileDTO)
+}

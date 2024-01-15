@@ -21,3 +21,9 @@ type UpdateAccountDTO struct {
 	InstitutionalId *string
 	Password        string
 }
+
+type UserProfileDTO struct {
+	FullName        string  `json:"full_name"`
+	Email           string  `json:"email"`
+	InstitutionalId *string `json:"institutional_id"`
+}
