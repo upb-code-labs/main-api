@@ -180,3 +180,24 @@ func (useCases *AccountsUseCases) UpdateProfile(dto dtos.UpdateAccountDTO) error
 	err = useCases.AccountsRepository.UpdateProfile(dto)
 	return err
 }
+
+func (useCases *AccountsUseCases) GetProfile(userUUID string) (*dtos.UserProfileDTO, error) {
+	// Get user
+	user, err := useCases.AccountsRepository.GetUserByUUID(userUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.UserNotFoundError{}
+		}
+
+		return nil, err
+	}
+
+	// Create DTO
+	dto := dtos.UserProfileDTO{
+		FullName:        user.FullName,
+		Email:           user.Email,
+		InstitutionalId: &user.InstitutionalId,
+	}
+
+	return &dto, nil
+}
