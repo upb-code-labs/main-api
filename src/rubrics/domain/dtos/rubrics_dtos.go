@@ -11,11 +11,6 @@ type CreatedRubricDTO struct {
 	Name        string `json:"name"`
 }
 
-type GetRubricDto struct {
-	TeacherUUID string
-	RubricUUID  string
-}
-
 type DeleteRubricDTO struct {
 	TeacherUUID string
 	RubricUUID  string
