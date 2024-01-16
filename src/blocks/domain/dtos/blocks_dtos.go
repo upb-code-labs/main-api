@@ -26,3 +26,8 @@ type SwapBlocksDTO struct {
 	FirstBlockUUID  string
 	SecondBlockUUID string
 }
+
+type GetBlockTestsArchiveDTO struct {
+	TeacherUUID string
+	BlockUUID   string
+}
