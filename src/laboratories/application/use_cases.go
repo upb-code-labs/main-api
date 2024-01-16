@@ -123,21 +123,21 @@ func (useCases *LaboratoriesUseCases) CreateMarkdownBlock(dto *dtos.CreateMarkdo
 	return useCases.LaboratoriesRepository.CreateMarkdownBlock(dto.LaboratoryUUID)
 }
 
-func (useCases *LaboratoriesUseCases) CreateTestBlock(reqDTO *dtos.CreateTestBlockDTO) (resDTO *dtos.CreatedTestBlockDTO, err error) {
+func (useCases *LaboratoriesUseCases) CreateTestBlock(reqDTO *dtos.CreateTestBlockDTO) (blockUUID string, err error) {
 	// Check that the teacher owns the laboratory
 	teacherOwnsLaboratory, err := useCases.LaboratoriesRepository.DoesTeacherOwnLaboratory(reqDTO.TeacherUUID, reqDTO.LaboratoryUUID)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	if !teacherOwnsLaboratory {
-		return nil, laboratoriesErrors.TeacherDoesNotOwnLaboratoryError{}
+		return "", laboratoriesErrors.TeacherDoesNotOwnLaboratoryError{}
 	}
 
 	// Check that the language exists
 	_, err = useCases.LanguagesRepository.GetByUUID(reqDTO.LanguageUUID)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Send the file to the static files microservice
@@ -148,7 +148,7 @@ func (useCases *LaboratoriesUseCases) CreateTestBlock(reqDTO *dtos.CreateTestBlo
 		},
 	)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	reqDTO.TestArchiveUUID = savedArchiveUUID
 

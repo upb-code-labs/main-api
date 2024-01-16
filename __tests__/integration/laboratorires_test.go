@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/stretchr/testify/require"
 )
 
@@ -301,6 +302,7 @@ func TestCreateMarkdownBlock(t *testing.T) {
 func TestCreateTestBlock(t *testing.T) {
 	c := require.New(t)
 
+	// ## Preparation
 	// Login as a teacher
 	w, r := PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
 		"email":    registeredTeacherEmail,
@@ -331,6 +333,7 @@ func TestCreateTestBlock(t *testing.T) {
 	zipFile, err := GetSampleTestsArchive()
 	c.Nil(err)
 
+	// ## Tests: Create test block
 	// Send the request
 	response, _ := CreateTestBlock(&CreateTestBlockUtilsDTO{
 		laboratoryUUID: laboratoryUUID,
@@ -339,10 +342,20 @@ func TestCreateTestBlock(t *testing.T) {
 		cookie:         cookie,
 		testFile:       zipFile,
 	})
-
+	createdTestBlockUUID := response["uuid"].(string)
 	c.Equal(http.StatusCreated, status)
-	c.NotEmpty(response["uuid"])
-	c.NotEmpty(response["test_archive_uuid"])
+	c.NotEmpty(createdTestBlockUUID)
+
+	// ## Tests: Download test archive
+	testsArchiveBytes, status := GetTestsArchive(createdTestBlockUUID, cookie)
+	c.Equal(http.StatusOK, status)
+
+	// Check the length of the response
+	c.Greater(len(testsArchiveBytes), 0)
+
+	// Check the MIMETYPE
+	mtype := mimetype.Detect(testsArchiveBytes)
+	c.Equal("application/zip", mtype.String())
 }
 
 func TestGetStudentsProgress(t *testing.T) {
