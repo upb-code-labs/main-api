@@ -116,3 +116,12 @@ func SwapBlocks(dto *SwapBlocksUtilsDTO) (response map[string]interface{}, statu
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+func GetTestsArchive(testBlockUUID string, cookie *http.Cookie) (bytes []byte, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/blocks/test_blocks/%s/tests_archive", testBlockUUID)
+	w, r := PrepareRequest("GET", endpoint, nil)
+	r.AddCookie(cookie)
+
+	router.ServeHTTP(w, r)
+	return w.Body.Bytes(), w.Code
+}
