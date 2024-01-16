@@ -1144,9 +1144,6 @@ paths:
                   uuid:
                     type: string
                     example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
-                  test_archive_uuid:
-                    type: string
-                    example: "67a56a2a-b7b8-4369-b726-7b387b49d64e"
         "400":
           description: Required fields were missed or doesn't fulfill the required format.
           content:
@@ -1446,6 +1443,47 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
         "404":
           description: A block with (at least) one of the given UUIDs were not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+  
+  /blocks/test_blocks/{block_uuid}/tests_archive: 
+    get: 
+      tags:
+        - Blocks
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: block_uuid
+          schema:
+            type: string
+            example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
+          required: true
+      description: Get `.zip` archive with the tests for the given test block. 
+      responses:
+        "200":
+          description: The `.zip` archive is retrieved / downloaded
+          content: 
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: No test bblock found with the given UUID. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
           content:
             application/json:
               schema:
