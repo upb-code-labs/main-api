@@ -37,3 +37,24 @@ type CreateStudentGradeDTO struct {
 type GetStudentGradeDTO struct {
 	CheckIfStudentHasGradeDTO
 }
+
+// GetStudentGradeInLaboratoryWithRubricDTO data transfer object to parse the request of the endpoint
+type GetStudentGradeInLaboratoryWithRubricDTO struct {
+	UserUUID       string
+	StudentUUID    string
+	LaboratoryUUID string
+	RubricUUID     string
+}
+
+// STudentGradeInLaboratoryWithRubricDTO data transfer object to be used as the response of the endpoint
+type StudentGradeInLaboratoryWithRubricDTO struct {
+	Grade            float64                              `json:"grade"`
+	Comment          string                               `json:"comment"`
+	SelectedCriteria []*SelectedCriteriaInStudentGradeDTO `json:"selected_criteria"`
+}
+
+// SelectedCriteriaInStudentGradeDTO data transfer object to obtain the selected criteria in a student's grade
+type SelectedCriteriaInStudentGradeDTO struct {
+	ObjectiveUUID string `json:"objective_uuid"`
+	CriteriaUUID  string `json:"criteria_uuid"`
+}

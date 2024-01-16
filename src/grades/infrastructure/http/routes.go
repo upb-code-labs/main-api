@@ -29,6 +29,13 @@ func StartGradesRoutes(g *gin.RouterGroup) {
 		controller.HandleGetSummarizedGradesInLaboratory,
 	)
 
+	gradesGroup.GET(
+		"/laboratories/:laboratoryUUID/students/:studentUUID/rubrics/:rubricUUID",
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher", "student"}),
+		controller.HandleGetStudentGradeInLaboratoryWithRubric,
+	)
+
 	gradesGroup.PUT(
 		"/laboratories/:laboratoryUUID/students/:studentUUID",
 		sharedInfrastructure.WithAuthenticationMiddleware(),

@@ -98,3 +98,44 @@ func (controller *GradesController) HandleSetCriteriaGrade(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+func (controller *GradesController) HandleGetStudentGradeInLaboratoryWithRubric(c *gin.Context) {
+	// Get user uuid from the session
+	userUUID := c.GetString("session_uuid")
+
+	// Get UUIDs from the request params
+	studentUUID := c.Param("studentUUID")
+	laboratoryUUID := c.Param("laboratoryUUID")
+	rubricUUID := c.Param("rubricUUID")
+
+	// Validate UUIDs
+	requestUUIDs := requests.GetStudentGradeInLaboratoryWithRubricRequest{
+		StudentUUID:    studentUUID,
+		LaboratoryUUID: laboratoryUUID,
+		RubricUUID:     rubricUUID,
+	}
+	if err := sharedInfrastructure.GetValidator().Struct(requestUUIDs); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Please, make sure the provided UUIDs are valid",
+		})
+		return
+	}
+
+	// Get student grade in laboratory with rubric
+	grade, err := controller.UseCases.GetStudentGradeInLaboratoryWithRubric(
+		&dtos.GetStudentGradeInLaboratoryWithRubricDTO{
+			UserUUID:       userUUID,
+			StudentUUID:    studentUUID,
+			LaboratoryUUID: laboratoryUUID,
+			RubricUUID:     rubricUUID,
+		},
+	)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"grade": grade,
+	})
+}

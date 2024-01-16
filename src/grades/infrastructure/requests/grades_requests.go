@@ -11,3 +11,11 @@ type SetCriteriaToGradeRequestUUIDs struct {
 	StudentUUID    string `validate:"required,uuid4"`
 	LaboratoryUUID string `validate:"required,uuid4"`
 }
+
+// GetSummarizedGradesInLaboratoryRequest request to get grade of an student in a laboratory
+// that was graded with an specific rubric
+type GetStudentGradeInLaboratoryWithRubricRequest struct {
+	LaboratoryUUID string `validate:"required,uuid4"`
+	RubricUUID     string `validate:"required,uuid4"`
+	StudentUUID    string `validate:"required,uuid4"`
+}
