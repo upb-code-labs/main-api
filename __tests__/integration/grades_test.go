@@ -89,14 +89,37 @@ func TestSetCriteriaToStudentSubmission(t *testing.T) {
 	}, cookie)
 	c.Equal(http.StatusNoContent, code)
 
-	// Get the student's grade
+	// Get all the grades of students in the laboratory
 	studentGradeResponse, code := GetSummarizedGrades(laboratoryUUID, cookie)
 	c.Equal(http.StatusOK, code)
 
 	studentsGrades := studentGradeResponse["grades"].([]interface{})
 	c.Equal(1, len(studentsGrades))
 
-	studentGrade := studentsGrades[0].(map[string]interface{})
-	c.Equal(studentUUID, studentGrade["student_uuid"].(string))
-	c.Equal(criteriaWeight, studentGrade["grade"].(float64))
+	firstStudentGrade := studentsGrades[0].(map[string]interface{})
+	c.Equal(studentUUID, firstStudentGrade["student_uuid"].(string))
+	c.Equal(criteriaWeight, firstStudentGrade["grade"].(float64))
+
+	// Get the grade of the student in the laboratory
+	studentGradeResponse, code = GetStudentGrade(&GetStudentGradeUtilsDTO{
+		LaboratoryUUID: laboratoryUUID,
+		RubricUUID:     rubricUUID,
+		StudentUUID:    studentUUID,
+	}, cookie)
+	c.Equal(http.StatusOK, code)
+
+	studentGrade := studentGradeResponse["grade"].(float64)
+	c.Equal(criteriaWeight, studentGrade)
+
+	gradeComment := studentGradeResponse["comment"].(string)
+	c.Equal("", gradeComment)
+
+	selectedCriteriaList := studentGradeResponse["selected_criteria"].([]interface{})
+	c.Equal(1, len(selectedCriteriaList))
+
+	selectedCriteria := selectedCriteriaList[0].(map[string]interface{})
+	selectedCriteriaObjectiveUUID := selectedCriteria["objective_uuid"].(string)
+	c.Equal(objectiveUUID, selectedCriteriaObjectiveUUID)
+	selectedCriteriaCriteriaUUID := selectedCriteria["criteria_uuid"].(string)
+	c.Equal(criteriaUUID, selectedCriteriaCriteriaUUID)
 }

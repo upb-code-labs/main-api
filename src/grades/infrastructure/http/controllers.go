@@ -135,7 +135,5 @@ func (controller *GradesController) HandleGetStudentGradeInLaboratoryWithRubric(
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"grade": grade,
-	})
+	c.JSON(http.StatusOK, grade)
 }
