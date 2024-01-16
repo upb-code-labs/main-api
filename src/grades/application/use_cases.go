@@ -108,3 +108,29 @@ func (useCases *GradesUseCases) SetCriteriaToGrade(dto *dtos.SetCriteriaToGradeD
 	// Set the criteria to the student's grade
 	return useCases.GradesRepository.SetCriteriaToGrade(dto)
 }
+
+// GetStudentGradeInLaboratoryWithRubric returns the grade of an student in a laboratory
+// that was graded with an specific rubric
+func (useCases *GradesUseCases) GetStudentGradeInLaboratoryWithRubric(dto *dtos.GetStudentGradeInLaboratoryWithRubricDTO) (*dtos.StudentGradeInLaboratoryWithRubricDTO, error) {
+	// Check if the users ows the laboratory
+	userOwnsLaboratory, err := useCases.LaboratoriesRepository.DoesTeacherOwnLaboratory(
+		dto.UserUUID,
+		dto.LaboratoryUUID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if the user is trying to get their own grade
+	isSameStudent := dto.StudentUUID == dto.UserUUID
+
+	// Validate the user owns the laboratory or is the student
+	userHasPermission := userOwnsLaboratory || isSameStudent
+	if !userHasPermission {
+		return nil, gradesErrors.UserCannotReadGradeError{}
+	}
+
+	// Get the grade
+	grade, err := useCases.GradesRepository.GetStudentGradeInLaboratoryWithRubric(dto)
+	return grade, err
+}

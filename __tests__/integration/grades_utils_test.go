@@ -36,3 +36,25 @@ func SetCriteriaToStudentGrade(dto *SetCriteriaToStudentGradeUtilsDTO, cookie *h
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+type GetStudentGradeUtilsDTO struct {
+	LaboratoryUUID string
+	StudentUUID    string
+	RubricUUID     string
+}
+
+func GetStudentGrade(dto *GetStudentGradeUtilsDTO, cookie *http.Cookie) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf(
+		"/api/v1/grades/laboratories/%s/students/%s/rubrics/%s",
+		dto.LaboratoryUUID,
+		dto.StudentUUID,
+		dto.RubricUUID,
+	)
+
+	w, r := PrepareRequest("GET", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}

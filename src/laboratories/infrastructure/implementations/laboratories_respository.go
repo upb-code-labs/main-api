@@ -397,16 +397,16 @@ func (repository *LaboratoriesPostgresRepository) DoesTeacherOwnLaboratory(teach
 	defer cancel()
 
 	query := `
-		SELECT l.id
+		SELECT l.id, c.teacher_id
 		FROM laboratories AS l
 		INNER JOIN courses AS c ON l.course_id = c.id
-		WHERE l.id = $1 AND c.teacher_id = $2
+		WHERE l.id = $1
 	`
 
-	row := repository.Connection.QueryRowContext(ctx, query, laboratoryUUID, teacherUUID)
+	row := repository.Connection.QueryRowContext(ctx, query, laboratoryUUID)
 
-	var laboratoryID string
-	if err := row.Scan(&laboratoryID); err != nil {
+	var laboratoryID, teacherID string
+	if err := row.Scan(&laboratoryID, &teacherID); err != nil {
 		if err == sql.ErrNoRows {
 			return false, errors.LaboratoryNotFoundError{}
 		}
@@ -414,5 +414,5 @@ func (repository *LaboratoriesPostgresRepository) DoesTeacherOwnLaboratory(teach
 		return false, err
 	}
 
-	return true, nil
+	return teacherID == teacherUUID, nil
 }

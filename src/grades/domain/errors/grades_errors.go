@@ -24,3 +24,13 @@ func (err RubricDoesNotMatchLaboratoryError) Error() string {
 func (err RubricDoesNotMatchLaboratoryError) StatusCode() int {
 	return http.StatusBadRequest
 }
+
+type UserCannotReadGradeError struct{}
+
+func (err UserCannotReadGradeError) Error() string {
+	return "You do not have permission to read this grade"
+}
+
+func (err UserCannotReadGradeError) StatusCode() int {
+	return http.StatusForbidden
+}

@@ -220,3 +220,62 @@ func (repository *GradesPostgresRepository) createStudentGrade(dto *dtos.CreateS
 
 	return gradeUUID, nil
 }
+
+// GetStudentGradeInLaboratoryWithRubric returns the grade of an student in a laboratory
+// that was graded with an specific rubric
+func (repository *GradesPostgresRepository) GetStudentGradeInLaboratoryWithRubric(dto *dtos.GetStudentGradeInLaboratoryWithRubricDTO) (*dtos.StudentGradeInLaboratoryWithRubricDTO, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
+	// Get the grade and comment
+	query := `
+		SELECT grade_id, total_criteria_weight, comment
+		FROM summarized_grades
+		WHERE student_id = $1 AND laboratory_id = $2 AND rubric_id = $3
+	`
+
+	row := repository.Connection.QueryRowContext(
+		ctx,
+		query,
+		dto.StudentUUID,
+		dto.LaboratoryUUID,
+		dto.RubricUUID,
+	)
+
+	var gradeUUID string
+	grade := &dtos.StudentGradeInLaboratoryWithRubricDTO{}
+
+	if err := row.Scan(&gradeUUID, &grade.Grade, &grade.Comment); err != nil {
+		// If the student does not have a grade, return the zero-valued grade
+		if err == sql.ErrNoRows {
+			grade.SelectedCriteria = []*dtos.SelectedCriteriaInStudentGradeDTO{}
+			return grade, nil
+		}
+
+		return nil, err
+	}
+
+	// Get the selected criteria
+	query = `
+		SELECT criteria_id, objective_id
+		FROM grade_has_criteria
+		WHERE grade_id = $1
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, gradeUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var selectedCriteria dtos.SelectedCriteriaInStudentGradeDTO
+
+		if err := rows.Scan(&selectedCriteria.CriteriaUUID, &selectedCriteria.ObjectiveUUID); err != nil {
+			return nil, err
+		}
+
+		grade.SelectedCriteria = append(grade.SelectedCriteria, &selectedCriteria)
+	}
+
+	return grade, nil
+}
