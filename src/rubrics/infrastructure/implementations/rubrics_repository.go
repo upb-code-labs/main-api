@@ -426,3 +426,53 @@ func (repository *RubricsPostgresRepository) DeleteCriteria(criteriaUUID string)
 
 	return nil
 }
+
+// DoesRubricHaveObjective checks if the objective belongs to the given rubric
+func (repository *RubricsPostgresRepository) DoesRubricHaveObjective(rubricUUID string, objectiveUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the objective
+	row := repository.Connection.QueryRowContext(ctx, `
+		SELECT rubric_id
+		FROM objectives
+		WHERE id = $1
+	`, objectiveUUID)
+
+	var objectiveRubricUUID string
+	err := row.Scan(&objectiveRubricUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, &errors.ObjectiveNotFoundError{}
+		}
+
+		return false, err
+	}
+
+	return objectiveRubricUUID == rubricUUID, nil
+}
+
+// DoesObjectiveHaveCriteria checks if the criteria belongs to the given objective
+func (repository *RubricsPostgresRepository) DoesObjectiveHaveCriteria(objectiveUUID string, criteriaUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	// Get the criteria
+	row := repository.Connection.QueryRowContext(ctx, `
+		SELECT objective_id
+		FROM criteria
+		WHERE id = $1
+	`, criteriaUUID)
+
+	var criteriaObjectiveUUID string
+	err := row.Scan(&criteriaObjectiveUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, &errors.CriteriaNotFoundError{}
+		}
+
+		return false, err
+	}
+
+	return criteriaObjectiveUUID == objectiveUUID, nil
+}

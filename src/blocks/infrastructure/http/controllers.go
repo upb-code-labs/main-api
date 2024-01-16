@@ -213,3 +213,31 @@ func (controller *BlocksController) HandleSwapBlocks(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+// HandleGetTestBlockTestsArchive controller to handle the request of downloading the `.zip` archive
+// containing the tests of a test block
+func (controller *BlocksController) HandleGetTestBlockTestsArchive(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+	blockUUID := c.Param("block_uuid")
+
+	// Validate the block UUID
+	if err := sharedInfrastructure.GetValidator().Var(blockUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Block UUID is not valid",
+		})
+		return
+	}
+
+	// Get the test block tests archive
+	testsArchive, err := controller.UseCases.GetTestBlockTestsArchive(&dtos.GetBlockTestsArchiveDTO{
+		TeacherUUID: teacherUUID,
+		BlockUUID:   blockUUID,
+	})
+
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Data(http.StatusOK, "application/zip", testsArchive)
+}

@@ -193,3 +193,27 @@ func (useCases *BlocksUseCases) SwapBlocks(dto dtos.SwapBlocksDTO) (err error) {
 	// Swap the blocks
 	return useCases.BlocksRepository.SwapBlocks(dto.FirstBlockUUID, dto.SecondBlockUUID)
 }
+
+// GetTestBlockTestsArchive returns the bytes of the `.zip` archive containing the tests of a test block
+func (useCases *BlocksUseCases) GetTestBlockTestsArchive(dto *dtos.GetBlockTestsArchiveDTO) (archive []byte, err error) {
+	// Validate the teacher is the owner of the block
+	ownsBlock, err := useCases.BlocksRepository.DoesTeacherOwnsTestBlock(dto.TeacherUUID, dto.BlockUUID)
+	if err != nil {
+		return nil, err
+	}
+	if !ownsBlock {
+		return nil, blocksErrors.TeacherDoesNotOwnBlock{}
+	}
+
+	// Get the UUID of the block's tests archive
+	uuid, err := useCases.BlocksRepository.GetTestArchiveUUIDFromTestBlockUUID(dto.BlockUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the archive from the microservice
+	return useCases.StaticFilesRepository.GetArchiveBytes(&staticFilesDTOs.StaticFileArchiveDTO{
+		FileUUID: uuid,
+		FileType: "test",
+	})
+}

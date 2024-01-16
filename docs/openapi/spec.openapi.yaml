@@ -1144,9 +1144,6 @@ paths:
                   uuid:
                     type: string
                     example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
-                  test_archive_uuid:
-                    type: string
-                    example: "67a56a2a-b7b8-4369-b726-7b387b49d64e"
         "400":
           description: Required fields were missed or doesn't fulfill the required format.
           content:
@@ -1446,6 +1443,47 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
         "404":
           description: A block with (at least) one of the given UUIDs were not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+  
+  /blocks/test_blocks/{block_uuid}/tests_archive: 
+    get: 
+      tags:
+        - Blocks
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: block_uuid
+          schema:
+            type: string
+            example: "dd5a2edf-8439-4fdc-97e8-6f0d45d6540a"
+          required: true
+      description: Get `.zip` archive with the tests for the given test block. 
+      responses:
+        "200":
+          description: The `.zip` archive is retrieved / downloaded
+          content: 
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: No test bblock found with the given UUID. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
           content:
             application/json:
               schema:
@@ -1998,7 +2036,7 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
     
   # Grades
-  /grades/{student_uuid}/{laboratory_uuid}/{rubric_uuid}: 
+  /grades/laboratories/{laboratory_uuid}/students/{student_uuid}/rubrics/{rubric_uuid}: 
     get:
       tags: 
         - Grades
@@ -2049,6 +2087,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+  
+  /grades/laboratories/{laboratory_uuid}/students/{student_uuid}: 
     put:
       tags: 
         - Grades
@@ -2067,12 +2107,6 @@ paths:
             type: string
             example: "a9be2f1e-e0e9-4b8d-9f72-6ed55ea5b1b8"
           required: true
-        - in: path
-          name: rubric_uuid
-          schema:
-            type: string
-            example: "3fc29baf-9517-430c-9048-0f85599b61b7"
-          required: true
       description: Select / deselect a criteria to be added to the student's grade. 
       requestBody:
         content:
@@ -2082,6 +2116,46 @@ paths:
       responses: 
         "201": 
           description: The criteria was successfully selected.
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+  
+  /grades/laboratory/{laboratory_uuid}: 
+    get: 
+      tags: 
+        - Grades
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "a9be2f1e-e0e9-4b8d-9f72-6ed55ea5b1b8"
+          required: true
+      description: Get the existing grades of students for an specific laboratory. 
+      responses: 
+        "200": 
+          description: The grades were obtained successfully. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/students_grades_list_response"
         "400":
           description: Required fields were missed or doesn't fulfill the required format.
           content:
@@ -2240,10 +2314,13 @@ components:
           example: "password2023*/"
 
     select_criteria_to_grade_req:
-      type: object
       allOf:
         - $ref: "#/components/schemas/selected_criteria_in_grade"
-        
+      type: object
+      properties: 
+        rubric_uuid:
+          type: string
+          example: "3fc29baf-9517-430c-9048-0f85599b61b7"
 
     # Responses
     default_error_response:
@@ -2410,6 +2487,25 @@ components:
           type: array
           items: 
             $ref: "#/components/schemas/selected_criteria_in_grade"
+          
+    students_grades_list_response:
+      type: object
+      properties: 
+        grades: 
+          type: array
+          items: 
+            type: object
+            properties: 
+              student_uuid: 
+                type: string
+                example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
+              student_full_name: 
+                type: string
+                example: "Pedro Chaparro"
+              grade: 
+                type: number
+                example: 0.25
+    
     
     # Entities
     selected_criteria_in_grade: 

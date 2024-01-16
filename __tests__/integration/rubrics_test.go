@@ -107,36 +107,12 @@ func TestGetRubricByUUID(t *testing.T) {
 	cookie := w.Result().Cookies()[0]
 
 	// Create a rubric
+	rubricName := "Rubric 1"
 	response, status := CreateRubric(cookie, map[string]interface{}{
-		"name": "Rubric 1",
+		"name": rubricName,
 	})
 	c.Equal(http.StatusCreated, status)
 	rubricUUID := response["uuid"].(string)
-
-	// Create a teacher
-	testTeacherEmail := "henriette.otylia.2020@upb.edu.co"
-	testTeacherPass := "henriette/password/2020"
-	code := RegisterTeacherAccount(requests.RegisterTeacherRequest{
-		FullName: "Henriette Otylia",
-		Email:    testTeacherEmail,
-		Password: testTeacherPass,
-	})
-	c.Equal(201, code)
-
-	// Login as the new teacher
-	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
-		"email":    testTeacherEmail,
-		"password": testTeacherPass,
-	})
-	router.ServeHTTP(w, r)
-	cookie = w.Result().Cookies()[0]
-
-	// Create a rubric
-	response, status = CreateRubric(cookie, map[string]interface{}{
-		"name": "Rubric 2",
-	})
-	c.Equal(http.StatusCreated, status)
-	rubricUUID2 := response["uuid"].(string)
 
 	// Test cases
 	testCases := []GenericTestCase{
@@ -156,12 +132,6 @@ func TestGetRubricByUUID(t *testing.T) {
 			Payload: map[string]interface{}{
 				"rubricUUID": rubricUUID,
 			},
-			ExpectedStatusCode: http.StatusForbidden,
-		},
-		GenericTestCase{
-			Payload: map[string]interface{}{
-				"rubricUUID": rubricUUID2,
-			},
 			ExpectedStatusCode: http.StatusOK,
 		},
 	}
@@ -172,9 +142,8 @@ func TestGetRubricByUUID(t *testing.T) {
 
 		if testCase.ExpectedStatusCode == http.StatusOK {
 			rubric := response["rubric"].(map[string]interface{})
-			c.NotEmpty(response["message"])
-			c.Equal(rubricUUID2, rubric["uuid"])
-			c.Equal("Rubric 2", rubric["name"])
+			c.Equal(rubricUUID, rubric["uuid"])
+			c.Equal(rubricName, rubric["name"])
 
 			objective := rubric["objectives"].([]interface{})[0].(map[string]interface{})
 			c.NotEmpty(objective["uuid"])

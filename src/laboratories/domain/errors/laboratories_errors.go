@@ -13,3 +13,13 @@ func (err LaboratoryNotFoundError) Error() string {
 func (err LaboratoryNotFoundError) StatusCode() int {
 	return http.StatusNotFound
 }
+
+type TeacherDoesNotOwnLaboratoryError struct{}
+
+func (err TeacherDoesNotOwnLaboratoryError) Error() string {
+	return "You don't own the laboratory"
+}
+
+func (err TeacherDoesNotOwnLaboratoryError) StatusCode() int {
+	return http.StatusForbidden
+}

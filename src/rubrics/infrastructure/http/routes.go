@@ -35,7 +35,7 @@ func StartRubricsRoutes(g *gin.RouterGroup) {
 	rubricsGroup.GET(
 		"/:rubricUUID",
 		sharedInfrastructure.WithAuthenticationMiddleware(),
-		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher", "student"}),
 		controller.HandleGetRubricByUUID,
 	)
 

@@ -56,4 +56,11 @@ func StartBlocksRoutes(g *gin.RouterGroup) {
 		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleSwapBlocks,
 	)
+
+	blocksGroup.GET(
+		"/test_blocks/:block_uuid/tests_archive",
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleGetTestBlockTestsArchive,
+	)
 }

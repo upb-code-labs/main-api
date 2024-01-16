@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
   "email" CITEXT NOT NULL UNIQUE,
   "full_name" VARCHAR NOT NULL,
   "password_hash" VARCHAR NOT NULL,
-  "created_by" UUID NULL REFERENCES users(id),
+  "created_by" UUID DEFAULT NULL REFERENCES users(id),
   "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS courses (
 );
 
 CREATE TABLE IF NOT EXISTS invitation_codes (
-  "course_id" UUID PRIMARY KEY REFERENCES courses(id),
+  "course_id" UUID PRIMARY KEY REFERENCES courses(id) ON DELETE CASCADE,
   "code" VARCHAR(9) NOT NULL UNIQUE CHECK (LENGTH(code) >= 9),
   "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -121,13 +121,15 @@ CREATE TABLE IF NOT EXISTS submissions (
 
 CREATE TABLE IF NOT EXISTS grades (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  "laboratory_id" UUID NOT NULL REFERENCES laboratories(id),
-  "student_id" UUID NOT NULL REFERENCES users(id)
+  "laboratory_id" UUID NOT NULL REFERENCES laboratories(id), 
+  "rubric_id" UUID NOT NULL REFERENCES rubrics(id) ON DELETE CASCADE,
+  "student_id" UUID NOT NULL REFERENCES users(id),
+  "comment" TEXT NOT NULL DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS grade_has_criteria (
   "grade_id" UUID NOT NULL REFERENCES grades(id),
-  "criteria_id" UUID NOT NULL REFERENCES criteria(id) ON DELETE CASCADE,
+  "criteria_id" UUID NULL NULL REFERENCES criteria(id) ON DELETE SET NULL,
   "objective_id" UUID NOT NULL REFERENCES objectives(id) ON DELETE CASCADE
 );
 
@@ -137,7 +139,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_class_users ON courses_has_users(course_id
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_submissions ON submissions(test_block_id, student_id);
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_grades ON grades(laboratory_id, student_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_grades ON grades(laboratory_id, rubric_id, student_id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_grade_criteria ON grade_has_criteria(grade_id, objective_id);
 
@@ -239,6 +241,7 @@ JOIN
 GROUP BY
   users.id, users.full_name, test_blocks.laboratory_id;
 
+
 --- ### Objectives
 CREATE
 OR REPLACE VIEW objectives_owners AS
@@ -259,6 +262,25 @@ FROM
   criteria
   INNER JOIN objectives ON criteria.objective_id = objectives.id
   INNER JOIN rubrics ON objectives.rubric_id = rubrics.id;
+
+-- ### Summarized grades
+CREATE
+OR REPLACE VIEW summarized_grades AS
+SELECT
+  grades.id AS grade_id,
+  grades.student_id,
+  students.full_name AS student_full_name,
+  grades.laboratory_id,
+  grades.rubric_id,
+  SUM(criteria.weight) AS total_criteria_weight,
+  grades.comment
+FROM
+  grades
+  INNER JOIN users AS students ON grades.student_id = students.id
+  INNER JOIN grade_has_criteria ON grades.id = grade_has_criteria.grade_id
+  INNER JOIN criteria ON grade_has_criteria.criteria_id = criteria.id
+GROUP BY
+  grades.id, students.full_name;
 
 -- ## Procedures and functions
 --- ### Swap blocks index

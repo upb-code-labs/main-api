@@ -256,14 +256,14 @@ func (repository *LaboratoriesPostgresRepository) CreateMarkdownBlock(laboratory
 	return blockUUID, nil
 }
 
-func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.CreateTestBlockDTO) (createdTestBlockDTO *dtos.CreatedTestBlockDTO, err error) {
+func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.CreateTestBlockDTO) (blockUUID string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	// Start transaction
 	tx, err := repository.Connection.BeginTx(ctx, nil)
 	if err != nil {
-		return nil, err
+		return "nil", err
 	}
 	defer tx.Rollback()
 
@@ -280,7 +280,7 @@ func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.Crea
 	row := tx.QueryRowContext(ctx, query, dto.LaboratoryUUID)
 	var dbBlockIndexUUID string
 	if err := row.Scan(&dbBlockIndexUUID); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Save the archive metadata
@@ -291,10 +291,10 @@ func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.Crea
 	`
 
 	row = tx.QueryRowContext(ctx, query, dto.TestArchiveUUID)
-	createdTestBlockDTO = &dtos.CreatedTestBlockDTO{}
+	var testBlockArchiveUUID string
 
-	if err := row.Scan(&createdTestBlockDTO.TestArchiveUUID); err != nil {
-		return nil, err
+	if err := row.Scan(&testBlockArchiveUUID); err != nil {
+		return "", err
 	}
 
 	// Create test block
@@ -308,23 +308,24 @@ func (repository *LaboratoriesPostgresRepository) CreateTestBlock(dto *dtos.Crea
 		ctx,
 		query,
 		dto.LanguageUUID,
-		createdTestBlockDTO.TestArchiveUUID,
+		testBlockArchiveUUID,
 		dto.LaboratoryUUID,
 		dbBlockIndexUUID,
 		dto.Name,
 	)
 
-	if err := row.Scan(&createdTestBlockDTO.BlockUUID); err != nil {
-		return nil, err
+	var createdTestBlockUUID string
+	if err := row.Scan(&createdTestBlockUUID); err != nil {
+		return "", err
 	}
 
 	// Commit transaction
 	if err := tx.Commit(); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Return the new block UUID
-	return createdTestBlockDTO, nil
+	return createdTestBlockUUID, nil
 }
 
 func (repository *LaboratoriesPostgresRepository) GetTotalTestBlocks(laboratoryUUID string) (total int, err error) {
@@ -388,4 +389,31 @@ func (repository *LaboratoriesPostgresRepository) GetStudentsProgress(laboratory
 	}
 
 	return progress, nil
+}
+
+// DoesTeacherOwnLaboratory returns true if the teacher owns the laboratory
+// and throws an error if the laboratory does not exist
+func (repository *LaboratoriesPostgresRepository) DoesTeacherOwnLaboratory(teacherUUID string, laboratoryUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT l.id, c.teacher_id
+		FROM laboratories AS l
+		INNER JOIN courses AS c ON l.course_id = c.id
+		WHERE l.id = $1
+	`
+
+	row := repository.Connection.QueryRowContext(ctx, query, laboratoryUUID)
+
+	var laboratoryID, teacherID string
+	if err := row.Scan(&laboratoryID, &teacherID); err != nil {
+		if err == sql.ErrNoRows {
+			return false, errors.LaboratoryNotFoundError{}
+		}
+
+		return false, err
+	}
+
+	return teacherID == teacherUUID, nil
 }
