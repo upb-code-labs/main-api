@@ -1,3 +1,15 @@
+# [0.50.0](https://github.com/upb-code-labs/main-api/compare/v0.49.0...v0.50.0) (2024-01-16)
+
+
+### Features
+
+* Download tests archive ([#177](https://github.com/upb-code-labs/main-api/issues/177)) ([8163f88](https://github.com/upb-code-labs/main-api/commit/8163f88b03804ea5f4141dc0d675eb922e5e4008))
+* Endpont to get deatils about the grade of an specific student ([#176](https://github.com/upb-code-labs/main-api/issues/176)) ([6423355](https://github.com/upb-code-labs/main-api/commit/6423355c0b2af6cc5d2013a28672a73508f8737b))
+* Get students' grades in laboratory ([#171](https://github.com/upb-code-labs/main-api/issues/171)) ([3f0a07a](https://github.com/upb-code-labs/main-api/commit/3f0a07a03a2d586a8933ed007f98cd7cff3d3e51))
+* Set criteria to student grade ([#172](https://github.com/upb-code-labs/main-api/issues/172)) ([3137c64](https://github.com/upb-code-labs/main-api/commit/3137c64678f055fab41c25825e1e02da15f670f4))
+
+
+
 # [0.49.0](https://github.com/upb-code-labs/main-api/compare/v0.48.0...v0.49.0) (2024-01-15)
 
 
@@ -31,15 +43,6 @@
 ### Features
 
 * Swap blocks index ([#163](https://github.com/upb-code-labs/main-api/issues/163)) ([074da6b](https://github.com/upb-code-labs/main-api/commit/074da6b86e20290b9b2a71215835941dfcb7952b))
-
-
-
-# [0.46.0](https://github.com/upb-code-labs/main-api/compare/v0.45.0...v0.46.0) (2024-01-14)
-
-
-### Features
-
-* Update password ([#162](https://github.com/upb-code-labs/main-api/issues/162)) ([1ac8830](https://github.com/upb-code-labs/main-api/commit/1ac8830acd9734b213fd8e3c547fef18d4e503ad))
 
 
 
