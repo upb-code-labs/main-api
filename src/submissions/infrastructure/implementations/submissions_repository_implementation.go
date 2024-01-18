@@ -8,6 +8,7 @@ import (
 	sharedInfrastructure "github.com/UPB-Code-Labs/main-api/src/shared/infrastructure"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/dtos"
 	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/entities"
+	"github.com/UPB-Code-Labs/main-api/src/submissions/domain/errors"
 )
 
 type SubmissionsRepositoryImpl struct {
@@ -189,4 +190,68 @@ func (repository *SubmissionsRepositoryImpl) GetStudentSubmissionArchiveUUIDFrom
 	}
 
 	return archiveUUID, nil
+}
+
+// DoesStudentOwnSubmission returns true if the student owns the submission
+func (repository *SubmissionsRepositoryImpl) DoesStudentOwnSubmission(studentUUID string, submissionUUID string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+			SELECT student_id
+			FROM submissions
+			WHERE id = $1
+	`
+
+	var ownerStudentUUID string
+
+	row := repository.Connection.QueryRowContext(
+		ctx, query, submissionUUID,
+	)
+
+	err := row.Scan(&ownerStudentUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, errors.StudentSubmissionNotFound{}
+		}
+
+		return false, err
+	}
+
+	isOwner := ownerStudentUUID == studentUUID
+	return isOwner, nil
+}
+
+// GetTeacherOfCourseBySubmissionUUID returns the teacher of the course that the submission belongs to
+func (repository *SubmissionsRepositoryImpl) GetTeacherOfCourseBySubmissionUUID(submissionUUID string) (teacherUUID string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT teacher_id
+		FROM courses
+		WHERE id = (
+			SELECT course_id
+			FROM laboratories
+			WHERE id = (
+				SELECT laboratory_id
+				FROM test_blocks
+				WHERE id = (
+					SELECT test_block_id
+					FROM submissions
+					WHERE id = $1
+				)
+			)
+		)
+	`
+
+	err = repository.Connection.QueryRowContext(
+		ctx, query, submissionUUID,
+	).Scan(&teacherUUID)
+
+	if err != nil {
+		return "", err
+	}
+
+	return teacherUUID, nil
 }

@@ -224,3 +224,46 @@ func (useCases *SubmissionUseCases) GetSubmissionStatus(studentUUID, testBlockUU
 
 	return &dto, nil
 }
+
+// GetSubmissionArchive Use case to return the bytes of the `zip` archive of a submission
+func (useCases *SubmissionUseCases) GetSubmissionArchive(dto *dtos.GetSubmissionArchiveDTO) ([]byte, error) {
+	// Check if the user has access to the submission
+	if dto.UserRole == "teacher" {
+		// If the user is a teacher, check if is the teacher of the course that the submission belongs to
+		teacherUUID, err := useCases.SubmissionsRepository.GetTeacherOfCourseBySubmissionUUID(dto.SubmissionUUID)
+		if err != nil {
+			return nil, err
+		}
+
+		if teacherUUID != dto.UserUUID {
+			return nil, errors.UserDoesNotHaveAccessToSubmission{}
+		}
+	} else {
+		// If the user is a student, check if the student owns the submission
+		ownsSubmission, err := useCases.SubmissionsRepository.DoesStudentOwnSubmission(dto.UserUUID, dto.SubmissionUUID)
+		if err != nil {
+			return nil, err
+		}
+
+		if !ownsSubmission {
+			return nil, errors.UserDoesNotHaveAccessToSubmission{}
+		}
+	}
+
+	// Get the UUID of the .zip archive in the static files microservice
+	archiveUUID, err := useCases.SubmissionsRepository.GetStudentSubmissionArchiveUUIDFromSubmissionUUID(dto.SubmissionUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the bytes of the .zip archive
+	archiveBytes, err := useCases.StaticFilesRepository.GetArchiveBytes(&staticFilesDTOs.StaticFileArchiveDTO{
+		FileUUID: archiveUUID,
+		FileType: "submission",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return archiveBytes, nil
+}

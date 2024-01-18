@@ -61,3 +61,13 @@ func (err LaboratoryIsClosed) Error() string {
 func (err LaboratoryIsClosed) StatusCode() int {
 	return http.StatusForbidden
 }
+
+type UserDoesNotHaveAccessToSubmission struct{}
+
+func (err UserDoesNotHaveAccessToSubmission) Error() string {
+	return "You don't have access to this submission"
+}
+
+func (err UserDoesNotHaveAccessToSubmission) StatusCode() int {
+	return http.StatusForbidden
+}
