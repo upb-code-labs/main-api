@@ -3,7 +3,6 @@ package implementations
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
 	"time"
 
@@ -480,7 +479,6 @@ func (repository *BlocksPostgresRepository) SwapBlocks(firstBlockUUID, secondBlo
 	}
 
 	// Run the query
-	fmt.Println("Swapping blocks", firstBlockUUID, secondBlockUUID)
 	_, err = tx.ExecContext(ctx, query, firstBlockUUID, secondBlockUUID)
 	if err != nil {
 		return err
