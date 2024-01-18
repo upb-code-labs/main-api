@@ -50,15 +50,14 @@ func (controller *GradesController) HandleSetCriteriaGrade(c *gin.Context) {
 	studentUUID := c.Param("studentUUID")
 
 	// Validate UUIDs
-	requestUUIDs := requests.SetCriteriaToGradeRequestUUIDs{
-		StudentUUID:    studentUUID,
-		LaboratoryUUID: laboratoryUUID,
-	}
-	if err := sharedInfrastructure.GetValidator().Struct(requestUUIDs); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Please, make sure the provided UUIDs are valid",
-		})
-		return
+	uuids := []string{teacherUUID, laboratoryUUID, studentUUID}
+	for _, uuid := range uuids {
+		if err := sharedInfrastructure.GetValidator().Var(uuid, "uuid4"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Please, make sure you are sending valid UUIDs",
+			})
+			return
+		}
 	}
 
 	// Parse the request body
@@ -108,16 +107,14 @@ func (controller *GradesController) HandleGetStudentGradeInLaboratoryWithRubric(
 	rubricUUID := c.Param("rubricUUID")
 
 	// Validate UUIDs
-	requestUUIDs := requests.GetStudentGradeInLaboratoryWithRubricRequest{
-		StudentUUID:    studentUUID,
-		LaboratoryUUID: laboratoryUUID,
-		RubricUUID:     rubricUUID,
-	}
-	if err := sharedInfrastructure.GetValidator().Struct(requestUUIDs); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Please, make sure the provided UUIDs are valid",
-		})
-		return
+	uuids := []string{userUUID, studentUUID, laboratoryUUID, rubricUUID}
+	for _, uuid := range uuids {
+		if err := sharedInfrastructure.GetValidator().Var(uuid, "uuid4"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Please, make sure you are sending valid UUIDs",
+			})
+			return
+		}
 	}
 
 	// Get student grade in laboratory with rubric
@@ -144,15 +141,14 @@ func (controller *GradesController) HandleSetCommentToGrade(c *gin.Context) {
 	studentUUID := c.Param("studentUUID")
 
 	// Validate UUIDs
-	requestUUIDs := requests.SetCommentToGradeRequestUUIDs{
-		StudentUUID:    studentUUID,
-		LaboratoryUUID: laboratoryUUID,
-	}
-	if err := sharedInfrastructure.GetValidator().Struct(requestUUIDs); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Please, make sure the provided UUIDs are valid",
-		})
-		return
+	uuids := []string{teacherUUID, laboratoryUUID, studentUUID}
+	for _, uuid := range uuids {
+		if err := sharedInfrastructure.GetValidator().Var(uuid, "uuid4"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Please, make sure you are sending valid UUIDs",
+			})
+			return
+		}
 	}
 
 	// Parse the request body
