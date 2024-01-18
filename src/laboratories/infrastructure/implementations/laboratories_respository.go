@@ -376,7 +376,7 @@ func (repository *LaboratoriesPostgresRepository) GetTotalTestBlocks(laboratoryU
 	return total, nil
 }
 
-func (repository *LaboratoriesPostgresRepository) GetStudentsProgress(laboratoryUUID string) (progress []*dtos.LaboratoryStudentProgressDTO, err error) {
+func (repository *LaboratoriesPostgresRepository) GetStudentsProgress(laboratoryUUID string) (progress []*dtos.SummarizedStudentProgressDTO, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -395,10 +395,10 @@ func (repository *LaboratoriesPostgresRepository) GetStudentsProgress(laboratory
 		return nil, err
 	}
 
-	progress = []*dtos.LaboratoryStudentProgressDTO{}
+	progress = []*dtos.SummarizedStudentProgressDTO{}
 
 	for rows.Next() {
-		studentProgress := dtos.LaboratoryStudentProgressDTO{}
+		studentProgress := dtos.SummarizedStudentProgressDTO{}
 
 		if err := rows.Scan(
 			&studentProgress.StudentUUID,
@@ -442,4 +442,46 @@ func (repository *LaboratoriesPostgresRepository) DoesTeacherOwnLaboratory(teach
 	}
 
 	return teacherID == teacherUUID, nil
+}
+
+// GetStudentSubmissions returns the submissions of a student in a laboratory
+func (repository *LaboratoriesPostgresRepository) GetStudentSubmissions(laboratoryUUID string, studentUUID string) (submissions []*dtos.SummarizedStudentSubmissionDTO, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT s.id, s.archive_id, tb.name, s.status, s.passing
+		FROM submissions AS s
+		INNER JOIN test_blocks AS tb ON s.test_block_id = tb.id
+		WHERE tb.laboratory_id = $1 AND s.student_id = $2
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, laboratoryUUID, studentUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Return an empty state if the student has not submitted anything
+			return []*dtos.SummarizedStudentSubmissionDTO{}, nil
+		}
+
+		return nil, err
+	}
+
+	submissions = []*dtos.SummarizedStudentSubmissionDTO{}
+	for rows.Next() {
+		submission := dtos.SummarizedStudentSubmissionDTO{}
+
+		if err := rows.Scan(
+			&submission.SubmissionUUID,
+			&submission.SubmissionArchiveUUID,
+			&submission.TestBlockName,
+			&submission.SubmissionStatus,
+			&submission.IsSubmissionPassing,
+		); err != nil {
+			return nil, err
+		}
+
+		submissions = append(submissions, &submission)
+	}
+
+	return submissions, nil
 }

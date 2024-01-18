@@ -63,6 +63,13 @@ func StartLaboratoriesRoutes(g *gin.RouterGroup) {
 		controller.HandleGetLaboratoryProgress,
 	)
 
+	laboratoriesGroup.GET(
+		"/:laboratory_uuid/students/:student_uuid/progress",
+		infrastructure.WithAuthenticationMiddleware(),
+		infrastructure.WithAuthorizationMiddleware([]string{"teacher", "student"}),
+		controller.HandleGetProgressOfStudentInLaboratory,
+	)
+
 	laboratoriesGroup.POST(
 		"/markdown_blocks/:laboratory_uuid",
 		infrastructure.WithAuthenticationMiddleware(),

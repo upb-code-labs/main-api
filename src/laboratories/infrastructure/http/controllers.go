@@ -305,3 +305,38 @@ func (controller *LaboratoriesController) HandleCreateTestBlock(c *gin.Context) 
 		"uuid": createdBlockUUID,
 	})
 }
+
+func (controller *LaboratoriesController) HandleGetProgressOfStudentInLaboratory(c *gin.Context) {
+	userUUID := c.GetString("session_uuid")
+	userRole := c.GetString("session_role")
+
+	laboratoryUUID := c.Param("laboratory_uuid")
+	studentUUID := c.Param("student_uuid")
+
+	// Validate the laboratory and student UUIDs
+	uuids := []string{laboratoryUUID, studentUUID}
+	for _, uuid := range uuids {
+		if err := infrastructure.GetValidator().Var(uuid, "uuid4"); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Please, make sure you are sending valid UUIDs",
+			})
+			return
+		}
+	}
+
+	// Get progress
+	dto := dtos.GetProgressOfStudentInLaboratoryDTO{
+		UserUUID:       userUUID,
+		UserRole:       userRole,
+		LaboratoryUUID: laboratoryUUID,
+		StudentUUID:    studentUUID,
+	}
+
+	progress, err := controller.UseCases.GetProgressOfStudentInLaboratory(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, progress)
+}

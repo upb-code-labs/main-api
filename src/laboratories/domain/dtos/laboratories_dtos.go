@@ -46,16 +46,36 @@ type GetLaboratoryProgressDTO struct {
 
 type LaboratoryProgressDTO struct {
 	TotalTestBlocks  int                             `json:"total_test_blocks"`
-	StudentsProgress []*LaboratoryStudentProgressDTO `json:"students_progress"`
+	StudentsProgress []*SummarizedStudentProgressDTO `json:"students_progress"`
 }
 
-type LaboratoryStudentProgressDTO struct {
+type SummarizedStudentProgressDTO struct {
 	StudentUUID        string `json:"student_uuid"`
 	StudentFullName    string `json:"student_full_name"`
 	PendingSubmissions int    `json:"pending_submissions"`
 	RunningSubmissions int    `json:"running_submissions"`
 	FailingSubmissions int    `json:"failing_submissions"`
 	SuccessSubmissions int    `json:"success_submissions"`
+}
+
+type GetProgressOfStudentInLaboratoryDTO struct {
+	UserUUID       string
+	UserRole       string
+	LaboratoryUUID string
+	StudentUUID    string
+}
+
+type StudentProgressInLaboratoryDTO struct {
+	TotalTestBlocks    int                               `json:"total_test_blocks"`
+	StudentSubmissions []*SummarizedStudentSubmissionDTO `json:"submissions"`
+}
+
+type SummarizedStudentSubmissionDTO struct {
+	SubmissionUUID        string `json:"uuid"`
+	SubmissionArchiveUUID string `json:"archive_uuid"`
+	TestBlockName         string `json:"test_block_name"`
+	SubmissionStatus      string `json:"status"`
+	IsSubmissionPassing   bool   `json:"is_passing"`
 }
 
 type LaboratoryDetailsDTO struct {

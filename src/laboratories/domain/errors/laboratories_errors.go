@@ -23,3 +23,13 @@ func (err TeacherDoesNotOwnLaboratoryError) Error() string {
 func (err TeacherDoesNotOwnLaboratoryError) StatusCode() int {
 	return http.StatusForbidden
 }
+
+type UserCannotAccessProgressSummaryError struct{}
+
+func (err UserCannotAccessProgressSummaryError) Error() string {
+	return "You cannot access the progress summary of the given student in the given laboratory"
+}
+
+func (err UserCannotAccessProgressSummaryError) StatusCode() int {
+	return http.StatusForbidden
+}
