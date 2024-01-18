@@ -1,3 +1,12 @@
+# [0.53.0](https://github.com/upb-code-labs/main-api/compare/v0.52.0...v0.53.0) (2024-01-18)
+
+
+### Features
+
+* Get progress of specific student in laboratory ([#181](https://github.com/upb-code-labs/main-api/issues/181)) ([7cd435a](https://github.com/upb-code-labs/main-api/commit/7cd435a733b4cf58ca3a7eb74a02a755239664b3))
+
+
+
 # [0.52.0](https://github.com/upb-code-labs/main-api/compare/v0.51.0...v0.52.0) (2024-01-18)
 
 
@@ -34,15 +43,6 @@
 ### Features
 
 * Get user profile ([#169](https://github.com/upb-code-labs/main-api/issues/169)) ([97a2dc9](https://github.com/upb-code-labs/main-api/commit/97a2dc938e198d2c495f8a3140b072fdf242535a))
-
-
-
-# [0.48.0](https://github.com/upb-code-labs/main-api/compare/v0.47.1...v0.48.0) (2024-01-14)
-
-
-### Features
-
-* Update profile ([#168](https://github.com/upb-code-labs/main-api/issues/168)) ([853556b](https://github.com/upb-code-labs/main-api/commit/853556bf178017be214437124f911c2c14360d57))
 
 
 
