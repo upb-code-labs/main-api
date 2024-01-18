@@ -123,3 +123,13 @@ func GetStudentsProgressInLaboratory(laboratoryUUID string, cookie *http.Cookie)
 	jsonResponse := ParseJsonResponse(w.Body)
 	return jsonResponse, w.Code
 }
+
+func GetProgressOfStudentInLaboratory(laboratoryUUID string, studentUUID string, cookie *http.Cookie) (response map[string]interface{}, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/laboratories/%s/students/%s/progress", laboratoryUUID, studentUUID)
+	w, r := PrepareRequest("GET", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+
+	jsonResponse := ParseJsonResponse(w.Body)
+	return jsonResponse, w.Code
+}

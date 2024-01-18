@@ -407,10 +407,11 @@ func TestGetStudentsProgress(t *testing.T) {
 	zipFile, err := GetSampleTestsArchive()
 	c.Nil(err)
 
+	testBlockName := "Get students progress test - block"
 	blockCreationResponse, status := CreateTestBlock(&CreateTestBlockUtilsDTO{
 		laboratoryUUID: laboratoryUUID,
 		languageUUID:   firstLanguageUUID,
-		blockName:      "Get students progress test - block",
+		blockName:      testBlockName,
 		cookie:         cookie,
 		testFile:       zipFile,
 	})
@@ -446,7 +447,7 @@ func TestGetStudentsProgress(t *testing.T) {
 	router.ServeHTTP(w, r)
 	cookie = w.Result().Cookies()[0]
 
-	// Get the students progress
+	// ### Get the progress of all the students in the laboratory
 	response, status := GetStudentsProgressInLaboratory(laboratoryUUID, cookie)
 	c.Equal(http.StatusOK, status)
 
@@ -456,6 +457,13 @@ func TestGetStudentsProgress(t *testing.T) {
 	c.Equal(1, len(studentsProgress))
 
 	studentProgress := studentsProgress[0].(map[string]interface{})
+
+	studentUUID := studentProgress["student_uuid"].(string)
+	studentFullName := studentProgress["student_full_name"].(string)
+
+	c.NotEmpty(studentUUID)
+	c.NotEmpty(studentFullName)
+
 	studentPendingSubmissionsCount := studentProgress["pending_submissions"].(float64)
 	studentRunningSubmissionsCount := studentProgress["running_submissions"].(float64)
 	studentFailingSubmissionsCount := studentProgress["failing_submissions"].(float64)
@@ -465,4 +473,25 @@ func TestGetStudentsProgress(t *testing.T) {
 	c.GreaterOrEqual(int(studentRunningSubmissionsCount), 0)
 	c.GreaterOrEqual(int(studentFailingSubmissionsCount), 0)
 	c.GreaterOrEqual(int(StudentSuccessSubmissionsCount), 0)
+
+	// ### Get the progress of a student in the laboratory
+	response, status = GetProgressOfStudentInLaboratory(
+		laboratoryUUID,
+		studentUUID,
+		cookie,
+	)
+	c.Equal(http.StatusOK, status)
+
+	totalTestBlocks = response["total_test_blocks"].(float64)
+	c.Equal(1, int(totalTestBlocks))
+
+	submissions := response["submissions"].([]interface{})
+	c.Equal(1, len(submissions))
+
+	submission := submissions[0].(map[string]interface{})
+	c.NotEmpty(submission["uuid"])
+	c.NotEmpty(submission["archive_uuid"])
+	c.Equal(testBlockName, submission["test_block_name"])
+	c.Contains([]string{"pending", "running", "ready"}, submission["status"])
+	c.Contains([]bool{true, false}, submission["is_passing"])
 }
