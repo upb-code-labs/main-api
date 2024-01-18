@@ -1209,7 +1209,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
   
-  /laboratories/{laboratory_uuid}/progress/{student_uuid}:
+  /laboratories/{laboratory_uuid}/students/{student_uuid}/progress:
     get: 
       tags: 
         - Laboratories
@@ -2741,9 +2741,6 @@ components:
         total_test_blocks: 
           type: number
           example: 8
-        passing_submissions:
-          type: number
-          example: 4
         submissions: 
           type: array
           items: 
@@ -2761,6 +2758,9 @@ components:
         test_block_name:
           type: string
           example: "Doubly Linked List Methods"
-        passing: 
+        status: 
+          type: string
+          example: "ready"
+        is_passing: 
           type: boolean
           example: True
