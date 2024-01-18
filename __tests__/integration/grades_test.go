@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSetCriteriaToStudentSubmission(t *testing.T) {
+func TestGradeStudentSubmission(t *testing.T) {
 	c := require.New(t)
 
 	// ## Test preparation
@@ -78,18 +78,26 @@ func TestSetCriteriaToStudentSubmission(t *testing.T) {
 	firstStudent := enrolledStudents[0].(map[string]interface{})
 	studentUUID := firstStudent["uuid"].(string)
 
-	// ## Test execution
+	// ## Test: Set criteria to student grade
 	// Select the criteria for the student grade
 	_, code := SetCriteriaToStudentGrade(&SetCriteriaToStudentGradeUtilsDTO{
 		LaboratoryUUID: laboratoryUUID,
-		RubricUUID:     rubricUUID,
 		StudentUUID:    studentUUID,
 		ObjectiveUUID:  objectiveUUID,
 		CriteriaUUID:   criteriaUUID,
 	}, cookie)
 	c.Equal(http.StatusNoContent, code)
 
-	// Get all the grades of students in the laboratory
+	// ## Test: Set comment to student grade
+	comment := "Set criteria to student grade test - comment"
+	_, code = SetCommentToStudentGrade(&SetCommentToStudentGradeUtilsDTO{
+		LaboratoryUUID: laboratoryUUID,
+		StudentUUID:    studentUUID,
+		Comment:        comment,
+	}, cookie)
+	c.Equal(http.StatusNoContent, code)
+
+	// ## Test: Get all the grades of students in the laboratory
 	studentGradeResponse, code := GetSummarizedGrades(laboratoryUUID, cookie)
 	c.Equal(http.StatusOK, code)
 
@@ -100,7 +108,7 @@ func TestSetCriteriaToStudentSubmission(t *testing.T) {
 	c.Equal(studentUUID, firstStudentGrade["student_uuid"].(string))
 	c.Equal(criteriaWeight, firstStudentGrade["grade"].(float64))
 
-	// Get the grade of the student in the laboratory
+	// ## Test: Get the grade of the student in the laboratory
 	studentGradeResponse, code = GetStudentGrade(&GetStudentGradeUtilsDTO{
 		LaboratoryUUID: laboratoryUUID,
 		RubricUUID:     rubricUUID,
@@ -112,7 +120,7 @@ func TestSetCriteriaToStudentSubmission(t *testing.T) {
 	c.Equal(criteriaWeight, studentGrade)
 
 	gradeComment := studentGradeResponse["comment"].(string)
-	c.Equal("", gradeComment)
+	c.Equal(comment, gradeComment)
 
 	selectedCriteriaList := studentGradeResponse["selected_criteria"].([]interface{})
 	c.Equal(1, len(selectedCriteriaList))
