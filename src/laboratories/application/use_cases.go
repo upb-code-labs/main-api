@@ -41,7 +41,7 @@ func (useCases *LaboratoriesUseCases) CreateLaboratory(dto *dtos.CreateLaborator
 
 func (useCases *LaboratoriesUseCases) GetLaboratory(dto *dtos.GetLaboratoryDTO) (laboratory *entities.Laboratory, err error) {
 	// Get the laboratory
-	laboratory, err = useCases.LaboratoriesRepository.GetLaboratoryByUUID(dto.LaboratoryUUID)
+	laboratory, err = useCases.LaboratoriesRepository.GetLaboratoryByUUID(dto)
 	if err != nil {
 		return nil, err
 	}

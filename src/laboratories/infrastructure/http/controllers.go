@@ -68,6 +68,8 @@ func (controller *LaboratoriesController) HandleCreateLaboratory(c *gin.Context)
 
 func (controller *LaboratoriesController) HandleGetLaboratory(c *gin.Context) {
 	userUUID := c.GetString("session_uuid")
+	userRole := c.GetString("session_role")
+
 	laboratoryUUID := c.Param("laboratory_uuid")
 
 	// Validate the laboratory UUID
@@ -82,6 +84,7 @@ func (controller *LaboratoriesController) HandleGetLaboratory(c *gin.Context) {
 	dto := dtos.GetLaboratoryDTO{
 		LaboratoryUUID: laboratoryUUID,
 		UserUUID:       userUUID,
+		UserRole:       userRole,
 	}
 
 	laboratory, err := controller.UseCases.GetLaboratory(&dto)
