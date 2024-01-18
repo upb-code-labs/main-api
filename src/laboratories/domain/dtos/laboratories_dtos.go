@@ -13,6 +13,7 @@ type CreateLaboratoryDTO struct {
 type GetLaboratoryDTO struct {
 	LaboratoryUUID string
 	UserUUID       string
+	UserRole       string
 }
 
 type UpdateLaboratoryDTO struct {

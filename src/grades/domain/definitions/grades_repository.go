@@ -11,6 +11,7 @@ type GradesRepository interface {
 		[]*dtos.SummarizedStudentGradeDTO, error,
 	)
 	SetCriteriaToGrade(dto *dtos.SetCriteriaToGradeDTO) error
+	SetCommentToGrade(dto *dtos.SetCommentToGradeDTO) error
 	GetStudentGradeInLaboratoryWithRubric(
 		dto *dtos.GetStudentGradeInLaboratoryWithRubricDTO,
 	) (

@@ -1,0 +1,17 @@
+meta {
+  name: set-comment-to-student-grade
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{BASE_URL}}/grades/laboratories/d0ce7e95-59b4-4ac1-9238-461e9a47ce1d/students/3fd0671b-8673-4282-94f5-9bd6300d943f/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "comment": "Good job"
+  }
+}

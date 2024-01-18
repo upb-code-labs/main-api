@@ -108,7 +108,7 @@ func (useCases *SubmissionUseCases) isTestBlockLaboratoryOpen(testBlockUUID stri
 	}
 
 	// Get the laboratory
-	laboratory, err := useCases.LaboratoriesRepository.GetLaboratoryByUUID(laboratoryUUID)
+	laboratory, err := useCases.LaboratoriesRepository.GetLaboratoryInformationByUUID(laboratoryUUID)
 	if err != nil {
 		return false, err
 	}

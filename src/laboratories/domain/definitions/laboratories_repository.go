@@ -6,7 +6,7 @@ import (
 )
 
 type LaboratoriesRepository interface {
-	GetLaboratoryByUUID(uuid string) (laboratory *entities.Laboratory, err error)
+	GetLaboratoryByUUID(dto *dtos.GetLaboratoryDTO) (laboratory *entities.Laboratory, err error)
 	GetLaboratoryInformationByUUID(uuid string) (laboratory *dtos.LaboratoryDetailsDTO, err error)
 	SaveLaboratory(dto *dtos.CreateLaboratoryDTO) (laboratory *entities.Laboratory, err error)
 	UpdateLaboratory(dto *dtos.UpdateLaboratoryDTO) error

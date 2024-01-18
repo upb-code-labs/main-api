@@ -42,4 +42,11 @@ func StartGradesRoutes(g *gin.RouterGroup) {
 		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
 		controller.HandleSetCriteriaGrade,
 	)
+
+	gradesGroup.PUT(
+		"/laboratories/:laboratoryUUID/students/:studentUUID/comment",
+		sharedInfrastructure.WithAuthenticationMiddleware(),
+		sharedInfrastructure.WithAuthorizationMiddleware([]string{"teacher"}),
+		controller.HandleSetCommentToGrade,
+	)
 }
