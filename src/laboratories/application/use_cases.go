@@ -184,3 +184,40 @@ func (useCases *LaboratoriesUseCases) GetLaboratoryProgress(dto *dtos.GetLaborat
 		StudentsProgress: studentsProgress,
 	}, nil
 }
+
+func (useCases *LaboratoriesUseCases) GetProgressOfStudentInLaboratory(dto *dtos.GetProgressOfStudentInLaboratoryDTO) (progress *dtos.StudentProgressInLaboratoryDTO, err error) {
+	// Check if the user can access the progress
+	if dto.UserRole == "teacher" {
+		// If the user is a teacher, check that he owns the laboratory
+		teacherOwnsLaboratory, err := useCases.LaboratoriesRepository.DoesTeacherOwnLaboratory(dto.UserUUID, dto.LaboratoryUUID)
+		if err != nil {
+			return nil, err
+		}
+
+		if !teacherOwnsLaboratory {
+			return nil, laboratoriesErrors.TeacherDoesNotOwnLaboratoryError{}
+		}
+	} else {
+		// Check that the session student is the same as the requested student
+		if dto.UserUUID != dto.StudentUUID {
+			return nil, laboratoriesErrors.UserCannotAccessProgressSummaryError{}
+		}
+	}
+
+	// Get the total test blocks
+	totalTestBlocks, err := useCases.LaboratoriesRepository.GetTotalTestBlocks(dto.LaboratoryUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get the summary of the student submissions
+	submissions, err := useCases.LaboratoriesRepository.GetStudentSubmissions(dto.LaboratoryUUID, dto.StudentUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dtos.StudentProgressInLaboratoryDTO{
+		TotalTestBlocks:    totalTestBlocks,
+		StudentSubmissions: submissions,
+	}, nil
+}
