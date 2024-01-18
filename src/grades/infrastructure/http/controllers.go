@@ -79,12 +79,11 @@ func (controller *GradesController) HandleSetCriteriaGrade(c *gin.Context) {
 		return
 	}
 
-	// Create DTO
+	// Create DTO, note that the rubric field will be populated in the use case
 	dto := &dtos.SetCriteriaToGradeDTO{
 		TeacherUUID:    teacherUUID,
 		LaboratoryUUID: laboratoryUUID,
 		StudentUUID:    studentUUID,
-		RubricUUID:     request.RubricUUID,
 		ObjectiveUUID:  request.ObjectiveUUID,
 		CriteriaUUID:   request.CriteriaUUID,
 	}
@@ -136,4 +135,57 @@ func (controller *GradesController) HandleGetStudentGradeInLaboratoryWithRubric(
 	}
 
 	c.JSON(http.StatusOK, grade)
+}
+
+// HandleSetCommentToGrade controller to set a comment to a student's grade
+func (controller *GradesController) HandleSetCommentToGrade(c *gin.Context) {
+	teacherUUID := c.GetString("session_uuid")
+	laboratoryUUID := c.Param("laboratoryUUID")
+	studentUUID := c.Param("studentUUID")
+
+	// Validate UUIDs
+	requestUUIDs := requests.SetCommentToGradeRequestUUIDs{
+		StudentUUID:    studentUUID,
+		LaboratoryUUID: laboratoryUUID,
+	}
+	if err := sharedInfrastructure.GetValidator().Struct(requestUUIDs); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Please, make sure the provided UUIDs are valid",
+		})
+		return
+	}
+
+	// Parse the request body
+	var request requests.SetCommentToGradeRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Request body is not valid",
+		})
+		return
+	}
+
+	// Validate the request body
+	if err := sharedInfrastructure.GetValidator().Struct(request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Validation error",
+			"errors":  err.Error(),
+		})
+		return
+	}
+
+	// Create DTO. Note that the rubric field will be populated in the use case
+	dto := &dtos.SetCommentToGradeDTO{
+		TeacherUUID:    teacherUUID,
+		LaboratoryUUID: laboratoryUUID,
+		StudentUUID:    studentUUID,
+		Comment:        request.Comment,
+	}
+
+	err := controller.UseCases.SetCommentToGrade(dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }

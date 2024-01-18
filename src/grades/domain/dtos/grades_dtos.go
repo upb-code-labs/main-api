@@ -58,3 +58,12 @@ type SelectedCriteriaInStudentGradeDTO struct {
 	ObjectiveUUID string `json:"objective_uuid"`
 	CriteriaUUID  string `json:"criteria_uuid"`
 }
+
+// SetCommentToGradeDTO data transfer object to parse the request of the endpoint
+type SetCommentToGradeDTO struct {
+	TeacherUUID    string
+	LaboratoryUUID string
+	RubricUUID     string
+	StudentUUID    string
+	Comment        string
+}
