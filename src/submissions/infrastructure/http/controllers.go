@@ -140,3 +140,33 @@ func (controller *SubmissionsController) HandleGetSubmission(c *gin.Context) {
 		}
 	})
 }
+
+// HandleGetSubmissionArchive controller to handle the request to get the archive with the student's
+// code for the given submission
+func (controller *SubmissionsController) HandleGetSubmissionArchive(c *gin.Context) {
+	userUUID := c.GetString("session_uuid")
+	userRole := c.GetString("session_role")
+	submissionUUID := c.Param("submission_uuid")
+
+	// Validate the submissionUUID
+	if err := sharedInfrastructure.GetValidator().Var(submissionUUID, "uuid4"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "The submission UUID is not valid",
+		})
+		return
+	}
+
+	dto := dtos.GetSubmissionArchiveDTO{
+		UserUUID:       userUUID,
+		UserRole:       userRole,
+		SubmissionUUID: submissionUUID,
+	}
+
+	archiveBytes, err := controller.UseCases.GetSubmissionArchive(&dto)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.Data(http.StatusOK, "application/zip", archiveBytes)
+}

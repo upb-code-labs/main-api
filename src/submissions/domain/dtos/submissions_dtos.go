@@ -20,3 +20,9 @@ type SubmissionStatusUpdateDTO struct {
 	TestsPassed      bool   `json:"tests_passed"`
 	TestsOutput      string `json:"tests_output"`
 }
+
+type GetSubmissionArchiveDTO struct {
+	UserUUID       string
+	UserRole       string
+	SubmissionUUID string
+}

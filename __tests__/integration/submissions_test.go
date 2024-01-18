@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	submissionsDTOs "github.com/UPB-Code-Labs/main-api/src/submissions/domain/dtos"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/stretchr/testify/require"
 )
 
@@ -70,7 +71,7 @@ func TestSubmitSolutionToTestBlock(t *testing.T) {
 	_, code = AddStudentToCourse(invitationCode)
 	c.Equal(http.StatusOK, code)
 
-	// ## Test
+	// ## Test submission
 	zipFile, err = GetSampleSubmissionArchive()
 	c.Nil(err)
 
@@ -92,7 +93,7 @@ func TestSubmitSolutionToTestBlock(t *testing.T) {
 	c.Equal(http.StatusCreated, status)
 	c.NotEmpty(submissionResponse["uuid"])
 
-	// ## Get submission status
+	// ## Test submission status
 	submissionUUID := submissionResponse["uuid"].(string)
 
 	response := GetRealTimeSubmissionStatus(testBlockUUID, cookie)
@@ -156,4 +157,28 @@ func TestSubmitSolutionToTestBlock(t *testing.T) {
 			c.NotEmpty(event.TestsOutput)
 		}
 	}
+
+	// ## Test download submission archive as student
+	archive, status := GetSubmissionArchive(submissionUUID, cookie)
+	c.Equal(http.StatusOK, status)
+	c.NotEmpty(archive)
+
+	mType := mimetype.Detect(archive)
+	c.Equal("application/zip", mType.String())
+
+	// ## Test download submission archive as teacher
+	// Login as a teacher
+	w, r = PrepareRequest("POST", "/api/v1/session/login", map[string]interface{}{
+		"email":    registeredTeacherEmail,
+		"password": registeredTeacherPass,
+	})
+	router.ServeHTTP(w, r)
+	cookie = w.Result().Cookies()[0]
+
+	archive, status = GetSubmissionArchive(submissionUUID, cookie)
+	c.Equal(http.StatusOK, status)
+	c.NotEmpty(archive)
+
+	mType = mimetype.Detect(archive)
+	c.Equal("application/zip", mType.String())
 }
