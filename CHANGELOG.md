@@ -1,3 +1,12 @@
+# [0.51.0](https://github.com/upb-code-labs/main-api/compare/v0.50.0...v0.51.0) (2024-01-18)
+
+
+### Features
+
+* Download submission archive ([#179](https://github.com/upb-code-labs/main-api/issues/179)) ([26691ab](https://github.com/upb-code-labs/main-api/commit/26691ab8b7d3970f54b583f851c30f06908c756e))
+
+
+
 # [0.50.0](https://github.com/upb-code-labs/main-api/compare/v0.49.0...v0.50.0) (2024-01-16)
 
 
@@ -34,15 +43,6 @@
 ### Bug Fixes
 
 * Return test archive UUID when creating new test blocks ([#165](https://github.com/upb-code-labs/main-api/issues/165)) ([f69803b](https://github.com/upb-code-labs/main-api/commit/f69803b27e875c90790af1baa9d267088e47036e))
-
-
-
-# [0.47.0](https://github.com/upb-code-labs/main-api/compare/v0.46.0...v0.47.0) (2024-01-14)
-
-
-### Features
-
-* Swap blocks index ([#163](https://github.com/upb-code-labs/main-api/issues/163)) ([074da6b](https://github.com/upb-code-labs/main-api/commit/074da6b86e20290b9b2a71215835941dfcb7952b))
 
 
 
