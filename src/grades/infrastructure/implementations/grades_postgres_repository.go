@@ -279,3 +279,69 @@ func (repository *GradesPostgresRepository) GetStudentGradeInLaboratoryWithRubri
 
 	return grade, nil
 }
+
+// SetCommentToGrade sets a comment to a student's grade
+func (repository *GradesPostgresRepository) SetCommentToGrade(dto *dtos.SetCommentToGradeDTO) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
+	// Check if the student has a grade in the laboratory
+	studentHasGrade, err := repository.doesStudentHasGrade(&dtos.CheckIfStudentHasGradeDTO{
+		StudentUUID:    dto.StudentUUID,
+		LaboratoryUUID: dto.LaboratoryUUID,
+		RubricUUID:     dto.RubricUUID,
+	})
+	if err != nil {
+		return err
+	}
+
+	// Get the UUID of the grade of the student in the laboratory with the given rubric
+	studentGradeUUID := ""
+
+	if !studentHasGrade {
+		// Create a grade for the student if they do not have one
+		studentGradeUUID, err = repository.createStudentGrade(&dtos.CreateStudentGradeDTO{
+			CheckIfStudentHasGradeDTO: dtos.CheckIfStudentHasGradeDTO{
+				StudentUUID:    dto.StudentUUID,
+				LaboratoryUUID: dto.LaboratoryUUID,
+				RubricUUID:     dto.RubricUUID,
+			},
+		})
+
+		if err != nil {
+			return err
+		}
+	} else {
+		// Get the UUID of the grade of the student in the laboratory with the given rubric
+		studentGradeUUID, err = repository.getStudentGradeUUID(&dtos.GetStudentGradeDTO{
+			CheckIfStudentHasGradeDTO: dtos.CheckIfStudentHasGradeDTO{
+				StudentUUID:    dto.StudentUUID,
+				LaboratoryUUID: dto.LaboratoryUUID,
+				RubricUUID:     dto.RubricUUID,
+			},
+		})
+
+		if err != nil {
+			return err
+		}
+	}
+
+	// Set the comment to the grade
+	query := `
+		UPDATE grades
+		SET comment = $1
+		WHERE id = $2
+	`
+
+	// Run the query
+	if _, err := repository.Connection.ExecContext(
+		ctx,
+		query,
+		dto.Comment,
+		studentGradeUUID,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}

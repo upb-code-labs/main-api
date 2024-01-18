@@ -41,7 +41,7 @@ func SubmitSolutionToTestBlock(dto *SubmitSToTestBlockUtilsDTO) (response map[st
 	}
 
 	// Create the request
-	endpoint := fmt.Sprintf("/api/v1/submissions/%s", dto.blockUUID)
+	endpoint := fmt.Sprintf("/api/v1/submissions/test_blocks/%s", dto.blockUUID)
 
 	req, err := http.NewRequest("POST", endpoint, &body)
 	if err != nil {
@@ -78,7 +78,7 @@ type RealTimeSubmissionStatusResponse struct {
 // GetRealTimeSubmissionStatus sends a request to the server to get the real time status of a submission and returns the response recorder
 func GetRealTimeSubmissionStatus(testBlockUUID string, cookie *http.Cookie) *RealTimeSubmissionStatusResponse {
 	// Create the request
-	endpoint := fmt.Sprintf("/api/v1/submissions/%s/status", testBlockUUID)
+	endpoint := fmt.Sprintf("/api/v1/submissions/test_blocks/%s/status", testBlockUUID)
 	req, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		return &RealTimeSubmissionStatusResponse{err: err}
@@ -98,4 +98,12 @@ func GetRealTimeSubmissionStatus(testBlockUUID string, cookie *http.Cookie) *Rea
 		r:   req,
 		err: err,
 	}
+}
+
+func GetSubmissionArchive(submissionUUID string, cookie *http.Cookie) (bytes []byte, statusCode int) {
+	endpoint := fmt.Sprintf("/api/v1/submissions/%s/archive", submissionUUID)
+	w, r := PrepareRequest("GET", endpoint, nil)
+	r.AddCookie(cookie)
+	router.ServeHTTP(w, r)
+	return w.Body.Bytes(), w.Code
 }

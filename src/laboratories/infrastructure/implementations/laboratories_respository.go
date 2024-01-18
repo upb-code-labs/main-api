@@ -28,7 +28,7 @@ func GetLaboratoriesPostgresRepositoryInstance() *LaboratoriesPostgresRepository
 	return laboratoriesPostgresRepositoryInstance
 }
 
-func (repository *LaboratoriesPostgresRepository) GetLaboratoryByUUID(uuid string) (laboratory *entities.Laboratory, err error) {
+func (repository *LaboratoriesPostgresRepository) GetLaboratoryByUUID(dto *dtos.GetLaboratoryDTO) (laboratory *entities.Laboratory, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -39,7 +39,7 @@ func (repository *LaboratoriesPostgresRepository) GetLaboratoryByUUID(uuid strin
 		WHERE id = $1
 	`
 
-	row := repository.Connection.QueryRowContext(ctx, query, uuid)
+	row := repository.Connection.QueryRowContext(ctx, query, dto.LaboratoryUUID)
 	laboratory = &entities.Laboratory{}
 	rubricUUID := sql.NullString{}
 	if err := row.Scan(&laboratory.UUID, &laboratory.CourseUUID, &rubricUUID, &laboratory.Name, &laboratory.OpeningDate, &laboratory.DueDate); err != nil {
@@ -57,7 +57,7 @@ func (repository *LaboratoriesPostgresRepository) GetLaboratoryByUUID(uuid strin
 	}
 
 	// Get markdown blocks
-	markdownBlocks, err := repository.getMarkdownBlocks(uuid)
+	markdownBlocks, err := repository.getMarkdownBlocks(dto.LaboratoryUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (repository *LaboratoriesPostgresRepository) GetLaboratoryByUUID(uuid strin
 	laboratory.MarkdownBlocks = markdownBlocks
 
 	// Get test blocks
-	testBlocks, err := repository.getTestBlocks(uuid)
+	testBlocks, err := repository.getTestBlocks(dto)
 	if err != nil {
 		return nil, err
 	}
@@ -145,19 +145,24 @@ func (repository *LaboratoriesPostgresRepository) getMarkdownBlocks(laboratoryUU
 	return markdownBlocks, nil
 }
 
-func (repository *LaboratoriesPostgresRepository) getTestBlocks(laboratoryUUID string) ([]entities.TestBlock, error) {
+func (repository *LaboratoriesPostgresRepository) getTestBlocks(dto *dtos.GetLaboratoryDTO) ([]entities.TestBlock, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	query := `
-		SELECT tb.id, tb.language_id, tb.test_archive_id, tb.name, bi.block_position
+		SELECT tb.id, tb.language_id, tb.test_archive_id, tb.name, bi.block_position, s.id
 		FROM test_blocks tb
 		RIGHT JOIN blocks_index bi ON tb.block_index_id = bi.id
+		LEFT JOIN submissions s ON tb.id = s.test_block_id AND s.student_id = $2
 		WHERE tb.laboratory_id = $1
 		ORDER BY bi.block_position ASC
 	`
 
-	rows, err := repository.Connection.QueryContext(ctx, query, laboratoryUUID)
+	rows, err := repository.Connection.QueryContext(
+		ctx,
+		query,
+		dto.LaboratoryUUID, dto.UserUUID,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -165,8 +170,25 @@ func (repository *LaboratoriesPostgresRepository) getTestBlocks(laboratoryUUID s
 	testBlocks := []entities.TestBlock{}
 	for rows.Next() {
 		testBlock := entities.TestBlock{}
-		if err := rows.Scan(&testBlock.UUID, &testBlock.LanguageUUID, &testBlock.TestArchiveUUID, &testBlock.Name, &testBlock.Index); err != nil {
+		if err := rows.Scan(
+			&testBlock.UUID,
+			&testBlock.LanguageUUID,
+			&testBlock.TestArchiveUUID,
+			&testBlock.Name,
+			&testBlock.Index,
+			&testBlock.SubmissionUUID,
+		); err != nil {
 			return nil, err
+		}
+
+		// If the user is an student, hide the test archive UUID
+		if dto.UserRole == "student" {
+			testBlock.TestArchiveUUID = nil
+		}
+
+		// If the user is a teacher, hide the submission UUID
+		if dto.UserRole == "teacher" {
+			testBlock.SubmissionUUID = nil
 		}
 
 		testBlocks = append(testBlocks, testBlock)
@@ -191,7 +213,11 @@ func (repository *LaboratoriesPostgresRepository) SaveLaboratory(dto *dtos.Creat
 		return nil, err
 	}
 
-	return repository.GetLaboratoryByUUID(laboratoryUUID)
+	return repository.GetLaboratoryByUUID(&dtos.GetLaboratoryDTO{
+		LaboratoryUUID: laboratoryUUID,
+		UserUUID:       dto.TeacherUUID,
+		UserRole:       "teacher",
+	})
 }
 
 func (repository *LaboratoriesPostgresRepository) UpdateLaboratory(dto *dtos.UpdateLaboratoryDTO) error {
@@ -350,7 +376,7 @@ func (repository *LaboratoriesPostgresRepository) GetTotalTestBlocks(laboratoryU
 	return total, nil
 }
 
-func (repository *LaboratoriesPostgresRepository) GetStudentsProgress(laboratoryUUID string) (progress []*dtos.LaboratoryStudentProgressDTO, err error) {
+func (repository *LaboratoriesPostgresRepository) GetStudentsProgress(laboratoryUUID string) (progress []*dtos.SummarizedStudentProgressDTO, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -369,10 +395,10 @@ func (repository *LaboratoriesPostgresRepository) GetStudentsProgress(laboratory
 		return nil, err
 	}
 
-	progress = []*dtos.LaboratoryStudentProgressDTO{}
+	progress = []*dtos.SummarizedStudentProgressDTO{}
 
 	for rows.Next() {
-		studentProgress := dtos.LaboratoryStudentProgressDTO{}
+		studentProgress := dtos.SummarizedStudentProgressDTO{}
 
 		if err := rows.Scan(
 			&studentProgress.StudentUUID,
@@ -416,4 +442,46 @@ func (repository *LaboratoriesPostgresRepository) DoesTeacherOwnLaboratory(teach
 	}
 
 	return teacherID == teacherUUID, nil
+}
+
+// GetStudentSubmissions returns the submissions of a student in a laboratory
+func (repository *LaboratoriesPostgresRepository) GetStudentSubmissions(laboratoryUUID string, studentUUID string) (submissions []*dtos.SummarizedStudentSubmissionDTO, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT s.id, s.archive_id, tb.name, s.status, s.passing
+		FROM submissions AS s
+		INNER JOIN test_blocks AS tb ON s.test_block_id = tb.id
+		WHERE tb.laboratory_id = $1 AND s.student_id = $2
+	`
+
+	rows, err := repository.Connection.QueryContext(ctx, query, laboratoryUUID, studentUUID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Return an empty state if the student has not submitted anything
+			return []*dtos.SummarizedStudentSubmissionDTO{}, nil
+		}
+
+		return nil, err
+	}
+
+	submissions = []*dtos.SummarizedStudentSubmissionDTO{}
+	for rows.Next() {
+		submission := dtos.SummarizedStudentSubmissionDTO{}
+
+		if err := rows.Scan(
+			&submission.SubmissionUUID,
+			&submission.SubmissionArchiveUUID,
+			&submission.TestBlockName,
+			&submission.SubmissionStatus,
+			&submission.IsSubmissionPassing,
+		); err != nil {
+			return nil, err
+		}
+
+		submissions = append(submissions, &submission)
+	}
+
+	return submissions, nil
 }

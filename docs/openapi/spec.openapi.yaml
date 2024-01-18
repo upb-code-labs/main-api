@@ -1209,7 +1209,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
   
-  /laboratories/{laboratory_uuid}/progress/{student_uuid}:
+  /laboratories/{laboratory_uuid}/students/{student_uuid}/progress:
     get: 
       tags: 
         - Laboratories
@@ -1477,7 +1477,7 @@ paths:
                 type: string
                 format: binary
         "404":
-          description: No test bblock found with the given UUID. 
+          description: No test block found with the given UUID. 
           content:
             application/json:
               schema:
@@ -1946,7 +1946,7 @@ paths:
                 $ref: "#/components/schemas/default_error_response"
                 
   # Submissions
-  /submissions/{test_block_uuid}/status:
+  /submissions/test_blocks/{test_block_uuid}/status:
     get:
       tags:
         - Submissions
@@ -1986,7 +1986,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
   
-  /submissions/{test_block_uuid}:
+  /submissions/test_blocks/{test_block_uuid}:
     post:
       tags: 
         - Submissions
@@ -2034,6 +2034,47 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/default_error_response"
+
+  /submissions/{submission_uuid}/archive: 
+      get: 
+        tags:
+          - Submissions
+        security:
+          - cookieAuth: []
+        parameters:
+          - in: path
+            name: submission_uuid
+            schema:
+              type: string
+              example: "325fbfa1-bd9b-4846-8fdd-8383b0e1f857"
+            required: true
+        description: Get `.zip` archive with the code sent by the student in the given submission. 
+        responses:
+          "200":
+            description: The `.zip` archive is retrieved / downloaded
+            content: 
+              application/zip:
+                schema:
+                  type: string
+                  format: binary
+          "404":
+            description: No submission found with the given UUID. 
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/default_error_response"
+          "403":
+            description: The session token isn't valid or the user doesn't have enough permissions.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/default_error_response"
+          "500":
+            description: There was an unexpected error in the server side.
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/default_error_response"
     
   # Grades
   /grades/laboratories/{laboratory_uuid}/students/{student_uuid}/rubrics/{rubric_uuid}: 
@@ -2135,7 +2176,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
   
-  /grades/laboratory/{laboratory_uuid}: 
+  /grades/laboratories/{laboratory_uuid}: 
     get: 
       tags: 
         - Grades
@@ -2175,6 +2216,56 @@ paths:
               schema:
                 $ref: "#/components/schemas/default_error_response"
     
+  /grades/laboratories/{laboratory_uuid}/students/{student_uuid}/comment: 
+    put:
+      tags: 
+        - Grades
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: student_uuid
+          schema:
+            type: string
+            example: "b0c553b3-ddb2-4392-9d94-b31d8c9c4a84"
+          required: true
+        - in: path
+          name: laboratory_uuid
+          schema:
+            type: string
+            example: "a9be2f1e-e0e9-4b8d-9f72-6ed55ea5b1b8"
+          required: true
+      description: Add / update the comment given by the teacher to the given student in the given laboratory. 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment: 
+                  type: string
+                  example: "This is a comment made by the teacher :D"
+      responses: 
+        "204": 
+          description: The comment was updated.
+        "400":
+          description: Required fields were missed or doesn't fulfill the required format.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "403":
+          description: The session token isn't valid or the user doesn't have enough permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
+        "500":
+          description: There was an unexpected error in the server side.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/default_error_response"
   
 components:
   securitySchemes:
@@ -2316,11 +2407,6 @@ components:
     select_criteria_to_grade_req:
       allOf:
         - $ref: "#/components/schemas/selected_criteria_in_grade"
-      type: object
-      properties: 
-        rubric_uuid:
-          type: string
-          example: "3fc29baf-9517-430c-9048-0f85599b61b7"
 
     # Responses
     default_error_response:
@@ -2655,9 +2741,6 @@ components:
         total_test_blocks: 
           type: number
           example: 8
-        passing_submissions:
-          type: number
-          example: 4
         submissions: 
           type: array
           items: 
@@ -2675,6 +2758,9 @@ components:
         test_block_name:
           type: string
           example: "Doubly Linked List Methods"
-        passing: 
+        status: 
+          type: string
+          example: "ready"
+        is_passing: 
           type: boolean
           example: True

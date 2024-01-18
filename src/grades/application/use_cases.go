@@ -74,10 +74,8 @@ func (useCases *GradesUseCases) SetCriteriaToGrade(dto *dtos.SetCriteriaToGradeD
 		return gradesErrors.LaboratoryDoesNotHaveRubricError{}
 	}
 
-	// Validate the rubric UUID
-	if *rubricUUID != dto.RubricUUID {
-		return gradesErrors.RubricDoesNotMatchLaboratoryError{}
-	}
+	// Set the rubric UUID
+	dto.RubricUUID = *rubricUUID
 
 	// Validate the objective belongs to the rubric
 	objectiveBelongsToRubric, err := useCases.RubricsRepository.DoesRubricHaveObjective(
@@ -133,4 +131,38 @@ func (useCases *GradesUseCases) GetStudentGradeInLaboratoryWithRubric(dto *dtos.
 	// Get the grade
 	grade, err := useCases.GradesRepository.GetStudentGradeInLaboratoryWithRubric(dto)
 	return grade, err
+}
+
+// SetCommentToGrade sets a comment to an student's grade
+func (useCases *GradesUseCases) SetCommentToGrade(dto *dtos.SetCommentToGradeDTO) error {
+	// Validate the teacher owns the laboratory
+	teacherOwnsLaboratory, err := useCases.LaboratoriesRepository.DoesTeacherOwnLaboratory(
+		dto.TeacherUUID,
+		dto.LaboratoryUUID,
+	)
+	if err != nil {
+		return err
+	}
+	if !teacherOwnsLaboratory {
+		return laboratoriesErrors.TeacherDoesNotOwnLaboratoryError{}
+	}
+
+	// Get the UUID of the current rubric of the laboratory
+	laboratoryUUID := dto.LaboratoryUUID
+	laboratoryInformation, err := useCases.LaboratoriesRepository.GetLaboratoryInformationByUUID(laboratoryUUID)
+	if err != nil {
+		return err
+	}
+
+	// Return an error if the laboratory does not have a rubric
+	rubricUUID := laboratoryInformation.RubricUUID
+	if rubricUUID == nil {
+		return gradesErrors.LaboratoryDoesNotHaveRubricError{}
+	}
+
+	// Set the rubric UUID
+	dto.RubricUUID = *rubricUUID
+
+	// Set the comment to the student's grade
+	return useCases.GradesRepository.SetCommentToGrade(dto)
 }

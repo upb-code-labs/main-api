@@ -1,0 +1,11 @@
+meta {
+  name: get-progress-of-student
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{BASE_URL}}/laboratories/{laboratory_uuid}/students/{student_uuid}/progress
+  body: none
+  auth: none
+}
