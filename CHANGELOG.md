@@ -1,3 +1,12 @@
+# [0.52.0](https://github.com/upb-code-labs/main-api/compare/v0.51.0...v0.52.0) (2024-01-18)
+
+
+### Features
+
+* Add comment to student grade ([#180](https://github.com/upb-code-labs/main-api/issues/180)) ([a8a07fb](https://github.com/upb-code-labs/main-api/commit/a8a07fb081417dfe9fcbf85d4559f19eade1f44d))
+
+
+
 # [0.51.0](https://github.com/upb-code-labs/main-api/compare/v0.50.0...v0.51.0) (2024-01-18)
 
 
@@ -34,15 +43,6 @@
 ### Features
 
 * Update profile ([#168](https://github.com/upb-code-labs/main-api/issues/168)) ([853556b](https://github.com/upb-code-labs/main-api/commit/853556bf178017be214437124f911c2c14360d57))
-
-
-
-## [0.47.1](https://github.com/upb-code-labs/main-api/compare/v0.47.0...v0.47.1) (2024-01-14)
-
-
-### Bug Fixes
-
-* Return test archive UUID when creating new test blocks ([#165](https://github.com/upb-code-labs/main-api/issues/165)) ([f69803b](https://github.com/upb-code-labs/main-api/commit/f69803b27e875c90790af1baa9d267088e47036e))
 
 
 
