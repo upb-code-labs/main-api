@@ -55,8 +55,8 @@ type StudentGradeInLaboratoryWithRubricDTO struct {
 
 // SelectedCriteriaInStudentGradeDTO data transfer object to obtain the selected criteria in a student's grade
 type SelectedCriteriaInStudentGradeDTO struct {
-	ObjectiveUUID string `json:"objective_uuid"`
-	CriteriaUUID  string `json:"criteria_uuid"`
+	ObjectiveUUID string  `json:"objective_uuid"`
+	CriteriaUUID  *string `json:"criteria_uuid"`
 }
 
 // SetCommentToGradeDTO data transfer object to parse the request of the endpoint
