@@ -1,3 +1,12 @@
+## [0.53.1](https://github.com/upb-code-labs/main-api/compare/v0.53.0...v0.53.1) (2024-01-19)
+
+
+### Bug Fixes
+
+* **grades:** Handle null value of criteria UUID field ([#185](https://github.com/upb-code-labs/main-api/issues/185)) ([7b8eb78](https://github.com/upb-code-labs/main-api/commit/7b8eb78afd5eb5845c12d393f693baaddf03c865))
+
+
+
 # [0.53.0](https://github.com/upb-code-labs/main-api/compare/v0.52.0...v0.53.0) (2024-01-18)
 
 
@@ -34,15 +43,6 @@
 * Endpont to get deatils about the grade of an specific student ([#176](https://github.com/upb-code-labs/main-api/issues/176)) ([6423355](https://github.com/upb-code-labs/main-api/commit/6423355c0b2af6cc5d2013a28672a73508f8737b))
 * Get students' grades in laboratory ([#171](https://github.com/upb-code-labs/main-api/issues/171)) ([3f0a07a](https://github.com/upb-code-labs/main-api/commit/3f0a07a03a2d586a8933ed007f98cd7cff3d3e51))
 * Set criteria to student grade ([#172](https://github.com/upb-code-labs/main-api/issues/172)) ([3137c64](https://github.com/upb-code-labs/main-api/commit/3137c64678f055fab41c25825e1e02da15f670f4))
-
-
-
-# [0.49.0](https://github.com/upb-code-labs/main-api/compare/v0.48.0...v0.49.0) (2024-01-15)
-
-
-### Features
-
-* Get user profile ([#169](https://github.com/upb-code-labs/main-api/issues/169)) ([97a2dc9](https://github.com/upb-code-labs/main-api/commit/97a2dc938e198d2c495f8a3140b072fdf242535a))
 
 
 
