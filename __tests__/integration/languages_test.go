@@ -34,7 +34,7 @@ func TestListSupportedLanguages(t *testing.T) {
 	}
 
 	// Check if the supported languages are included
-	c.Contains(languagesNames, "Java")
+	c.Contains(languagesNames, "Java JDK 17")
 }
 
 func GetFirstSupportedLanguage(cookie *http.Cookie) (language map[string]interface{}) {
