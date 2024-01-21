@@ -1,3 +1,12 @@
+## [0.53.2](https://github.com/upb-code-labs/main-api/compare/v0.53.1...v0.53.2) (2024-01-21)
+
+
+### Bug Fixes
+
+* Update db migrations ([#187](https://github.com/upb-code-labs/main-api/issues/187)) ([cc41cbc](https://github.com/upb-code-labs/main-api/commit/cc41cbcd90a1ae2619793fa97ecb08bad6dbd467))
+
+
+
 ## [0.53.1](https://github.com/upb-code-labs/main-api/compare/v0.53.0...v0.53.1) (2024-01-19)
 
 
@@ -31,18 +40,6 @@
 ### Features
 
 * Download submission archive ([#179](https://github.com/upb-code-labs/main-api/issues/179)) ([26691ab](https://github.com/upb-code-labs/main-api/commit/26691ab8b7d3970f54b583f851c30f06908c756e))
-
-
-
-# [0.50.0](https://github.com/upb-code-labs/main-api/compare/v0.49.0...v0.50.0) (2024-01-16)
-
-
-### Features
-
-* Download tests archive ([#177](https://github.com/upb-code-labs/main-api/issues/177)) ([8163f88](https://github.com/upb-code-labs/main-api/commit/8163f88b03804ea5f4141dc0d675eb922e5e4008))
-* Endpont to get deatils about the grade of an specific student ([#176](https://github.com/upb-code-labs/main-api/issues/176)) ([6423355](https://github.com/upb-code-labs/main-api/commit/6423355c0b2af6cc5d2013a28672a73508f8737b))
-* Get students' grades in laboratory ([#171](https://github.com/upb-code-labs/main-api/issues/171)) ([3f0a07a](https://github.com/upb-code-labs/main-api/commit/3f0a07a03a2d586a8933ed007f98cd7cff3d3e51))
-* Set criteria to student grade ([#172](https://github.com/upb-code-labs/main-api/issues/172)) ([3137c64](https://github.com/upb-code-labs/main-api/commit/3137c64678f055fab41c25825e1e02da15f670f4))
 
 
 

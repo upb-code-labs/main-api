@@ -6,53 +6,53 @@ DROP FUNCTION IF EXISTS update_created_by();
 DROP TRIGGER IF EXISTS set_created_by ON users;
 
 -- ## Indexes
-DROP INDEX IF EXISTS idx_class_users;
-
-DROP INDEX IF EXISTS idx_submissions;
-
-DROP INDEX IF EXISTS idx_grades;
-
-DROP INDEX IF EXISTS idx_grade_criteria;
-
-DROP INDEX IF EXISTS idx_blocks_index;
-
 DROP INDEX IF EXISTS idx_users_lower_fullName;
 
 DROP INDEX IF EXISTS idx_users_role;
 
+DROP INDEX IF EXISTS idx_blocks_index;
+
+DROP INDEX IF EXISTS idx_grade_criteria;
+
+DROP INDEX IF EXISTS idx_grades;
+
+DROP INDEX IF EXISTS idx_submissions;
+
+DROP INDEX IF EXISTS idx_class_users;
+
 -- ## Views
 DROP VIEW IF EXISTS summarized_grades; 
+
+DROP VIEW IF EXISTS criteria_owners;
+
+DROP VIEW IF EXISTS objectives_owners;
 
 DROP VIEW IF EXISTS students_progress_view;
 
 DROP VIEW IF EXISTS submissions_work_metadata;
 
-DROP VIEW IF EXISTS courses_with_color;
-
 DROP VIEW IF EXISTS courses_has_users_view;
+
+DROP VIEW IF EXISTS courses_with_color;
 
 DROP VIEW IF EXISTS users_with_creator;
 
-DROP VIEW IF EXISTS objectives_owners;
-
-DROP VIEW IF EXISTS criteria_owners;
-
 -- ## Tables
-DROP TABLE IF EXISTS archives;
-
 DROP TABLE IF EXISTS grade_has_criteria;
 
 DROP TABLE IF EXISTS grades;
 
 DROP TABLE IF EXISTS submissions;
 
-DROP TABLE IF EXISTS blocks_index;
-
 DROP TABLE IF EXISTS test_blocks;
 
 DROP TABLE IF EXISTS languages;
 
+DROP TABLE IF EXISTS archives;
+
 DROP TABLE IF EXISTS markdown_blocks;
+
+DROP TABLE IF EXISTS blocks_index;
 
 DROP TABLE IF EXISTS laboratories;
 
