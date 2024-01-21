@@ -425,12 +425,16 @@ INSERT
 INSERT INTO
   colors (hexadecimal)
 VALUES
-  ('#a78bfa'),
-  ('#34d399'),
-  ('#f87171'),
-  ('#22d3ee'),
-  ('#fbbf24'),
-  ('#f472b6');
+  ('#8b5cf6'),
+  ('#ef4444'),
+  ('#3b82f6'),
+  ('#ea580c'),
+  ('#ec4899'),
+  ('#16a34a'),
+  ('#f43f5e'),
+  ('#d946ef'),
+  ('#a855f7'),
+  ('#6366f1');
 
 -- ### Languages
 DO $$
@@ -455,7 +459,7 @@ BEGIN
     languages (name, template_archive_id)
   VALUES
     (
-      'Java',
+      'Java JDK 17',
       JAVA_DB_ARCHIVE_UUID
     );
 
