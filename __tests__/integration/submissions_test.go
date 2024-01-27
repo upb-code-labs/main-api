@@ -33,8 +33,8 @@ func TestSubmitSolutionToTestBlock(t *testing.T) {
 	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         "Submit solution to test block test - laboratory",
 		"course_uuid":  courseUUID,
-		"opening_date": "2023-12-01T08:00",
-		"due_date":     "3023-12-01T00:00",
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	c.Equal(http.StatusCreated, status)
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
