@@ -1,13 +1,16 @@
 package dtos
 
-import "mime/multipart"
+import (
+	"mime/multipart"
+	"time"
+)
 
 type CreateLaboratoryDTO struct {
 	TeacherUUID string
 	CourseUUID  string
 	Name        string
-	OpeningDate string
-	DueDate     string
+	OpeningDate time.Time
+	DueDate     time.Time
 }
 
 type GetLaboratoryDTO struct {
@@ -21,8 +24,8 @@ type UpdateLaboratoryDTO struct {
 	TeacherUUID    string
 	RubricUUID     *string
 	Name           string
-	OpeningDate    string
-	DueDate        string
+	OpeningDate    time.Time
+	DueDate        time.Time
 }
 
 type CreateMarkdownBlockDTO struct {

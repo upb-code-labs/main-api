@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -26,9 +27,10 @@ func GetValidator() *validator.Validate {
 			return hasLetter && hasNumber && hasSpecialCharacter
 		})
 
-		validate.RegisterValidation("ISO_date", func(fl validator.FieldLevel) bool {
+		validate.RegisterValidation("RFC3339_date", func(fl validator.FieldLevel) bool {
 			date := fl.Field().String()
-			return regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$`).MatchString(date)
+			_, err := time.Parse(time.RFC3339, date)
+			return err == nil
 		})
 	}
 
