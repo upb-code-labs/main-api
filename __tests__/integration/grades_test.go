@@ -27,14 +27,12 @@ func TestGradeStudentSubmission(t *testing.T) {
 
 	// Create a laboratory
 	laboratoryName := "Set criteria to student grade test - laboratory"
-	laboratoryOpeningDate := "2023-12-01T08:00"
-	laboratoryDueDate := "2023-12-01T12:00"
 
 	laboratoryCreationResponse, _ := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         laboratoryName,
 		"course_uuid":  courseUUID,
-		"opening_date": laboratoryOpeningDate,
-		"due_date":     laboratoryDueDate,
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
 
@@ -65,8 +63,8 @@ func TestGradeStudentSubmission(t *testing.T) {
 	UpdateLaboratory(cookie, laboratoryUUID, map[string]interface{}{
 		"rubric_uuid":  rubricUUID,
 		"name":         laboratoryName,
-		"opening_date": laboratoryOpeningDate,
-		"due_date":     laboratoryDueDate,
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 
 	// Add the student to the course

@@ -582,13 +582,11 @@ func TestGetCourseLaboratories(t *testing.T) {
 
 	// Create two laboratories
 	openLaboratoryName := "Get course laboratories test - open laboratory"
-	openLaboratoryOpeningDate := "2023-11-01T08:00"
-	openLaboratoryDueDate := "2023-11-07T00:00"
 	openLaboratoryCreationResponse, code := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         openLaboratoryName,
 		"course_uuid":  courseUUID,
-		"opening_date": openLaboratoryOpeningDate,
-		"due_date":     openLaboratoryDueDate,
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	c.Equal(http.StatusCreated, code)
 	openLaboratoryUUID := openLaboratoryCreationResponse["uuid"].(string)
@@ -597,8 +595,8 @@ func TestGetCourseLaboratories(t *testing.T) {
 	_, code = CreateLaboratory(cookie, map[string]interface{}{
 		"name":         futureLaboratoryName,
 		"course_uuid":  courseUUID,
-		"opening_date": "3023-11-01T08:00",
-		"due_date":     "3023-11-07T00:00",
+		"opening_date": "3023-11-01T12:00:00-05:00",
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	c.Equal(http.StatusCreated, code)
 
@@ -674,8 +672,8 @@ func TestGetCourseLaboratories(t *testing.T) {
 			laboratory := laboratories[0].(map[string]interface{})
 			c.Equal(openLaboratoryUUID, laboratory["uuid"])
 			c.Equal(openLaboratoryName, laboratory["name"])
-			c.Contains(laboratory["opening_date"], openLaboratoryOpeningDate)
-			c.Contains(laboratory["due_date"], openLaboratoryDueDate)
+			c.Equal(defaultLaboratoryOpeningDateUTC, laboratory["opening_date"])
+			c.Equal(defaultLaboratoryDueDateUTC, laboratory["due_date"])
 		}
 	}
 }

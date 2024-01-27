@@ -37,8 +37,8 @@ func (controller *LaboratoriesController) HandleCreateLaboratory(c *gin.Context)
 	}
 
 	// Validate due date is after opening date
-	openingDate, err1 := infrastructure.ParseISODate(request.OpeningDate)
-	dueDate, err2 := infrastructure.ParseISODate(request.DueDate)
+	openingDate, err1 := infrastructure.ParseRFCEDate(request.OpeningDate)
+	dueDate, err2 := infrastructure.ParseRFCEDate(request.DueDate)
 	if err1 != nil || err2 != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid date format",
@@ -156,8 +156,8 @@ func (controller *LaboratoriesController) HandleUpdateLaboratory(c *gin.Context)
 	}
 
 	// Validate due date is after opening date
-	openingDate, err1 := infrastructure.ParseISODate(request.OpeningDate)
-	dueDate, err2 := infrastructure.ParseISODate(request.DueDate)
+	openingDate, err1 := infrastructure.ParseRFCEDate(request.OpeningDate)
+	dueDate, err2 := infrastructure.ParseRFCEDate(request.DueDate)
 	if err1 != nil || err2 != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Invalid date format",

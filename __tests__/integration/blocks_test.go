@@ -26,8 +26,8 @@ func TestUpdateMarkdownBlockContent(t *testing.T) {
 	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         "Update markdown block content test - laboratory",
 		"course_uuid":  courseUUID,
-		"opening_date": "2023-12-01T08:00",
-		"due_date":     "3023-12-01T12:00",
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	c.Equal(http.StatusCreated, status)
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
@@ -87,8 +87,8 @@ func TestDeleteMarkdownBlock(t *testing.T) {
 	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         "Delete markdown block test - laboratory",
 		"course_uuid":  courseUUID,
-		"opening_date": "2023-12-01T08:00",
-		"due_date":     "3023-12-01T12:00",
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	c.Equal(http.StatusCreated, status)
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
@@ -132,8 +132,8 @@ func TestUpdateTestBlock(t *testing.T) {
 	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         "Update test block test - laboratory",
 		"course_uuid":  courseUUID,
-		"opening_date": "2023-12-01T08:00",
-		"due_date":     "3023-12-01T00:00",
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	c.Equal(http.StatusCreated, status)
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
@@ -229,8 +229,8 @@ func TestDeleteTestBlock(t *testing.T) {
 	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         "Delete test block test - laboratory",
 		"course_uuid":  courseUUID,
-		"opening_date": "2023-12-01T08:00",
-		"due_date":     "3023-12-01T00:00",
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	c.Equal(http.StatusCreated, status)
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
@@ -296,8 +296,8 @@ func TestSwapBlocks(t *testing.T) {
 	laboratoryCreationResponse, _ := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         "Swap blocks test - laboratory",
 		"course_uuid":  courseUUID,
-		"opening_date": "2023-12-01T08:00",
-		"due_date":     "3023-12-01T00:00",
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
 

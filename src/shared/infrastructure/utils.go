@@ -14,10 +14,9 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 )
 
-// ParseISODate parses a date in ISO format received from a date-time input
-func ParseISODate(date string) (time.Time, error) {
-	layout := "2006-01-02T15:04"
-	return time.Parse(layout, date)
+// ParseRFCEDate parses a date in RFC3339 format
+func ParseRFCEDate(date string) (time.Time, error) {
+	return time.Parse(time.RFC3339, date)
 }
 
 // ValidateMultipartFileHeader validates the multipart archive according to the

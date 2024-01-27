@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS rubrics (
 CREATE TABLE IF NOT EXISTS objectives (
   "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   "rubric_id" UUID NOT NULL REFERENCES rubrics(id) ON DELETE CASCADE,
-  "description" VARCHAR(510) NOT NULL,
+  "description" VARCHAR(510) NOT NULL, 
   "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS laboratories (
   "course_id" UUID NOT NULL REFERENCES courses(id),
   "rubric_id" UUID DEFAULT NULL REFERENCES rubrics(id) ON DELETE SET DEFAULT,
   "name" VARCHAR(255) NOT NULL,
-  "opening_date" TIMESTAMP NOT NULL,
-  "due_date" TIMESTAMP NOT NULL
+  "opening_date" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "due_date" TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS blocks_index (
