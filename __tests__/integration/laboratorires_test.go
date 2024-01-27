@@ -38,8 +38,8 @@ func TestCreateLaboratory(t *testing.T) {
 			Payload: map[string]interface{}{
 				"name":         "Create laboratory test - laboratory",
 				"course_uuid":  courseUUID,
-				"opening_date": "2023-12-01T08:00",
-				"due_date":     "3023-12-01T12:00",
+				"opening_date": defaultLaboratoryOpeningDate,
+				"due_date":     defaultLaboratoryDueDate,
 			},
 			ExpectedStatusCode: http.StatusCreated,
 		},
@@ -69,14 +69,12 @@ func TestGetLaboratoryByUUID(t *testing.T) {
 
 	// Create a laboratory
 	laboratoryName := "Get laboratory by uuid test - laboratory"
-	laboratoryOpeningDate := "2023-12-01T08:00"
-	laboratoryDueDate := "2023-12-01T12:00"
 
 	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         laboratoryName,
 		"course_uuid":  courseUUID,
-		"opening_date": laboratoryOpeningDate,
-		"due_date":     laboratoryDueDate,
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
 	c.Equal(http.StatusCreated, status)
@@ -124,8 +122,8 @@ func TestGetLaboratoryByUUID(t *testing.T) {
 			c.Equal(laboratoryUUID, getLaboratoryResponse["uuid"])
 			c.Equal(laboratoryName, getLaboratoryResponse["name"])
 			c.Nil(getLaboratoryResponse["rubric_uuid"])
-			c.Contains(getLaboratoryResponse["opening_date"], laboratoryOpeningDate)
-			c.Contains(getLaboratoryResponse["due_date"], laboratoryDueDate)
+			c.Equal(defaultLaboratoryOpeningDateUTC, getLaboratoryResponse["opening_date"])
+			c.Equal(defaultLaboratoryDueDateUTC, getLaboratoryResponse["due_date"])
 
 			// Validate blocks fields
 			c.Equal(0, len(getLaboratoryResponse["markdown_blocks"].([]interface{})))
@@ -135,8 +133,8 @@ func TestGetLaboratoryByUUID(t *testing.T) {
 			c.Equal(laboratoryUUID, getLaboratoryInformationResponse["uuid"])
 			c.Equal(laboratoryName, getLaboratoryInformationResponse["name"])
 			c.Nil(getLaboratoryInformationResponse["rubric_uuid"])
-			c.Contains(getLaboratoryInformationResponse["opening_date"], laboratoryOpeningDate)
-			c.Contains(getLaboratoryInformationResponse["due_date"], laboratoryDueDate)
+			c.Equal(defaultLaboratoryOpeningDateUTC, getLaboratoryInformationResponse["opening_date"])
+			c.Equal(defaultLaboratoryDueDateUTC, getLaboratoryInformationResponse["due_date"])
 		}
 	}
 }
@@ -158,14 +156,14 @@ func TestUpdateLaboratory(t *testing.T) {
 
 	// Create a laboratory
 	initialLaboratoryName := "Update laboratory test - laboratory"
-	laboratoryOpeningDate := "2023-12-01T08:00"
-	laboratoryDueDate := "2023-12-01T12:00"
+	defaultLaboratoryOpeningDate := defaultLaboratoryOpeningDate
+	defaultLaboratoryDueDate := defaultLaboratoryDueDate
 
 	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         initialLaboratoryName,
 		"course_uuid":  courseUUID,
-		"opening_date": laboratoryOpeningDate,
-		"due_date":     laboratoryDueDate,
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
 	c.Equal(http.StatusCreated, status)
@@ -186,8 +184,8 @@ func TestUpdateLaboratory(t *testing.T) {
 				"laboratory_uuid": "ea21f0a2-713f-427a-94d4-f541281fd654",
 				"rubric_uuid":     rubricUUID,
 				"name":            updatedLaboratoryName,
-				"opening_date":    laboratoryOpeningDate,
-				"due_date":        laboratoryDueDate,
+				"opening_date":    defaultLaboratoryOpeningDate,
+				"due_date":        defaultLaboratoryDueDate,
 			},
 			ExpectedStatusCode: http.StatusNotFound,
 		},
@@ -196,8 +194,8 @@ func TestUpdateLaboratory(t *testing.T) {
 				"laboratory_uuid": "not a uuid",
 				"rubric_uuid":     rubricUUID,
 				"name":            updatedLaboratoryName,
-				"opening_date":    laboratoryOpeningDate,
-				"due_date":        laboratoryDueDate,
+				"opening_date":    defaultLaboratoryOpeningDate,
+				"due_date":        defaultLaboratoryDueDate,
 			},
 			ExpectedStatusCode: http.StatusBadRequest,
 		},
@@ -206,8 +204,8 @@ func TestUpdateLaboratory(t *testing.T) {
 				"laboratory_uuid": laboratoryUUID,
 				"rubric_uuid":     rubricUUID,
 				"name":            updatedLaboratoryName,
-				"opening_date":    laboratoryOpeningDate,
-				"due_date":        laboratoryDueDate,
+				"opening_date":    defaultLaboratoryOpeningDate,
+				"due_date":        defaultLaboratoryDueDate,
 			},
 			ExpectedStatusCode: http.StatusNoContent,
 		},
@@ -224,8 +222,8 @@ func TestUpdateLaboratory(t *testing.T) {
 	c.Equal(http.StatusOK, status)
 	c.Equal(updatedLaboratoryName, getLaboratoryResponse["name"])
 	c.Equal(rubricUUID, getLaboratoryResponse["rubric_uuid"])
-	c.Contains(getLaboratoryResponse["opening_date"], laboratoryOpeningDate)
-	c.Contains(getLaboratoryResponse["due_date"], laboratoryDueDate)
+	c.Equal(defaultLaboratoryOpeningDateUTC, getLaboratoryResponse["opening_date"])
+	c.Equal(defaultLaboratoryDueDateUTC, getLaboratoryResponse["due_date"])
 	c.Equal(0, len(getLaboratoryResponse["markdown_blocks"].([]interface{})))
 	c.Equal(0, len(getLaboratoryResponse["test_blocks"].([]interface{})))
 }
@@ -249,8 +247,8 @@ func TestCreateMarkdownBlock(t *testing.T) {
 	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         "Create markdown block test - laboratory",
 		"course_uuid":  courseUUID,
-		"opening_date": "2023-12-01T08:00",
-		"due_date":     "3023-12-01T12:00",
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
 	c.Equal(http.StatusCreated, status)
@@ -319,8 +317,8 @@ func TestCreateTestBlock(t *testing.T) {
 	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         "Create test block test - laboratory",
 		"course_uuid":  courseUUID,
-		"opening_date": "2023-12-01T08:00",
-		"due_date":     "3023-12-01T00:00",
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
 	c.Equal(http.StatusCreated, status)
@@ -379,8 +377,8 @@ func TestGetStudentsProgress(t *testing.T) {
 	laboratoryCreationResponse, status := CreateLaboratory(cookie, map[string]interface{}{
 		"name":         "Get students progress test - laboratory",
 		"course_uuid":  courseUUID,
-		"opening_date": "2023-12-01T08:00",
-		"due_date":     "3023-12-01T00:00",
+		"opening_date": defaultLaboratoryOpeningDate,
+		"due_date":     defaultLaboratoryDueDate,
 	})
 	laboratoryUUID := laboratoryCreationResponse["uuid"].(string)
 	c.Equal(http.StatusCreated, status)

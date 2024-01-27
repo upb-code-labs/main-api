@@ -30,6 +30,12 @@ var (
 
 	secondRegisteredTeacherEmail string
 	secondRegisteredTeacherPass  string
+
+	defaultLaboratoryOpeningDate = "2023-12-01T12:00:00-05:00"
+	defaultLaboratoryDueDate     = "3023-12-01T12:00:00-05:00"
+
+	defaultLaboratoryOpeningDateUTC = "2023-12-01T17:00:00Z"
+	defaultLaboratoryDueDateUTC     = "3023-12-01T17:00:00Z"
 )
 
 type GenericTestCase struct {
