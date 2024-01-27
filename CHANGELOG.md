@@ -1,3 +1,12 @@
+## [0.53.3](https://github.com/upb-code-labs/main-api/compare/v0.53.2...v0.53.3) (2024-01-27)
+
+
+### Bug Fixes
+
+* Add timezonone to laboratories dates ([#190](https://github.com/upb-code-labs/main-api/issues/190)) ([1429c00](https://github.com/upb-code-labs/main-api/commit/1429c00ee2b26d522108d2b626402f56b4d82499))
+
+
+
 ## [0.53.2](https://github.com/upb-code-labs/main-api/compare/v0.53.1...v0.53.2) (2024-01-21)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Add comment to student grade ([#180](https://github.com/upb-code-labs/main-api/issues/180)) ([a8a07fb](https://github.com/upb-code-labs/main-api/commit/a8a07fb081417dfe9fcbf85d4559f19eade1f44d))
-
-
-
-# [0.51.0](https://github.com/upb-code-labs/main-api/compare/v0.50.0...v0.51.0) (2024-01-18)
-
-
-### Features
-
-* Download submission archive ([#179](https://github.com/upb-code-labs/main-api/issues/179)) ([26691ab](https://github.com/upb-code-labs/main-api/commit/26691ab8b7d3970f54b583f851c30f06908c756e))
 
 
 
