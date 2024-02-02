@@ -1,5 +1,5 @@
 # -- Stage 1 --
-FROM golang:1.21.4-alpine3.18 AS builder
+FROM docker.io/golang:1.21.6-alpine3.19 AS builder
 
 # Install upx
 WORKDIR /source
@@ -15,7 +15,7 @@ RUN go build -o dist/ ./...
 RUN upx dist/*
 
 # -- Stage 2 --
-FROM alpine:3.18 AS runner
+FROM docker.io/alpine:3.19.1 AS runner
 
 # Add non-root user
 RUN adduser -D -h /opt/codelabs -s /sbin/nologin codelabs
