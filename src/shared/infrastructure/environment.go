@@ -9,6 +9,7 @@ import (
 type EnvironmentSpec struct {
 	// Execution environment
 	ExecEnvironment string `split_words:"true" default:"development"`
+	IsInProduction  bool   `split_words:"true" default:"false"`
 
 	// Connection strings
 	DbConnectionString             string `split_words:"true" default:"postgres://postgres:postgres@localhost:5432/codelabs?sslmode=disable"`
@@ -37,6 +38,8 @@ func GetEnvironment() *EnvironmentSpec {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
+
+		environment.IsInProduction = environment.ExecEnvironment == "production"
 	}
 
 	return environment
