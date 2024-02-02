@@ -41,9 +41,9 @@ func (controllers *SessionControllers) HandleLogin(c *gin.Context) {
 	// Set the cookie
 	cookieName := "session"
 	cookieSecondsTTL := infrastructure.GetEnvironment().JwtExpirationHours * 60 * 60
-	cookieDomain := ""
+	cookieDomain := "" // By default, the cookie is only sent to the domain that set it
 	cookiePath := "/"
-	cookieSecure := false
+	cookieSecure := infrastructure.GetEnvironment().IsInProduction
 	cookieHttpOnly := true
 
 	c.SetCookie(
@@ -69,10 +69,10 @@ func (controllers *SessionControllers) HandleLogin(c *gin.Context) {
 func (controllers *SessionControllers) HandleLogout(c *gin.Context) {
 	// Delete the cookie
 	cookieName := "session"
-	cookieSecondsTTL := 0
+	cookieSecondsTTL := 0 // Expires automatically
 	cookieDomain := ""
 	cookiePath := "/"
-	cookieSecure := false
+	cookieSecure := infrastructure.GetEnvironment().IsInProduction
 	cookieHttpOnly := true
 
 	c.SetCookie(
