@@ -1,3 +1,12 @@
+## [0.53.4](https://github.com/upb-code-labs/main-api/compare/v0.53.3...v0.53.4) (2024-02-02)
+
+
+### Bug Fixes
+
+* **session:** Add secure attribute to cookies on production environment ([#196](https://github.com/upb-code-labs/main-api/issues/196)) ([b988f27](https://github.com/upb-code-labs/main-api/commit/b988f27ca700c18e90db41cb086f246e30cd5c36))
+
+
+
 ## [0.53.3](https://github.com/upb-code-labs/main-api/compare/v0.53.2...v0.53.3) (2024-01-27)
 
 
@@ -31,15 +40,6 @@
 ### Features
 
 * Get progress of specific student in laboratory ([#181](https://github.com/upb-code-labs/main-api/issues/181)) ([7cd435a](https://github.com/upb-code-labs/main-api/commit/7cd435a733b4cf58ca3a7eb74a02a755239664b3))
-
-
-
-# [0.52.0](https://github.com/upb-code-labs/main-api/compare/v0.51.0...v0.52.0) (2024-01-18)
-
-
-### Features
-
-* Add comment to student grade ([#180](https://github.com/upb-code-labs/main-api/issues/180)) ([a8a07fb](https://github.com/upb-code-labs/main-api/commit/a8a07fb081417dfe9fcbf85d4559f19eade1f44d))
 
 
 
