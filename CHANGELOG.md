@@ -1,3 +1,12 @@
+## [0.53.5](https://github.com/upb-code-labs/main-api/compare/v0.53.4...v0.53.5) (2024-02-05)
+
+
+### Bug Fixes
+
+* **submissions:** Add buffering header to `SSE` endpoint ([#199](https://github.com/upb-code-labs/main-api/issues/199)) ([530c812](https://github.com/upb-code-labs/main-api/commit/530c8123e794ab632115c458d49c4507b2834302))
+
+
+
 ## [0.53.4](https://github.com/upb-code-labs/main-api/compare/v0.53.3...v0.53.4) (2024-02-02)
 
 
@@ -31,15 +40,6 @@
 ### Bug Fixes
 
 * **grades:** Handle null value of criteria UUID field ([#185](https://github.com/upb-code-labs/main-api/issues/185)) ([7b8eb78](https://github.com/upb-code-labs/main-api/commit/7b8eb78afd5eb5845c12d393f693baaddf03c865))
-
-
-
-# [0.53.0](https://github.com/upb-code-labs/main-api/compare/v0.52.0...v0.53.0) (2024-01-18)
-
-
-### Features
-
-* Get progress of specific student in laboratory ([#181](https://github.com/upb-code-labs/main-api/issues/181)) ([7cd435a](https://github.com/upb-code-labs/main-api/commit/7cd435a733b4cf58ca3a7eb74a02a755239664b3))
 
 
 
